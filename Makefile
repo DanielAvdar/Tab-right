@@ -25,7 +25,7 @@ coverage:
 	uv run pytest --cov=tab_right --cov-report=xml
 
 mypy:
-	uv tool run mypy tab_right --config-file pyproject.toml
+	uv run mypy tab_right --config-file pyproject.toml
 
 doc:
 	uv run sphinx-build -M html docs/source docs/build/

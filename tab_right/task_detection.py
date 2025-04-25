@@ -33,7 +33,8 @@ def detect_task(y: pd.Series) -> "TaskType":
     # If float dtype, always regression
     if pd.api.types.is_float_dtype(y):
         return TaskType.REG
-    if pd.api.types.is_categorical_dtype(y) or y.dtype == object:
+    # Deprecated: Use isinstance instead of is_categorical_dtype
+    if isinstance(y.dtype, pd.CategoricalDtype) or y.dtype == object:
         if n_classes == 2:
             return TaskType.BINARY
         else:
