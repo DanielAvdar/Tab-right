@@ -1,7 +1,7 @@
 """Segmentation statistics for tab-right package."""
 
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 import pandas as pd
 
@@ -18,7 +18,7 @@ class SegmentationStats:
     feature: str
     metric: Optional[Callable] = None
 
-    def _prepare_segments(self, bins: int, category_limit: int) -> (pd.DataFrame, pd.Series):
+    def _prepare_segments(self, bins: int, category_limit: int) -> Tuple[pd.DataFrame, pd.Series]:
         df = self.df.copy()
         is_categorical = df[self.feature].nunique() <= category_limit
         if is_categorical:
@@ -28,7 +28,7 @@ class SegmentationStats:
         segments = df["_segment"].unique()
         return df, segments
 
-    def _probability_mode(self, df, segments):
+    def _probability_mode(self, df: pd.DataFrame, segments: pd.Series) -> pd.DataFrame:
         segment_scores = []
         for seg in segments:
             mask = df["_segment"] == seg
@@ -38,7 +38,7 @@ class SegmentationStats:
             segment_scores.append(score)
         return pd.DataFrame({"segment": segments, "score": segment_scores})
 
-    def _get_metric(self, y_true):
+    def _get_metric(self, y_true: pd.Series) -> Tuple[Callable, Optional[TaskType]]:
         if self.metric is not None:
             return self.metric, None
         task = detect_task(y_true)
@@ -55,7 +55,7 @@ class SegmentationStats:
 
             return r2_score, task
 
-    def _compute_segment_scores(self, df, segments, metric_func, task):
+    def _compute_segment_scores(self, df: pd.DataFrame, segments: pd.Series, metric_func: Callable, task: TaskType) -> pd.DataFrame:
         segment_scores = []
         for seg in segments:
             mask = df["_segment"] == seg
@@ -68,7 +68,7 @@ class SegmentationStats:
             segment_scores.append(score)
         return pd.DataFrame({"segment": segments, "score": segment_scores})
 
-    def run(self, bins: int = 10, category_limit: int = 20):
+    def run(self, bins: int = 10, category_limit: int = 20) -> pd.DataFrame:
         """Run segmentation statistics computation.
 
         Args:
@@ -88,7 +88,7 @@ class SegmentationStats:
         metric_func, task = self._get_metric(y_true)
         return self._compute_segment_scores(df, segments, metric_func, task)
 
-    def check(self):
+    def check(self) -> None:
         """Check the validity of label or probability columns in the DataFrame.
 
         Raises:
