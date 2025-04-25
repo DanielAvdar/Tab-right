@@ -14,7 +14,8 @@ sys.path.insert(0, os.path.abspath("../../"))
 
 
 project = "tab-right"
-# tab-right is a Python package for easy analysis of tabular data for inference models (ML and non-ML), focusing on model-agnostic diagnostics using predictions.
+# tab-right is a Python package for easy analysis of tabular data for inference models (ML and non-ML),
+# focusing on model-agnostic diagnostics using predictions.
 
 version = version("tab-right")
 release = version

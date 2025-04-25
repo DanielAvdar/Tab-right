@@ -1,7 +1,9 @@
+import pandas as pd
 import pytest
 from hypothesis import given, strategies as st
-import pandas as pd
-from tab_right.task_detection import detect_task, TaskType
+
+from tab_right.task_detection import TaskType, detect_task
+
 
 @given(st.lists(st.integers(min_value=0, max_value=1), min_size=2, max_size=100))
 def test_detect_task_binary(ints):
@@ -12,6 +14,7 @@ def test_detect_task_binary(ints):
             detect_task(s)
     else:
         assert detect_task(s) == TaskType.BINARY
+
 
 @given(st.lists(st.integers(min_value=0, max_value=9), min_size=2, max_size=100))
 def test_detect_task_multiclass(ints):
@@ -26,6 +29,7 @@ def test_detect_task_multiclass(ints):
     else:
         assert detect_task(s) == TaskType.CLASS
 
+
 @given(st.lists(st.floats(allow_nan=False, allow_infinity=False), min_size=11, max_size=100))
 def test_detect_task_regression(floats):
     # More than 10 unique values
@@ -36,9 +40,10 @@ def test_detect_task_regression(floats):
     else:
         assert detect_task(s) == TaskType.REG
 
-@given(st.lists(st.sampled_from(['a', 'b', 'c', 'd', 'e']), min_size=2, max_size=100))
+
+@given(st.lists(st.sampled_from(["a", "b", "c", "d", "e"]), min_size=2, max_size=100))
 def test_detect_task_categorical_class(strings):
-    s = pd.Series(strings, dtype='category')
+    s = pd.Series(strings, dtype="category")
     n_unique = len(set(strings))
     if n_unique == 1:
         with pytest.raises(ValueError):

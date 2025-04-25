@@ -1,15 +1,17 @@
-"""Tab-right package init."""
+"""Segmentation statistics for tab-right package."""
 
 from dataclasses import dataclass
+from typing import Callable, List, Optional, Union
 
 import pandas as pd
-from sklearn.metrics import accuracy_score, mean_squared_error, r2_score, roc_auc_score, balanced_accuracy_score
-from typing import Optional, Callable, Union, List
-from tab_right.task_detection import detect_task, TaskType
+
+from tab_right.task_detection import TaskType, detect_task
 
 
 @dataclass
 class SegmentationStats:
+    """Compute statistics for segments in a DataFrame based on features, labels, and predictions."""
+
     df: pd.DataFrame
     label_col: Union[str, List[str]]
     pred_col: str
@@ -42,12 +44,15 @@ class SegmentationStats:
         task = detect_task(y_true)
         if task == TaskType.BINARY:
             from sklearn.metrics import roc_auc_score
+
             return roc_auc_score, task
         elif task == TaskType.CLASS:
             from sklearn.metrics import balanced_accuracy_score
+
             return balanced_accuracy_score, task
         else:
             from sklearn.metrics import r2_score
+
             return r2_score, task
 
     def _compute_segment_scores(self, df, segments, metric_func, task):
@@ -64,6 +69,16 @@ class SegmentationStats:
         return pd.DataFrame({"segment": segments, "score": segment_scores})
 
     def run(self, bins: int = 10, category_limit: int = 20):
+        """Run segmentation statistics computation.
+
+        Args:
+            bins (int): Number of bins for continuous features.
+            category_limit (int): Max unique values for categorical treatment.
+
+        Returns:
+            pd.DataFrame: Segment statistics.
+
+        """
         df, segments = self._prepare_segments(bins, category_limit)
         # If label_col is a list, treat as probabilities, just return mean per segment
         if isinstance(self.label_col, list):
@@ -74,6 +89,12 @@ class SegmentationStats:
         return self._compute_segment_scores(df, segments, metric_func, task)
 
     def check(self):
+        """Check the validity of label or probability columns in the DataFrame.
+
+        Raises:
+            ValueError: If NaN or invalid probability sums are found.
+
+        """
         if isinstance(self.label_col, list):
             # Check for NaN in any probability column
             if self.df[self.label_col].isnull().any().any():

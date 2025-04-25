@@ -1,12 +1,31 @@
+"""Task detection utilities for tab-right package."""
+
 from enum import Enum
+
 import pandas as pd
 
+
 class TaskType(Enum):
+    """Enumeration of possible task types for model evaluation."""
+
     BINARY = "binary"
     CLASS = "class"
     REG = "reg"
 
+
 def detect_task(y: pd.Series) -> "TaskType":
+    """Detect the type of task (binary, class, regression) based on the label series y.
+
+    Args:
+        y (pd.Series): The label series to analyze.
+
+    Returns:
+        TaskType: The detected task type.
+
+    Raises:
+        ValueError: If the label column has only one unique value and the task cannot be inferred.
+
+    """
     unique = set(y.dropna().unique())
     n_classes = len(unique)
     if n_classes == 1:
