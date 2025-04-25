@@ -72,3 +72,16 @@ class SegmentationStats:
         y_true = df[self.label_col]
         metric_func, task = self._get_metric(y_true)
         return self._compute_segment_scores(df, segments, metric_func, task)
+
+    def check(self):
+        if isinstance(self.label_col, list):
+            # Check for NaN in any probability column
+            if self.df[self.label_col].isnull().any().any():
+                raise ValueError("Probability columns contain NaN values.")
+            # Check if probabilities sum to 1 (row-wise)
+            prob_sums = self.df[self.label_col].sum(axis=1)
+            if not ((prob_sums - 1).abs() < 1e-6).all():
+                raise ValueError("Probabilities in label columns do not sum to 1 for all rows.")
+        else:
+            if self.df[self.label_col].isnull().any():
+                raise ValueError("Label column contains NaN values.")

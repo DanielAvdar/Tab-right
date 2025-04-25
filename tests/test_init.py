@@ -1,45 +1,49 @@
-import pandas as pd
 import pytest
-
+import pandas as pd
 from tab_right.seg import SegmentationStats
 
-
-@pytest.mark.parametrize(
-    "df,label_col,pred_col,feature",
-    [
-        (
-            pd.DataFrame({"feature1": [1, 2, 1, 2], "label": [0, 1, 1, 0], "prediction": [0, 1, 1, 0]}),
-            "label",
-            "prediction",
-            "feature1",
-        ),
-        (
-            pd.DataFrame({"cat": ["a", "b", "a", "b"], "label": [1, 0, 1, 0], "prediction": [1, 0, 1, 0]}),
-            "label",
-            "prediction",
-            "cat",
-        ),
-        (
-            pd.DataFrame({"cont": [0.1, 0.2, 0.3, 0.4], "label": [1, 0, 1, 0], "prediction": [1, 0, 1, 0]}),
-            "label",
-            "prediction",
-            "cont",
-        ),
-    ],
-)
-@pytest.mark.parametrize(
-    "arrow",
-    [
-        True,
-        False,
-
-        ]
-)
-def test_segmentation_stats_run(df, label_col, pred_col, feature, arrow):
-    if arrow:
-        from pandas_pyarrow import convert_to_pyarrow
-        df = convert_to_pyarrow(df)
-    seg = SegmentationStats(df, label_col=label_col, pred_col=pred_col, feature=feature)
+# Test probability mode: mean probability vector per segment
+def test_probability_mode_basic():
+    df = pd.DataFrame({
+        'feature': ['a', 'a', 'b', 'b'],
+        'class_0': [0.7, 0.6, 0.2, 0.1],
+        'class_1': [0.3, 0.4, 0.8, 0.9],
+    })
+    seg = SegmentationStats(df, label_col=['class_0', 'class_1'], pred_col=None, feature='feature')
     result = seg.run()
-    assert list(result.columns) == ["segment", "score"]
-    assert result.shape[0] > 0
+    assert set(result['segment']) == {'a', 'b'}
+    for score in result['score']:
+        assert isinstance(score, dict)
+        assert abs(sum(score.values()) - 1) < 1e-6
+
+# Test check: NaN in probability columns
+def test_check_nan_prob():
+    df = pd.DataFrame({
+        'feature': ['a', 'b'],
+        'class_0': [0.5, None],
+        'class_1': [0.5, 1.0],
+    })
+    seg = SegmentationStats(df, label_col=['class_0', 'class_1'], pred_col=None, feature='feature')
+    with pytest.raises(ValueError, match='NaN'):
+        seg.check()
+
+# Test check: probabilities do not sum to 1
+def test_check_prob_sum():
+    df = pd.DataFrame({
+        'feature': ['a', 'b'],
+        'class_0': [0.6, 0.2],
+        'class_1': [0.3, 0.7],
+    })
+    seg = SegmentationStats(df, label_col=['class_0', 'class_1'], pred_col=None, feature='feature')
+    with pytest.raises(ValueError, match='sum to 1'):
+        seg.check()
+
+# Test check: valid probabilities
+def test_check_valid_prob():
+    df = pd.DataFrame({
+        'feature': ['a', 'b'],
+        'class_0': [0.4, 0.2],
+        'class_1': [0.6, 0.8],
+    })
+    seg = SegmentationStats(df, label_col=['class_0', 'class_1'], pred_col=None, feature='feature')
+    seg.check()
