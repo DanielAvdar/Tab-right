@@ -1,7 +1,6 @@
 [project]
 name = "tab-right"
-dynamic = ["version"]
-description = ""
+description = "A Python package for easy analysis of tabular data for inference models, focusing on model-agnostic diagnostics using predictions."
 authors = [
     { name = "DanielAvdar", email = "66269169+DanielAvdar@users.noreply.github.com" },
 ]
@@ -47,8 +46,6 @@ source = "."
 [tool.hatch.build.targets.wheel]
 only-include = ["tab_right", ]
 source = "."
-
-
 
 [build-system]
 requires = ["hatchling", "uv-dynamic-versioning"]
