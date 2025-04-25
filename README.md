@@ -1,5 +1,5 @@
-[//]: # todo replace python-temp late with your package name
-[//]: # todo replace DanielAvdar with your github username
+[//]: # tab-right
+[//]: # DanielAvdar
 # This is a template for creating a Python package repository for open source projects.
 
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/python-template)](https://pypi.org/project/python-template/)

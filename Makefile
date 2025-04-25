@@ -22,10 +22,10 @@ check:
 	uv run pre-commit run --all-files
 
 coverage:
-	uv run pytest --cov=my_pkg --cov-report=xml # todo: change my_pkg to the actual package name
+	uv run pytest --cov=tab_right --cov-report=xml
 
 mypy:
-	uv tool run mypy my_pkg --config-file pyproject.toml # todo: chanege my_pkg to the actual package name
+	uv tool run mypy tab_right --config-file pyproject.toml
 
 doc:
 	uv run sphinx-build -M html docs/source docs/build/

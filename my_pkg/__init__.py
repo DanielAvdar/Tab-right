@@ -1,5 +1,5 @@
-"""Demo init."""  # todo: change to package description.
+"""Tab-right package init."""
 
 from importlib.metadata import version
 
-__version__ = version("my-pkg")  # todo: replace with your package name
+__version__ = version("tab-right")
