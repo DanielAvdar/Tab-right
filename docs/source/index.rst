@@ -16,3 +16,28 @@ documentation for details.
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+SegmentationStats
+==================
+
+The `SegmentationStats` class provides segmentation statistics for tabular data based on model predictions.
+
+Usage Example
+-------------
+
+```python
+import pandas as pd
+from tab_right.seg import SegmentationStats
+
+data = pd.DataFrame({
+    'feature1': [1, 2, 1, 2],
+    'label': [0, 1, 1, 0],
+    'prediction': [0, 1, 1, 0]
+})
+
+stats = SegmentationStats(data, label_col='label', pred_col='prediction')
+result = stats.run()
+print(result)
+```
+
+This will output a DataFrame with segmentation statistics such as count, mean label, mean prediction, std of prediction, and accuracy (if the label is binary).
