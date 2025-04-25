@@ -18,15 +18,24 @@ class SegmentationStats:
     def _detect_task_and_metric(self, y_true) -> (str, Callable):
         unique = set(y_true.dropna().unique())
         n_classes = len(unique)
+        # Special case: only one unique value
+        if n_classes == 1:
+            raise ValueError("Label column has only one unique value; cannot infer task.")
         if self.metric is not None:
             return self._infer_task_from_metric(self.metric), self.metric
-        # Auto-detect
-        if n_classes == 2 and unique.issubset({0, 1}):
-            return 'binary', roc_auc_score  # Default: AUC for binary
-        elif n_classes > 2 and all(isinstance(x, (int, float)) for x in unique):
-            return 'multiclass', balanced_accuracy_score  # Suggest balanced accuracy for multiclass
+        # If categorical dtype, always classification
+        if pd.api.types.is_categorical_dtype(y_true) or y_true.dtype == object:
+            if n_classes == 2:
+                return 'binary', roc_auc_score
+            else:
+                return 'multiclass', balanced_accuracy_score
+        # If numeric
+        if n_classes == 2:
+            return 'binary', roc_auc_score
+        elif n_classes <= 10:
+            return 'multiclass', balanced_accuracy_score
         else:
-            return 'regression', r2_score  # Default: R2 for regression
+            return 'regression', r2_score
 
     def _infer_task_from_metric(self, metric: Callable) -> str:
         # Heuristic: check function name
@@ -40,37 +49,24 @@ class SegmentationStats:
         else:
             return 'unknown'
 
-    def run(self, bins: int = 10, category_limit: int = 20) -> pd.DataFrame:
-        """Returns a DataFrame with segmentation statistics for the chosen feature:
-        - count
-        - mean label
-        - mean prediction
-        - std of prediction
-        - accuracy (if label is binary)
-        - error (MSE or accuracy, depending on task).
-        """
+    def run(self, bins: int = 10, category_limit: int = 20):
         df = self.df.copy()
         is_categorical = df[self.feature].nunique() <= category_limit
         if is_categorical:
             df["_segment"] = df[self.feature]
         else:
             df["_segment"] = pd.qcut(df[self.feature], q=bins, duplicates="drop")
-        grouped = df.groupby("_segment")
-        result = grouped.agg(
-            count=(self.label_col, "count"),
-            mean_label=(self.label_col, "mean"),
-            mean_pred=(self.pred_col, "mean"),
-            std_pred=(self.pred_col, "std"),
-        ).reset_index()
+        segments = df["_segment"].unique()
         y_true = df[self.label_col]
         task, metric_func = self._detect_task_and_metric(y_true)
-        if task == 'binary':
-            try:
-                result['auc'] = grouped.apply(lambda g: metric_func(g[self.label_col], g[self.pred_col])).values
-            except Exception:
-                result['auc'] = None
-        elif task == 'multiclass':
-            result['balanced_accuracy'] = grouped.apply(lambda g: metric_func(g[self.label_col], g[self.pred_col].round())).values
-        else:
-            result['r2'] = grouped.apply(lambda g: metric_func(g[self.label_col], g[self.pred_col])).values
-        return result
+        segment_scores = []
+        for seg in segments:
+            mask = df["_segment"] == seg
+            y_t = df.loc[mask, self.label_col]
+            y_p = df.loc[mask, self.pred_col]
+            if task == "multiclass":
+                score = metric_func(y_t, y_p.round())
+            else:
+                score = metric_func(y_t, y_p)
+            segment_scores.append(score)
+        return pd.DataFrame({"segment": segments, "score": segment_scores})

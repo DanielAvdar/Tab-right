@@ -41,13 +41,5 @@ def test_segmentation_stats_run(df, label_col, pred_col, feature, arrow):
         df = convert_to_pyarrow(df)
     seg = SegmentationStats(df, label_col=label_col, pred_col=pred_col, feature=feature)
     result = seg.run()
-    assert "count" in result.columns
-    assert "mean_label" in result.columns
-    assert "mean_pred" in result.columns
-    assert "std_pred" in result.columns
-    # Only check accuracy if binary
-    if set(df[label_col].dropna().unique()).issubset({0, 1}):
-        assert "accuracy" in result.columns or "mse" not in result.columns
-    else:
-        assert "mse" in result.columns
-    assert result.shape[0] == df[feature].nunique() or result.shape[0] > 0
+    assert list(result.columns) == ["segment", "score"]
+    assert result.shape[0] > 0
