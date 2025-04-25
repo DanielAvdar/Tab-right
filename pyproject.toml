@@ -61,6 +61,9 @@ build-backend = "hatchling.build"
 source = "uv-dynamic-versioning"
 
 [project.optional-dependencies]
+plotly = [
+    "plotly"
+]
 
 [tool.ruff]
 line-length = 120
