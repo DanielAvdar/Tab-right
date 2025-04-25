@@ -2,16 +2,24 @@ import pytest
 import pandas as pd
 from tab_right.seg import SegmentationStats
 
-# Test probability mode: mean probability vector per segment
-def test_probability_mode_basic():
-    df = pd.DataFrame({
+import pytest
+
+@pytest.mark.parametrize("df", [
+    pd.DataFrame({
         'feature': ['a', 'a', 'b', 'b'],
         'class_0': [0.7, 0.6, 0.2, 0.1],
         'class_1': [0.3, 0.4, 0.8, 0.9],
-    })
+    }),
+    pd.DataFrame({
+        'feature': ['x', 'x', 'y', 'y'],
+        'class_0': [0.5, 0.5, 0.3, 0.3],
+        'class_1': [0.5, 0.5, 0.7, 0.7],
+    }),
+])
+def test_probability_mode_basic(df):
     seg = SegmentationStats(df, label_col=['class_0', 'class_1'], pred_col=None, feature='feature')
     result = seg.run()
-    assert set(result['segment']) == {'a', 'b'}
+    assert set(result['segment']) == set(df['feature'].unique())
     for score in result['score']:
         assert isinstance(score, dict)
         assert abs(sum(score.values()) - 1) < 1e-6
