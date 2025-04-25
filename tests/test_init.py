@@ -1,7 +1,8 @@
 import pandas as pd
 import pytest
 
-from tab_right.seg import CategoricalSegmentationStats, ContinuousSegmentationStats
+from tab_right.segmentations.categorical import CategoricalSegmentationStats
+from tab_right.segmentations.continuous import ContinuousSegmentationStats
 
 
 @pytest.mark.parametrize(
