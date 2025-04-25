@@ -1,9 +1,28 @@
+"""Segmentation statistics utilities for tab-right package."""
+
 from dataclasses import dataclass
 from typing import Callable, List, Union
 import pandas as pd
 
 @dataclass
 class SegmentationStats:
+    """SegmentationStats provides vectorized segmentation and scoring for tabular data.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The input DataFrame.
+    label_col : str or list of str
+        The label column(s) to use for scoring.
+    pred_col : str
+        The prediction column to use for scoring.
+    feature : str
+        The feature column to segment by.
+    metric : Callable
+        The metric function to use for scoring.
+    is_categorical : bool, default False
+        Whether to treat the feature as categorical (True) or continuous (False).
+    """
     df: pd.DataFrame
     label_col: Union[str, List[str]]
     pred_col: str
@@ -16,23 +35,50 @@ class SegmentationStats:
             return self.df[self.feature]
         return pd.qcut(self.df[self.feature], q=bins, duplicates="drop")
 
-    def run(self, bins: int = 10) -> pd.DataFrame:
-        segments = self._prepare_segments(bins)
+    def _add_segments_column(self, bins: int = 10) -> pd.DataFrame:
         df = self.df.copy()
-        df["_segment"] = segments
-        if isinstance(self.label_col, list):
-            # Vectorized probability mode
-            prob_means = df.groupby("_segment")[self.label_col].mean()
-            prob_means = prob_means.reset_index().rename(columns={"_segment": "segment"})
-            prob_means["score"] = prob_means[self.label_col].apply(lambda row: row.to_dict(), axis=1)
-            return prob_means[["segment", "score"]]
-        # Vectorized metric application
+        df["_segment"] = self._prepare_segments(bins)
+        return df
+
+    def _run_probability_mode(self, df: pd.DataFrame) -> pd.DataFrame:
+        prob_means = df.groupby("_segment")[self.label_col].mean()
+        prob_means = prob_means.reset_index().rename(columns={"_segment": "segment"})
+        prob_means["score"] = prob_means[self.label_col].apply(lambda row: row.to_dict(), axis=1)
+        return prob_means[["segment", "score"]]
+
+    def _run_metric_mode(self, df: pd.DataFrame) -> pd.DataFrame:
         def score_func(group):
             return float(self.metric(group[self.label_col], group[self.pred_col]))
+
         scores = df.groupby("_segment").apply(score_func)
         return pd.DataFrame({"segment": scores.index, "score": scores.values})
 
+    def run(self, bins: int = 10) -> pd.DataFrame:
+        """Segment the data and compute scores for each segment.
+
+        Parameters
+        ----------
+        bins : int, default 10
+            Number of bins for continuous segmentation.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame with segment and score columns.
+        """
+        df = self._add_segments_column(bins)
+        if isinstance(self.label_col, list):
+            return self._run_probability_mode(df)
+        return self._run_metric_mode(df)
+
     def check(self) -> None:
+        """Check for NaN and probability sum errors in the label columns.
+
+        Raises
+        ------
+        ValueError
+            If NaN or invalid probability sums are found.
+        """
         if isinstance(self.label_col, list):
             if self.df[self.label_col].isnull().values.any():
                 raise ValueError("Probability columns contain NaN values.")
