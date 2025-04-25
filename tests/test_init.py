@@ -27,7 +27,18 @@ from tab_right.seg import SegmentationStats
         ),
     ],
 )
-def test_segmentation_stats_run(df, label_col, pred_col, feature):
+@pytest.mark.parametrize(
+    "arrow",
+    [
+        True,
+        False,
+
+        ]
+)
+def test_segmentation_stats_run(df, label_col, pred_col, feature, arrow):
+    if arrow:
+        from pandas_pyarrow import convert_to_pyarrow
+        df = convert_to_pyarrow(df)
     seg = SegmentationStats(df, label_col=label_col, pred_col=pred_col, feature=feature)
     result = seg.run()
     assert "count" in result.columns
