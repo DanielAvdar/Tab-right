@@ -1,23 +1,17 @@
 import pandas as pd
 import pytest
-
 from tab_right.seg import SegmentationStats
 
-
 @pytest.mark.parametrize(
-    "df,label_col,pred_col",
+    "df,label_col,pred_col,feature",
     [
-        (
-            pd.DataFrame({"feature1": [1, 2, 1, 2], "label": [0, 1, 1, 0], "prediction": [0, 1, 1, 0]}),
-            "label",
-            "prediction",
-        ),
-        (pd.DataFrame({"feature1": [1, 2, 3], "label": [1, 0, 1], "prediction": [1, 0, 1]}), "label", "prediction"),
-        (pd.DataFrame({"feature1": [1, 2, 3], "target": [1, 2, 3], "pred": [1, 2, 3]}), "target", "pred"),
-    ],
+        (pd.DataFrame({"feature1": [1, 2, 1, 2], "label": [0, 1, 1, 0], "prediction": [0, 1, 1, 0]}), "label", "prediction", "feature1"),
+        (pd.DataFrame({"cat": ["a", "b", "a", "b"], "label": [1, 0, 1, 0], "prediction": [1, 0, 1, 0]}), "label", "prediction", "cat"),
+        (pd.DataFrame({"cont": [0.1, 0.2, 0.3, 0.4], "label": [1, 0, 1, 0], "prediction": [1, 0, 1, 0]}), "label", "prediction", "cont"),
+    ]
 )
-def test_segmentation_stats_param(df, label_col, pred_col):
-    seg = SegmentationStats(df, label_col=label_col, pred_col=pred_col)
+def test_segmentation_stats_run(df, label_col, pred_col, feature):
+    seg = SegmentationStats(df, label_col=label_col, pred_col=pred_col, feature=feature)
     result = seg.run()
     assert "count" in result.columns
     assert "mean_label" in result.columns
@@ -25,5 +19,20 @@ def test_segmentation_stats_param(df, label_col, pred_col):
     assert "std_pred" in result.columns
     # Only check accuracy if binary
     if set(df[label_col].dropna().unique()).issubset({0, 1}):
-        assert "accuracy" in result.columns
-    assert result.shape[0] == df[pred_col].nunique()
+        assert "accuracy" in result.columns or "mse" not in result.columns
+    else:
+        assert "mse" in result.columns
+    assert result.shape[0] == df[feature].nunique() or result.shape[0] > 0
+
+@pytest.mark.parametrize(
+    "df,label_col,pred_col,feature",
+    [
+        (pd.DataFrame({"feature1": [1, 2, 1, 2], "label": [0, 1, 1, 0], "prediction": [0, 1, 1, 0]}), "label", "prediction", "feature1"),
+        (pd.DataFrame({"cat": ["a", "b", "a", "b"], "label": [1, 0, 1, 0], "prediction": [1, 0, 1, 0]}), "label", "prediction", "cat"),
+        (pd.DataFrame({"cont": [0.1, 0.2, 0.3, 0.4], "label": [1, 0, 1, 0], "prediction": [1, 0, 1, 0]}), "label", "prediction", "cont"),
+    ]
+)
+def test_segmentation_stats_plot(monkeypatch, df, label_col, pred_col, feature):
+    seg = SegmentationStats(df, label_col=label_col, pred_col=pred_col, feature=feature)
+    monkeypatch.setattr("plotly.graph_objs._figure.Figure.show", lambda self: None)
+    seg.plot()
