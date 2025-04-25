@@ -2,7 +2,9 @@
 
 from dataclasses import dataclass
 from typing import Callable, List, Union
+
 import pandas as pd
+
 
 @dataclass
 class SegmentationStats:
@@ -22,7 +24,9 @@ class SegmentationStats:
         The metric function to use for scoring.
     is_categorical : bool, default False
         Whether to treat the feature as categorical (True) or continuous (False).
+
     """
+
     df: pd.DataFrame
     label_col: Union[str, List[str]]
     pred_col: str
@@ -47,7 +51,7 @@ class SegmentationStats:
         return prob_means[["segment", "score"]]
 
     def _run_metric_mode(self, df: pd.DataFrame) -> pd.DataFrame:
-        def score_func(group):
+        def score_func(group: pd.DataFrame) -> float:
             return float(self.metric(group[self.label_col], group[self.pred_col]))
 
         scores = df.groupby("_segment").apply(score_func)
@@ -65,6 +69,7 @@ class SegmentationStats:
         -------
         pd.DataFrame
             DataFrame with segment and score columns.
+
         """
         df = self._add_segments_column(bins)
         if isinstance(self.label_col, list):
@@ -78,6 +83,7 @@ class SegmentationStats:
         ------
         ValueError
             If NaN or invalid probability sums are found.
+
         """
         if isinstance(self.label_col, list):
             if self.df[self.label_col].isnull().values.any():
