@@ -1,39 +1,40 @@
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Union
 import pandas as pd
-from tab_right.task_detection import TaskType
 
 @dataclass
-class BaseSegmentationStats:
+class SegmentationStats:
     df: pd.DataFrame
     label_col: Union[str, List[str]]
     pred_col: str
     feature: str
     metric: Callable
-    task: TaskType
+    is_categorical: bool = False  # True for categorical, False for continuous
 
-    def _probability_mode(self, df: pd.DataFrame, segments: pd.Series) -> pd.DataFrame:
-        segment_scores = []
-        for seg in segments:
-            mask = df["_segment"] == seg
-            y_t = df.loc[mask, self.label_col]
-            score = y_t.mean().to_dict()
-            segment_scores.append(score)
-        return pd.DataFrame({"segment": segments, "score": segment_scores})
+    def _prepare_segments(self, bins: int = 10) -> pd.Series:
+        if self.is_categorical:
+            return self.df[self.feature]
+        return pd.qcut(self.df[self.feature], q=bins, duplicates="drop")
 
-    def _compute_segment_scores(self, df: pd.DataFrame, segments: pd.Series) -> pd.DataFrame:
-        def score_func(group: pd.DataFrame):
-            y_t = group[self.label_col]
-            y_p = group[self.pred_col]
-            return float(self.metric(y_t, y_p))
+    def run(self, bins: int = 10) -> pd.DataFrame:
+        segments = self._prepare_segments(bins)
+        df = self.df.copy()
+        df["_segment"] = segments
+        if isinstance(self.label_col, list):
+            # Vectorized probability mode
+            prob_means = df.groupby("_segment")[self.label_col].mean()
+            prob_means = prob_means.reset_index().rename(columns={"_segment": "segment"})
+            prob_means["score"] = prob_means[self.label_col].apply(lambda row: row.to_dict(), axis=1)
+            return prob_means[["segment", "score"]]
+        # Vectorized metric application
+        def score_func(group):
+            return float(self.metric(group[self.label_col], group[self.pred_col]))
         scores = df.groupby("_segment").apply(score_func)
-        scores = scores.reset_index()
-        scores.columns = ["segment", "score"]
-        return scores
+        return pd.DataFrame({"segment": scores.index, "score": scores.values})
 
     def check(self) -> None:
         if isinstance(self.label_col, list):
-            if self.df[self.label_col].isnull().any().any():
+            if self.df[self.label_col].isnull().values.any():
                 raise ValueError("Probability columns contain NaN values.")
             prob_sums = self.df[self.label_col].sum(axis=1)
             if not ((prob_sums - 1).abs() < 1e-6).all():

@@ -1,5 +1,4 @@
-from tab_right.segmentations.categorical import CategoricalSegmentationStats
-from tab_right.segmentations.continuous import ContinuousSegmentationStats
+from tab_right.segmentations.base import SegmentationStats
 from tab_right.task_detection import TaskType
 import pandas as pd
 import pytest
@@ -22,7 +21,7 @@ from sklearn.metrics import accuracy_score, r2_score
     ],
 )
 def test_probability_mode_basic(df):
-    seg = CategoricalSegmentationStats(df, label_col=["class_0", "class_1"], pred_col=None, feature="feature", metric=accuracy_score, task=TaskType.CLASS)
+    seg = SegmentationStats(df, label_col=["class_0", "class_1"], pred_col=None, feature="feature", metric=accuracy_score, is_categorical=True)
     result = seg.run()
     assert set(result["segment"]) == set(df["feature"].unique())
     for score in result["score"]:
@@ -37,7 +36,7 @@ def test_check_nan_prob():
         "class_0": [0.5, None],
         "class_1": [0.5, 1.0],
     })
-    seg = CategoricalSegmentationStats(df, label_col=["class_0", "class_1"], pred_col=None, feature="feature", metric=accuracy_score, task=TaskType.CLASS)
+    seg = SegmentationStats(df, label_col=["class_0", "class_1"], pred_col=None, feature="feature", metric=accuracy_score, is_categorical=True)
     with pytest.raises(ValueError, match="NaN"):
         seg.check()
 
@@ -49,7 +48,7 @@ def test_check_prob_sum():
         "class_0": [0.6, 0.2],
         "class_1": [0.3, 0.7],
     })
-    seg = CategoricalSegmentationStats(df, label_col=["class_0", "class_1"], pred_col=None, feature="feature", metric=accuracy_score, task=TaskType.CLASS)
+    seg = SegmentationStats(df, label_col=["class_0", "class_1"], pred_col=None, feature="feature", metric=accuracy_score, is_categorical=True)
     with pytest.raises(ValueError, match="sum to 1"):
         seg.check()
 
@@ -61,7 +60,7 @@ def test_check_valid_prob():
         "class_0": [0.4, 0.2],
         "class_1": [0.6, 0.8],
     })
-    seg = CategoricalSegmentationStats(df, label_col=["class_0", "class_1"], pred_col=None, feature="feature", metric=accuracy_score, task=TaskType.CLASS)
+    seg = SegmentationStats(df, label_col=["class_0", "class_1"], pred_col=None, feature="feature", metric=accuracy_score, is_categorical=True)
     seg.check()
 
 
@@ -71,9 +70,9 @@ def test_prepare_segments_qcut():
         "label": [0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
         "pred": [0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
     })
-    seg = ContinuousSegmentationStats(df, label_col="label", pred_col="pred", feature="feature", metric=accuracy_score, task=TaskType.CLASS)
-    df_out, segments = seg._prepare_segments(bins=3)
-    assert len(segments) == 3
+    seg = SegmentationStats(df, label_col="label", pred_col="pred", feature="feature", metric=accuracy_score, is_categorical=False)
+    df_out = seg._prepare_segments(bins=3)
+    assert len(pd.Series(df_out).unique()) == 3
 
 
 @pytest.mark.parametrize(
@@ -86,8 +85,8 @@ def test_prepare_segments_qcut():
 )
 def test_get_metric_tasks(labels, expected_task):
     df = pd.DataFrame({"feature": [1, 2, 3], "label": labels, "pred": labels})
-    seg = ContinuousSegmentationStats(df, label_col="label", pred_col="pred", feature="feature", metric=accuracy_score, task=TaskType.CLASS)
-    assert seg.task is not None
+    seg = SegmentationStats(df, label_col="label", pred_col="pred", feature="feature", metric=accuracy_score, is_categorical=False)
+    assert seg.metric is not None
 
 
 @pytest.mark.parametrize(
@@ -101,22 +100,25 @@ def test_get_metric_tasks(labels, expected_task):
 def test_compute_segment_scores_all_tasks(labels, preds, tasktype):
     df = pd.DataFrame({"feature": [1, 1, 2, 2], "label": labels, "pred": preds})
     metric = accuracy_score if tasktype != "reg" else r2_score
-    task = TaskType.CLASS if tasktype != "reg" else TaskType.REG
-    seg = ContinuousSegmentationStats(df, label_col="label", pred_col="pred", feature="feature", metric=metric, task=task)
-    df_out, segments = seg._prepare_segments(bins=2)
-    result = seg._compute_segment_scores(df_out, segments)
-    assert len(result) == 2
+    seg = SegmentationStats(df, label_col="label", pred_col="pred", feature="feature", metric=metric, is_categorical=False)
+    df_out = seg._prepare_segments(bins=2)
+    grouped = df.copy()
+    grouped["_segment"] = df_out
+    def score_func(group):
+        return float(metric(group["label"], group["pred"]))
+    scores = grouped.groupby("_segment").apply(score_func)
+    assert len(scores) == 2
 
 
 def test_check_label_col_nan():
     df = pd.DataFrame({"feature": [1, 2], "label": [1, None], "pred": [1, 0]})
-    seg = ContinuousSegmentationStats(df, label_col="label", pred_col="pred", feature="feature", metric=accuracy_score, task=TaskType.CLASS)
+    seg = SegmentationStats(df, label_col="label", pred_col="pred", feature="feature", metric=accuracy_score, is_categorical=False)
     with pytest.raises(ValueError, match="NaN"):
         seg.check()
 
 
 def test_run_regression():
     df = pd.DataFrame({"feature": [1, 2, 3, 4], "label": [0.1, 0.2, 0.3, 0.4], "pred": [0.1, 0.2, 0.3, 0.4]})
-    seg = ContinuousSegmentationStats(df, label_col="label", pred_col="pred", feature="feature", metric=r2_score, task=TaskType.REG)
+    seg = SegmentationStats(df, label_col="label", pred_col="pred", feature="feature", metric=r2_score, is_categorical=False)
     result = seg.run(bins=2)
     assert "segment" in result and "score" in result
