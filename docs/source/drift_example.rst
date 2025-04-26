@@ -27,6 +27,11 @@ This standalone example demonstrates univariate drift detection using random dat
     print("Univariate drift detection results:")
     print(result)
 
+    # Plot drift results
+    from tab_right.plotting.plot_drift import plot_drift
+    fig = plot_drift(result)
+    fig.show()
+
     # Example: run for a single column
     metric, value = univariate.detect_univariate_drift(df_ref['num_feature'], df_cur['num_feature'], kind='continuous')
     print(f"\nDrift metric for 'num_feature': {metric} = {value:.4f}")
