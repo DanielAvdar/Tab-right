@@ -38,39 +38,38 @@ def plot_feature_drift(
 
     """
     feature_name = feature_name or reference.name or "feature"
-    # Compute drift score
     drift_score = None
     if len(reference) > 0 and len(current) > 0:
         drift_score = wasserstein_distance(reference, current)
-    # KDEs
-    ref_kde = reference
-    cur_kde = current
-    # Plot
+    # Compute KDEs for smooth lines
+    from scipy.stats import gaussian_kde
+
+    x_min = min(reference.min() if len(reference) else 0, current.min() if len(current) else 0)
+    x_max = max(reference.max() if len(reference) else 1, current.max() if len(current) else 1)
+    x_grid = np.linspace(x_min, x_max, 200)
     fig = go.Figure()
-    # Reference KDE
-    fig.add_trace(
-        go.Histogram(
-            x=ref_kde,
-            histnorm="probability density",
-            name=ref_label,
-            opacity=0.5,
-            marker_color="navy",
-            nbinsx=40,
-            showlegend=True,
+    if len(reference) > 1:
+        kde_ref = gaussian_kde(reference)
+        fig.add_trace(
+            go.Scatter(
+                x=x_grid,
+                y=kde_ref(x_grid),
+                mode="lines",
+                name=ref_label,
+                line=dict(color="navy"),
+            )
         )
-    )
-    # Current KDE
-    fig.add_trace(
-        go.Histogram(
-            x=cur_kde,
-            histnorm="probability density",
-            name=cur_label,
-            opacity=0.5,
-            marker_color="mediumaquamarine",
-            nbinsx=40,
-            showlegend=True,
+    if len(current) > 1:
+        kde_cur = gaussian_kde(current)
+        fig.add_trace(
+            go.Scatter(
+                x=x_grid,
+                y=kde_cur(x_grid),
+                mode="lines",
+                name=cur_label,
+                line=dict(color="mediumaquamarine"),
+            )
         )
-    )
     # Means and medians
     for arr, color, label, dash in [
         (reference, "navy", f"{ref_label} Mean", "dash"),
@@ -78,21 +77,20 @@ def plot_feature_drift(
         (reference, "navy", f"{ref_label} Median", "dot"),
         (current, "mediumaquamarine", f"{cur_label} Median", "dot"),
     ]:
-        stat = np.mean(arr) if "Mean" in label else np.median(arr)
-        fig.add_vline(
-            x=stat,
-            line=dict(color=color, dash=dash, width=2),
-            annotation_text=label,
-            annotation_position="top",
-            annotation_font_color=color,
-            annotation_font_size=12,
-        )
-    # Layout
+        if len(arr) > 0:
+            stat = np.mean(arr) if "Mean" in label else np.median(arr)
+            fig.add_vline(
+                x=stat,
+                line=dict(color=color, dash=dash, width=2),
+                annotation_text=label,
+                annotation_position="top",
+                annotation_font_color=color,
+                annotation_font_size=12,
+            )
     fig.update_layout(
         title=feature_name,
         xaxis_title=feature_name,
         yaxis_title="Probability Density",
-        barmode="overlay",
         legend_title="Legend",
         template="plotly_white",
     )
