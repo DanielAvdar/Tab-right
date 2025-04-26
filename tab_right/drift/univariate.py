@@ -42,3 +42,19 @@ def detect_univariate_drift(
         return "cramer_v", cramer_v(reference, current)
     else:
         raise ValueError("Unknown kind")
+
+def detect_univariate_drift_df(
+    reference: pd.DataFrame,
+    current: pd.DataFrame,
+    kind: str = "auto"
+) -> pd.DataFrame:
+    """
+    Detect drift for each column in two DataFrames.
+    Returns a DataFrame with columns: feature, metric, value
+    """
+    results = []
+    common_cols = set(reference.columns) & set(current.columns)
+    for col in common_cols:
+        metric, value = detect_univariate_drift(reference[col], current[col], kind=kind)
+        results.append({"feature": col, "metric": metric, "value": value})
+    return pd.DataFrame(results)
