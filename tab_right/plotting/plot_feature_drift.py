@@ -56,7 +56,7 @@ def plot_feature_drift(
                 y=kde_ref(x_grid),
                 mode="lines",
                 name=ref_label,
-                line=dict(color="navy"),
+                line=dict(color="blue"),
             )
         )
     if len(current) > 1:
@@ -67,25 +67,30 @@ def plot_feature_drift(
                 y=kde_cur(x_grid),
                 mode="lines",
                 name=cur_label,
-                line=dict(color="mediumaquamarine"),
+                line=dict(color="orange"),
             )
         )
-    # Means and medians
+    # Means only (remove medians)
     for arr, color, label, dash in [
-        (reference, "navy", f"{ref_label} Mean", "dash"),
-        (current, "mediumaquamarine", f"{cur_label} Mean", "dash"),
-        (reference, "navy", f"{ref_label} Median", "dot"),
-        (current, "mediumaquamarine", f"{cur_label} Median", "dot"),
+        (reference, "blue", f"{ref_label} Mean", "dash"),
+        (current, "orange", f"{cur_label} Mean", "dash"),
     ]:
         if len(arr) > 0:
-            stat = np.mean(arr) if "Mean" in label else np.median(arr)
+            stat = np.mean(arr)
             fig.add_vline(
                 x=stat,
                 line=dict(color=color, dash=dash, width=2),
-                annotation_text=label,
-                annotation_position="top",
-                annotation_font_color=color,
-                annotation_font_size=12,
+                # Move label to legend by using a dummy invisible trace
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=[None],
+                    y=[None],
+                    mode="lines",
+                    line=dict(color=color, dash=dash, width=2),
+                    name=label,
+                    showlegend=True,
+                )
             )
     fig.update_layout(
         title=feature_name,

@@ -1,11 +1,11 @@
-"""Module for plotting drift values for each feature as a line chart."""
+"""Module for plotting drift values for each feature as a bar chart."""
 
 import pandas as pd
 import plotly.graph_objects as go
 
 
 def plot_drift(drift_df: pd.DataFrame, value_col: str = "value", feature_col: str = "feature") -> go.Figure:
-    """Plot drift values for each feature as a line chart.
+    """Plot drift values for each feature as a bar chart.
 
     Parameters
     ----------
@@ -19,18 +19,13 @@ def plot_drift(drift_df: pd.DataFrame, value_col: str = "value", feature_col: st
     Returns
     -------
     go.Figure
-        Plotly line chart of drift values by feature.
+        Plotly bar chart of drift values by feature.
 
     """
     drift_df_sorted = drift_df.sort_values(value_col, ascending=False)
     fig = go.Figure(
-        go.Scatter(
-            x=drift_df_sorted[feature_col],
-            y=drift_df_sorted[value_col],
-            mode="lines+markers",
-            line=dict(color="indianred"),
-            marker=dict(size=8),
-            name="Drift Value",
+        go.Bar(
+            x=drift_df_sorted[feature_col], y=drift_df_sorted[value_col], marker_color="indianred", name="Drift Value"
         )
     )
     fig.update_layout(

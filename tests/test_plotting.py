@@ -9,9 +9,15 @@ def test_plot_feature_drift_basic():
     cur = pd.Series([1.5, 2.2, 2.8, 3.5, 4.2])
     fig = plot_feature_drift(ref, cur, feature_name="test_feature")
     assert isinstance(fig, go.Figure)
-    # Should have two KDE lines (scatter)
-    assert len(fig.data) == 2
+    # Should have two KDE lines (scatter) and two mean lines (dummy traces for legend)
+    assert len(fig.data) == 4
+    # The first two traces are KDE lines
     assert all(trace.type == "scatter" for trace in fig.data)
+    assert fig.data[0].name == "Train Dataset"
+    assert fig.data[1].name == "Test Dataset"
+    # The next two traces are dummy mean lines for legend
+    assert fig.data[2].name == "Train Dataset Mean"
+    assert fig.data[3].name == "Test Dataset Mean"
     # Check annotation for drift score
     assert any("Drift Score" in (a.text or "") for a in fig.layout.annotations or [])
 
