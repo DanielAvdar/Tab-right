@@ -60,3 +60,74 @@ def test_detect_univariate_drift_auto(backend):
         cur = cur.astype("int64[pyarrow]")
     metric, value = detect_univariate_drift(ref, cur)
     assert metric in ("wasserstein", "cramer_v")
+
+
+@pytest.mark.parametrize(
+    "ref, cur, kind, expected_metric, expected_range, expect_exception, expect_nan",
+    [
+        # Identical continuous
+        (
+            pd.Series([1.0, 2.0, 3.0]),
+            pd.Series([1.0, 2.0, 3.0]),
+            "continuous",
+            "wasserstein",
+            (0, 0.0001),
+            False,
+            False,
+        ),
+        # Shifted continuous
+        (pd.Series([1.0, 2.0, 3.0]), pd.Series([2.0, 3.0, 4.0]), "continuous", "wasserstein", (0.9, 1.1), False, False),
+        # Identical categorical (Cramér's V can be 1.0 for small samples)
+        (pd.Series(["a", "b", "c"]), pd.Series(["a", "b", "c"]), "categorical", "cramer_v", (0, 1), False, False),
+        # Permuted categorical (Cramér's V can be 0.5 for small samples)
+        (
+            pd.Series(["a", "a", "b", "b"]),
+            pd.Series(["b", "b", "a", "a"]),
+            "categorical",
+            "cramer_v",
+            (0, 1),
+            False,
+            False,
+        ),
+        # Imbalanced categorical
+        (
+            pd.Series(["a"] * 99 + ["b"]),
+            pd.Series(["a"] * 50 + ["b"] * 50),
+            "categorical",
+            "cramer_v",
+            (0, 1),
+            False,
+            False,
+        ),
+        # Empty series (should raise)
+        (pd.Series([], dtype=float), pd.Series([], dtype=float), "continuous", "wasserstein", (0, 0), True, False),
+        # All same value
+        (pd.Series([1, 1, 1]), pd.Series([1, 1, 1]), "continuous", "wasserstein", (0, 0.0001), False, False),
+        # With NaNs (should return nan)
+        (pd.Series([1, 2, np.nan]), pd.Series([1, 2, np.nan]), "continuous", "wasserstein", (0, 0.0001), False, True),
+    ],
+)
+def test_detect_univariate_drift_variety(ref, cur, kind, expected_metric, expected_range, expect_exception, expect_nan):
+    if expect_exception:
+        import pytest
+
+        with pytest.raises(ValueError):
+            detect_univariate_drift(ref, cur, kind=kind)
+    else:
+        metric, value = detect_univariate_drift(ref, cur, kind=kind)
+        assert metric == expected_metric
+        if expect_nan:
+            assert pd.isna(value)
+        else:
+            assert expected_range[0] <= value <= expected_range[1]
+
+
+def test_detect_univariate_drift_df_variety():
+    df_ref = pd.DataFrame({"num": [1, 2, 3, 4, 5], "cat": ["a", "b", "a", "b", "c"]})
+    df_cur = pd.DataFrame({"num": [2, 3, 4, 5, 6], "cat": ["a", "b", "b", "b", "c"]})
+    from tab_right.drift.univariate import detect_univariate_drift_df
+
+    result = detect_univariate_drift_df(df_ref, df_cur)
+    assert set(result["feature"]) == {"num", "cat"}
+    assert all(m in ("wasserstein", "cramer_v") for m in result["metric"])
+    assert all((v >= 0 or pd.isna(v)) for v in result["value"])
