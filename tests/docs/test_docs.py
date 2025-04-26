@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import plotly.graph_objects as go
 import pytest
 from sybil import Sybil
 from sybil.parsers.codeblock import PythonCodeBlockParser
@@ -37,5 +38,6 @@ def collect_examples(folder_name):
 
 
 @pytest.mark.parametrize("file_path, line, example", collect_examples(""))
-def test_doc_examples(file_path, line, example):
+def test_doc_examples(file_path, line, example, monkeypatch):
+    monkeypatch.setattr(go.Figure, "show", lambda self: None)
     example.evaluate()
