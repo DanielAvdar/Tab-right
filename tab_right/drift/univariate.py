@@ -7,7 +7,10 @@ import pandas as pd
 import scipy.stats  # type: ignore
 
 
-def cramer_v(x: pd.Series, y: pd.Series) -> float:
+def cramer_v(
+    x: pd.Series,
+    y: pd.Series,
+) -> float:
     """Compute Cramér’s V statistic for categorical-categorical association.
 
     Parameters
@@ -28,10 +31,15 @@ def cramer_v(x: pd.Series, y: pd.Series) -> float:
     n = confusion_matrix.sum().sum()
     phi2 = chi2 / n
     r, k = confusion_matrix.shape
-    return np.sqrt(phi2 / min(k - 1, r - 1)) if min(k - 1, r - 1) > 0 else 0.0
+    # Use pandas operations for sqrt
+    return phi2**0.5 / min(k - 1, r - 1) ** 0.5 if min(k - 1, r - 1) > 0 else 0.0
 
 
-def psi(expected: pd.Series, actual: pd.Series, bins: int = 10) -> float:
+def psi(
+    expected: pd.Series,
+    actual: pd.Series,
+    bins: int = 10,
+) -> float:
     """Compute Population Stability Index (PSI) for categorical or binned continuous data.
 
     Parameters
@@ -49,15 +57,22 @@ def psi(expected: pd.Series, actual: pd.Series, bins: int = 10) -> float:
         PSI value (>= 0).
 
     """
-    expected_perc, _ = np.histogram(expected, bins=bins)
-    actual_perc, _ = np.histogram(actual, bins=bins)
-    expected_perc = expected_perc / np.sum(expected_perc)
-    actual_perc = actual_perc / np.sum(actual_perc)
-    psi_value = np.sum((actual_perc - expected_perc) * np.log((actual_perc + 1e-8) / (expected_perc + 1e-8)))
+    # Use pandas cut and value_counts for binning and proportions
+    expected_bins = pd.cut(expected, bins=bins, duplicates="drop")
+    actual_bins = pd.cut(actual, bins=bins, duplicates="drop")
+    expected_perc = expected_bins.value_counts(sort=False, normalize=True)
+    actual_perc = actual_bins.value_counts(sort=False, normalize=True)
+    # Align indexes to ensure same bins
+    expected_perc, actual_perc = expected_perc.align(actual_perc, fill_value=1e-8)
+    psi_value = ((actual_perc - expected_perc) * ((actual_perc + 1e-8) / (expected_perc + 1e-8)).apply(np.log)).sum()
     return psi_value
 
 
-def detect_univariate_drift(reference: pd.Series, current: pd.Series, kind: str = "auto") -> Tuple[str, float]:
+def detect_univariate_drift(
+    reference: pd.Series,
+    current: pd.Series,
+    kind: str = "auto",
+) -> Tuple[str, float]:
     """Detect drift between two 1D distributions.
 
     Parameters
@@ -86,14 +101,19 @@ def detect_univariate_drift(reference: pd.Series, current: pd.Series, kind: str 
         else:
             kind = "categorical"
     if kind == "continuous":
-        return "wasserstein", scipy.stats.wasserstein_distance(reference, current)
+        # Use pandas to_numpy for scipy
+        return "wasserstein", scipy.stats.wasserstein_distance(reference.to_numpy(), current.to_numpy())
     elif kind == "categorical":
         return "cramer_v", cramer_v(reference, current)
     else:
         raise ValueError("Unknown kind")
 
 
-def detect_univariate_drift_df(reference: pd.DataFrame, current: pd.DataFrame, kind: str = "auto") -> pd.DataFrame:
+def detect_univariate_drift_df(
+    reference: pd.DataFrame,
+    current: pd.DataFrame,
+    kind: str = "auto",
+) -> pd.DataFrame:
     """Detect drift for each column in two DataFrames.
 
     Parameters
