@@ -9,6 +9,8 @@ Tab-right
 
    introduction
    examples
+   drift_example
+   segmentation_example
    api
 
 Quickstart
