@@ -1,5 +1,7 @@
 """Module for plotting segmentations of a DataFrame."""
 
+from typing import Optional
+
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -11,7 +13,7 @@ def plot_segmentations(
     score_col: str = "score",
     segment_col: str = "segment",
     ascending: bool = False,
-    fig: go.Figure | None = None,
+    fig: Optional[go.Figure] = None,
 ) -> go.Figure:
     """Plot the segmentations of a given DataFrame as a bar chart.
 
