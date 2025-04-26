@@ -7,7 +7,6 @@ This standalone example demonstrates segmentation analysis using random data.
 
 .. code-block:: python
 
-    """Standalone example for segmentation analysis using random data."""
     import numpy as np
     import pandas as pd
     from sklearn.metrics import accuracy_score
@@ -19,6 +18,8 @@ This standalone example demonstrates segmentation analysis using random data.
         'label': np.random.choice([0, 1], 1000),
         'prediction': np.random.choice([0, 1], 1000)
     })
+
+.. code-block:: python
 
     # Segmentation analysis by categorical feature
     seg = SegmentationStats(
@@ -33,10 +34,14 @@ This standalone example demonstrates segmentation analysis using random data.
     print("Segmentation analysis by categorical feature:")
     print(result)
 
+.. code-block:: python
+
     # Plot segmentation result (categorical)
     import plotly.express as px
     fig = px.bar(result, x='segment', y='score', title='Segmentation Metric by Category')
     fig.show()
+
+.. code-block:: python
 
     # Segmentation analysis by continuous feature
     df['cont_feature'] = np.random.normal(0, 1, 1000)
@@ -51,6 +56,8 @@ This standalone example demonstrates segmentation analysis using random data.
     result2 = seg2.run(bins=5)
     print("\nSegmentation analysis by continuous feature:")
     print(result2)
+
+.. code-block:: python
 
     # Plot segmentation result (continuous)
     # Convert Interval objects to strings for plotting
