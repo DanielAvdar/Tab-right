@@ -9,6 +9,7 @@ Tab-right
 
    introduction
    examples
+   api
 
 Quickstart
 ----------
@@ -16,14 +17,6 @@ Quickstart
 .. code-block:: bash
 
    pip install tab-right
-
-API Reference
--------------
-
-.. autoclass:: tab_right.segmentations.base.SegmentationStats
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 Advanced Usage
 --------------
