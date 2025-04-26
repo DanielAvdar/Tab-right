@@ -1,7 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 
-from tab_right.plotting.plotly import plot_feature_drift
+from tab_right.plotting import plot_feature_drift
 
 
 def test_plot_feature_drift_basic():
