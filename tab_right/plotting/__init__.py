@@ -3,7 +3,7 @@
 from typing import Any
 
 import pandas as pd
-import plotly.graph_objects as go
+import plotly.graph_objects as go  # type: ignore
 
 
 def plot_segmentations(

@@ -1,9 +1,7 @@
 """Plotting utilities for tab-right plotting subpackage."""
 
-from typing import Any, Optional
-
 import pandas as pd
-import plotly.graph_objects as go
+import plotly.graph_objects as go  # type: ignore
 
 
 def plot_segmentations(
@@ -13,8 +11,8 @@ def plot_segmentations(
     score_col: str = "score",
     segment_col: str = "segment",
     ascending: bool = False,
-    fig: Any = None,
-) -> Any:
+    fig: go.Figure | None = None,
+) -> go.Figure:
     """Plot the segmentations of a given DataFrame.
 
     Args:
@@ -49,56 +47,4 @@ def plot_segmentations(
             )
         )
 
-    return fig
-
-
-def plot_segmentation_heatmap(
-    z: pd.DataFrame,
-    x_labels: Optional[list] = None,
-    y_labels: Optional[list] = None,
-    title: str = "Segmentation Heatmap",
-    zmin: float = None,
-    zmax: float = None,
-    annotation_fmt: str = ".2f",
-    colorbar_title: str = "Score",
-    colorscale: str = "RdYlGn_r",
-) -> go.Figure:
-    """Generate a heatmap for the given matrix data.
-
-    Args:
-        z (pd.DataFrame): The matrix data for the heatmap.
-        x_labels (Optional[list], optional): Labels for the x-axis. Defaults to None.
-        y_labels (Optional[list], optional): Labels for the y-axis. Defaults to None.
-        title (str, optional): The title of the heatmap. Defaults to "Segmentation Heatmap".
-        zmin (float, optional): The minimum value for the color scale. Defaults to None.
-        zmax (float, optional): The maximum value for the color scale. Defaults to None.
-        annotation_fmt (str, optional): The format for annotations. Defaults to ".2f".
-        colorbar_title (str, optional): The title for the color bar. Defaults to "Score".
-        colorscale (str, optional): The colorscale to use. Defaults to "RdYlGn_r".
-
-    Returns:
-        go.Figure: A Plotly Figure object containing the heatmap.
-
-    """
-    if x_labels is None:
-        x_labels = list(z.columns)
-    if y_labels is None:
-        y_labels = list(z.index)
-
-    fig = go.Figure(
-        data=go.Heatmap(
-            z=z.values,
-            x=x_labels,
-            y=y_labels,
-            colorbar=dict(title=colorbar_title),
-            colorscale=colorscale,
-            zmin=zmin,
-            zmax=zmax,
-            hovertemplate=z.round(2).astype(str).ravel(),
-            text=z.round(2).astype(str),
-            texttemplate=annotation_fmt,
-        )
-    )
-
-    fig.update_layout(title=title)
     return fig

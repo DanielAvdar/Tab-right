@@ -4,7 +4,7 @@ from typing import Tuple
 
 import numpy as np
 import pandas as pd
-from scipy.stats import chi2_contingency, wasserstein_distance
+import scipy.stats  # type: ignore
 
 
 def cramer_v(x: pd.Series, y: pd.Series) -> float:
@@ -24,7 +24,7 @@ def cramer_v(x: pd.Series, y: pd.Series) -> float:
 
     """
     confusion_matrix = pd.crosstab(x, y)
-    chi2 = chi2_contingency(confusion_matrix)[0]
+    chi2 = scipy.stats.chi2_contingency(confusion_matrix)[0]
     n = confusion_matrix.sum().sum()
     phi2 = chi2 / n
     r, k = confusion_matrix.shape
@@ -86,7 +86,7 @@ def detect_univariate_drift(reference: pd.Series, current: pd.Series, kind: str 
         else:
             kind = "categorical"
     if kind == "continuous":
-        return "wasserstein", wasserstein_distance(reference, current)
+        return "wasserstein", scipy.stats.wasserstein_distance(reference, current)
     elif kind == "categorical":
         return "cramer_v", cramer_v(reference, current)
     else:
