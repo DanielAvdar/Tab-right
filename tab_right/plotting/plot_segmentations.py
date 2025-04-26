@@ -13,7 +13,7 @@ def plot_segmentations(
     ascending: bool = False,
     fig: go.Figure | None = None,
 ) -> go.Figure:
-    """Plot the segmentations of a given DataFrame.
+    """Plot the segmentations of a given DataFrame as a bar chart.
 
     Args:
         df (pd.DataFrame): The input data.
@@ -28,20 +28,18 @@ def plot_segmentations(
         go.Figure: A plotly figure object.
 
     """
-    # Ensure the figure object is initialized
     if fig is None:
         fig = go.Figure()
-
-    # Sort the DataFrame
     df = df.sort_values(by=score_col, ascending=ascending)
-
-    # Add traces for each segment
     for segment, group in df.groupby(segment_col):
         color = good_color if group[score_col].iloc[0] >= 0 else bad_color
         fig.add_trace(
-            go.Scatter(
-                x=group.index, y=group[score_col], mode="lines+markers", name=str(segment), line=dict(color=color)
+            go.Bar(
+                x=group.index,
+                y=group[score_col],
+                name=str(segment),
+                marker_color=color,
             )
         )
-
+    fig.update_layout(barmode="group")
     return fig
