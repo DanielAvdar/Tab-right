@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
 import pytest
-from tab_right.drift.univariate import cramer_v, psi, detect_univariate_drift
+
+from tab_right.drift.univariate import cramer_v, detect_univariate_drift, psi
+
 
 @pytest.mark.parametrize("backend", [None, "pyarrow"])
 def test_cramer_v_basic(backend):
@@ -13,6 +15,7 @@ def test_cramer_v_basic(backend):
     v = cramer_v(x, y)
     assert 0 <= v <= 1
 
+
 @pytest.mark.parametrize("backend", [None, "pyarrow"])
 def test_psi_basic(backend):
     expected = pd.Series([0, 1, 1, 2, 2, 2, 3, 3, 3, 3])
@@ -22,6 +25,7 @@ def test_psi_basic(backend):
         actual = actual.astype("int64[pyarrow]")
     value = psi(expected, actual, bins=4)
     assert value >= 0
+
 
 @pytest.mark.parametrize("backend", [None, "pyarrow"])
 def test_detect_univariate_drift_continuous(backend):
@@ -34,6 +38,7 @@ def test_detect_univariate_drift_continuous(backend):
     assert metric == "wasserstein"
     assert value >= 0
 
+
 @pytest.mark.parametrize("backend", [None, "pyarrow"])
 def test_detect_univariate_drift_categorical(backend):
     ref = pd.Series(["a"] * 50 + ["b"] * 50)
@@ -44,6 +49,7 @@ def test_detect_univariate_drift_categorical(backend):
     metric, value = detect_univariate_drift(ref, cur, kind="categorical")
     assert metric == "cramer_v"
     assert 0 <= value <= 1
+
 
 @pytest.mark.parametrize("backend", [None, "pyarrow"])
 def test_detect_univariate_drift_auto(backend):

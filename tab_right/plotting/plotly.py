@@ -1,9 +1,21 @@
-import plotly.graph_objects as go
-import pandas as pd
+"""Plotting utilities for tab-right plotting subpackage."""
+
 from typing import Any, Optional
 
-def plot_segmentations(df: pd.DataFrame, good_color: str = "green", bad_color: str = "red", score_col: str = "score", segment_col: str = "segment", ascending: bool = False, fig: Any = None) -> Any:
-    """Plots the segmentations of a given DataFrame.
+import pandas as pd
+import plotly.graph_objects as go
+
+
+def plot_segmentations(
+    df: pd.DataFrame,
+    good_color: str = "green",
+    bad_color: str = "red",
+    score_col: str = "score",
+    segment_col: str = "segment",
+    ascending: bool = False,
+    fig: Any = None,
+) -> Any:
+    """Plot the segmentations of a given DataFrame.
 
     Args:
         df (pd.DataFrame): The input DataFrame containing segmentation data.
@@ -16,6 +28,7 @@ def plot_segmentations(df: pd.DataFrame, good_color: str = "green", bad_color: s
 
     Returns:
         Any: The figure object with the segmentations plotted.
+
     """
     if fig is None:
         fig = go.Figure()
@@ -26,13 +39,15 @@ def plot_segmentations(df: pd.DataFrame, good_color: str = "green", bad_color: s
     # Add traces for each segment
     for segment in df_sorted[segment_col].unique():
         segment_data = df_sorted[df_sorted[segment_col] == segment]
-        fig.add_trace(go.Scatter(
-            x=segment_data.index,
-            y=segment_data[score_col],
-            mode='lines+markers',
-            name=str(segment),
-            line=dict(color=good_color if segment_data[score_col].mean() >= 0 else bad_color)
-        ))
+        fig.add_trace(
+            go.Scatter(
+                x=segment_data.index,
+                y=segment_data[score_col],
+                mode="lines+markers",
+                name=str(segment),
+                line=dict(color=good_color if segment_data[score_col].mean() >= 0 else bad_color),
+            )
+        )
 
     return fig
 
@@ -46,9 +61,9 @@ def plot_segmentation_heatmap(
     zmax: float = None,
     annotation_fmt: str = ".2f",
     colorbar_title: str = "Score",
-    colorscale: str = "RdYlGn_r"
+    colorscale: str = "RdYlGn_r",
 ) -> go.Figure:
-    """Generates a heatmap for the given matrix data.
+    """Generate a heatmap for the given matrix data.
 
     Args:
         z (pd.DataFrame): The matrix data for the heatmap.
@@ -63,24 +78,27 @@ def plot_segmentation_heatmap(
 
     Returns:
         go.Figure: A Plotly Figure object containing the heatmap.
+
     """
     if x_labels is None:
         x_labels = list(z.columns)
     if y_labels is None:
         y_labels = list(z.index)
 
-    fig = go.Figure(data=go.Heatmap(
-        z=z.values,
-        x=x_labels,
-        y=y_labels,
-        colorbar=dict(title=colorbar_title),
-        colorscale=colorscale,
-        zmin=zmin,
-        zmax=zmax,
-        hovertemplate=z.round(2).astype(str).ravel(),
-        text=z.round(2).astype(str),
-        texttemplate=annotation_fmt,
-    ))
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=z.values,
+            x=x_labels,
+            y=y_labels,
+            colorbar=dict(title=colorbar_title),
+            colorscale=colorscale,
+            zmin=zmin,
+            zmax=zmax,
+            hovertemplate=z.round(2).astype(str).ravel(),
+            text=z.round(2).astype(str),
+            texttemplate=annotation_fmt,
+        )
+    )
 
     fig.update_layout(title=title)
     return fig

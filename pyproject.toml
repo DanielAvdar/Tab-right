@@ -46,6 +46,11 @@ docs = [
     "sphinx>=7.0.0; python_version < '3.11'",
     "sphinx-rtd-theme>=3.0.2",
 ]
+nbs = [
+    "catboost>=1.2.2",
+    "jupyterlab"
+]
+
 [tool.hatch.build.targets.sdist]
 only-include = ["tab_right", ]
 source = "."

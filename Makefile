@@ -20,7 +20,7 @@ test:
 	uv run pytest
 
 check:
-	uv run --no-deps pre-commit run --all-files
+	uv run  pre-commit run --all-files
 
 coverage:
 	uv run pytest --cov=tab_right --cov-report=xml

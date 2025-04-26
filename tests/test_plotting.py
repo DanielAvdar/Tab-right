@@ -1,7 +1,10 @@
 import pandas as pd
-from tab_right.plotting.plotly import plot_segmentations, plot_segmentation_heatmap
 import plotly.graph_objects as go
 import pytest
+
+from tab_right.plotting.plotly import plot_segmentations
+
+
 @pytest.mark.skip
 def test_plot_segmentations_basic():
     df = pd.DataFrame({
@@ -11,6 +14,8 @@ def test_plot_segmentations_basic():
     fig = plot_segmentations(df)
     assert isinstance(fig, go.Figure)
     assert len(fig.data) == 1
+
+
 @pytest.mark.skip
 def test_plot_segmentations_ascending():
     df = pd.DataFrame({
@@ -20,6 +25,7 @@ def test_plot_segmentations_ascending():
     fig = plot_segmentations(df, ascending=True)
     assert isinstance(fig, go.Figure)
     assert len(fig.data) == 1
+
 
 def test_plot_segmentations_single_segment():
     df = pd.DataFrame({

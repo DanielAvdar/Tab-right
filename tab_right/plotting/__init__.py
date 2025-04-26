@@ -1,10 +1,21 @@
-import plotly.graph_objects as go
-import pandas as pd
+"""Plotting subpackage for tab-right: provides utilities for visualizing segmentations and drift."""
+
 from typing import Any
 
-def plot_segmentations(df: pd.DataFrame, good_color: str = "green", bad_color: str = "red", score_col: str = "score", segment_col: str = "segment", ascending: bool = False, fig: Any = None) -> Any:
-    """
-    Plot segmentation DataFrame (segment, score) with green for best performance and red for worst using Plotly.
+import pandas as pd
+import plotly.graph_objects as go
+
+
+def plot_segmentations(
+    df: pd.DataFrame,
+    good_color: str = "green",
+    bad_color: str = "red",
+    score_col: str = "score",
+    segment_col: str = "segment",
+    ascending: bool = False,
+    fig: Any = None,
+) -> Any:
+    """Plot segmentation DataFrame (segment, score) with green for best performance and red for worst using Plotly.
 
     Parameters
     ----------
@@ -27,6 +38,7 @@ def plot_segmentations(df: pd.DataFrame, good_color: str = "green", bad_color: s
     -------
     plotly.graph_objects.Figure
         The Plotly figure with the plot.
+
     """
     df_sorted = df.sort_values(score_col, ascending=ascending).reset_index(drop=True)
     n = len(df_sorted)
@@ -35,11 +47,13 @@ def plot_segmentations(df: pd.DataFrame, good_color: str = "green", bad_color: s
         colors = colors[::-1]
     if fig is None:
         fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=df_sorted[segment_col].astype(str),
-        y=df_sorted[score_col],
-        marker_color=colors,
-    ))
+    fig.add_trace(
+        go.Bar(
+            x=df_sorted[segment_col].astype(str),
+            y=df_sorted[score_col],
+            marker_color=colors,
+        )
+    )
     fig.update_layout(
         xaxis_title="Segment",
         yaxis_title="Score",

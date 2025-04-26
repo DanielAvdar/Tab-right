@@ -29,4 +29,3 @@ For development or the latest features, clone the repository and install in edit
    git clone https://github.com/DanielAvdar/tab-right.git
    cd tab-right
    pip install -e .
-
