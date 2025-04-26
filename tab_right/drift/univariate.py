@@ -4,7 +4,7 @@ from typing import Tuple
 
 import numpy as np
 import pandas as pd
-import scipy.stats  # type: ignore
+import scipy.stats
 
 
 def cramer_v(

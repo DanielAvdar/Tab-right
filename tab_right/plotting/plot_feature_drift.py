@@ -37,7 +37,7 @@ def plot_feature_drift(
         Plotly figure with overlaid histograms, means, medians, and drift score annotation.
 
     """
-    feature_name = feature_name or reference.name or "feature"
+    feature_name = feature_name or str(reference.name) if reference.name is not None else "feature"
     drift_score = None
     if len(reference) > 0 and len(current) > 0:
         drift_score = wasserstein_distance(reference, current)
