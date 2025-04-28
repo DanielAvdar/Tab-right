@@ -5,7 +5,19 @@ Drift Example
 
 This standalone example demonstrates univariate drift detection using random data.
 
-.. code-block:: python
+.. plotly::
+   :include-source:
+
+   import pandas as pd
+   import plotly.graph_objects as go
+   from tab_right.plotting.plot_drift import plot_drift
+
+   df = pd.DataFrame({"feature": ["A", "B", "C"], "value": [0.1, 0.2, 0.3], "metric": ["wasserstein", "cramer_v", "wasserstein"]})
+   fig = plot_drift(df)
+   fig.show()
+
+.. plotly::
+   :include-source:
 
     """Standalone example for univariate drift detection using random data."""
     import numpy as np
@@ -22,27 +34,31 @@ This standalone example demonstrates univariate drift detection using random dat
         'cat_feature': np.random.choice(['A', 'B', 'C'], 1000, p=[0.2, 0.5, 0.3])
     })
 
-.. code-block:: python
+.. plotly::
+   :include-source:
 
     # Run drift detection for all columns
     result = univariate.detect_univariate_drift_df(df_ref, df_cur)
     print("Univariate drift detection results:")
     print(result)
 
-.. code-block:: python
+.. plotly::
+   :include-source:
 
     # Plot drift results for all features
     from tab_right.plotting.plot_drift import plot_drift
     fig = plot_drift(result)
     fig.show()
 
-.. code-block:: python
+.. plotly::
+   :include-source:
 
     # Example: run for a single column
     metric, value = univariate.detect_univariate_drift(df_ref['num_feature'], df_cur['num_feature'], kind='continuous')
     print(f"\nDrift metric for 'num_feature': {metric} = {value:.4f}")
 
-.. code-block:: python
+.. plotly::
+   :include-source:
 
     # Plot drift for a single feature
     from tab_right.plotting.plot_feature_drift import plot_feature_drift

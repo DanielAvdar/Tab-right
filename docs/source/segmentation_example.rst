@@ -5,7 +5,19 @@ Segmentation Example
 
 This standalone example demonstrates segmentation analysis using random data.
 
-.. code-block:: python
+.. plotly::
+   :include-source:
+
+   import pandas as pd
+   import plotly.graph_objects as go
+   from tab_right.plotting.plot_segmentations import plot_segmentations
+
+   df = pd.DataFrame({"score": [0.8, -0.2, 0.5], "segment": ["good", "bad", "good"]})
+   fig = plot_segmentations(df)
+   fig.show()
+
+.. plotly::
+   :include-source:
 
     import numpy as np
     import pandas as pd
@@ -34,7 +46,8 @@ This standalone example demonstrates segmentation analysis using random data.
     print("Segmentation analysis by categorical feature:")
     print(result)
 
-.. code-block:: python
+.. plotly::
+   :include-source:
 
     # Plot segmentation result (categorical)
     import plotly.express as px
@@ -57,7 +70,8 @@ This standalone example demonstrates segmentation analysis using random data.
     print("\nSegmentation analysis by continuous feature:")
     print(result2)
 
-.. code-block:: python
+.. plotly::
+   :include-source:
 
     # Plot segmentation result (continuous)
     # Convert Interval objects to strings for plotting
