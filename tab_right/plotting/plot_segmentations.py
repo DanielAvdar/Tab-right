@@ -1,11 +1,15 @@
 """Module for plotting segmentations of a DataFrame."""
 
-from typing import Optional, Tuple
+from typing import TYPE_CHECKING, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+
+# Use TYPE_CHECKING to avoid circular imports
+if TYPE_CHECKING:
+    from tab_right.segmentations.dt_segmentation import DecisionTreeSegmentation
 
 
 def plot_segmentations(
@@ -50,7 +54,7 @@ def plot_segmentations(
 
 
 def plot_dt_segmentation(
-    segmentation,
+    segmentation: "DecisionTreeSegmentation",
     resolution: int = 100,
     cmap: str = "RdYlGn_r",
     figsize: Tuple[int, int] = (800, 600),
@@ -125,8 +129,8 @@ def plot_dt_segmentation(
         title=f"Error Segmentation by Decision Tree ({metric_name})",
         width=figsize[0],
         height=figsize[1],
-        xaxis=dict(title=segmentation.feature_1_col),
-        yaxis=dict(title=segmentation.feature_2_col),
+        xaxis=dict(title=segmentation.feature1_col),  # Updated to use the new attribute name
+        yaxis=dict(title=segmentation.feature2_col),  # Updated to use the new attribute name
     )
 
     if show:
@@ -136,7 +140,7 @@ def plot_dt_segmentation(
 
 
 def plot_dt_segmentation_with_stats(
-    segmentation,
+    segmentation: "DecisionTreeSegmentation",
     resolution: int = 100,
     cmap: str = "RdYlGn_r",
     figsize: Tuple[int, int] = (1000, 500),
@@ -245,8 +249,8 @@ def plot_dt_segmentation_with_stats(
     )
 
     # Update axes
-    fig.update_xaxes(title_text=segmentation.feature_1_col, row=1, col=1)
-    fig.update_yaxes(title_text=segmentation.feature_2_col, row=1, col=1)
+    fig.update_xaxes(title_text=segmentation.feature1_col, row=1, col=1)  # Updated to use the new attribute name
+    fig.update_yaxes(title_text=segmentation.feature2_col, row=1, col=1)  # Updated to use the new attribute name
     fig.update_xaxes(title_text="Segment ID", row=1, col=2)
     fig.update_yaxes(title_text=f"Mean {metric_name} Error", row=1, col=2)
 

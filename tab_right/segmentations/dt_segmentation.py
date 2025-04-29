@@ -5,11 +5,14 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from sklearn.tree import DecisionTreeRegressor
+from pandas.api.typing import DataFrameGroupBy
+from sklearn.tree import BaseDecisionTree, DecisionTreeRegressor
+
+from tab_right.base.seg_protocols import FindSegmentation2F
 
 
 @dataclass
-class DecisionTreeSegmentation:
+class DecisionTreeSegmentation(FindSegmentation2F):
     """DecisionTreeSegmentation provides error analysis using decision trees.
 
     This class uses decision trees to segment the feature space into regions
@@ -21,10 +24,10 @@ class DecisionTreeSegmentation:
         Input DataFrame containing features and errors
     error_col : Optional[str], default=None
         Column name for error values
-    feature_1_col : Optional[str], default=None
-        Column name for first feature
-    feature_2_col : Optional[str], default=None
-        Column name for second feature
+    feature1_col : Optional[str], default=None
+        Column name for first feature (aligns with protocol)
+    feature2_col : Optional[str], default=None
+        Column name for second feature (aligns with protocol)
     tree_model : Optional[DecisionTreeRegressor], default=None
         Fitted decision tree model for segmentation
     metric : Optional[Callable], default=None
@@ -38,12 +41,37 @@ class DecisionTreeSegmentation:
 
     df: Optional[pd.DataFrame] = None
     error_col: Optional[str] = None
-    feature_1_col: Optional[str] = None
-    feature_2_col: Optional[str] = None
+    feature1_col: Optional[str] = None  # Renamed to match protocol
+    feature2_col: Optional[str] = None  # Renamed to match protocol
     tree_model: Optional[DecisionTreeRegressor] = None
     metric: Optional[Callable] = None
     max_depth: int = 5
     min_samples_leaf: int = 20
+
+    def __post_init__(self) -> None:
+        """For backward compatibility with old attribute names."""
+        pass
+
+    # Property for backward compatibility with tests using the old attribute names
+    @property
+    def feature_1_col(self) -> Optional[str]:
+        """Get the first feature column name (backward compatibility)."""
+        return self.feature1_col
+
+    @feature_1_col.setter
+    def feature_1_col(self, value: str) -> None:
+        """Set the first feature column name (backward compatibility)."""
+        self.feature1_col = value
+
+    @property
+    def feature_2_col(self) -> Optional[str]:
+        """Get the second feature column name (backward compatibility)."""
+        return self.feature2_col
+
+    @feature_2_col.setter
+    def feature_2_col(self, value: str) -> None:
+        """Set the second feature column name (backward compatibility)."""
+        self.feature2_col = value
 
     def fit(
         self,
@@ -82,16 +110,16 @@ class DecisionTreeSegmentation:
             if feature_names is None:
                 feature_names = x.columns[:2].tolist()
             x_subset = x[feature_names].values
-            self.feature_1_col = feature_names[0]
-            self.feature_2_col = feature_names[1]
+            self.feature1_col = feature_names[0]  # Renamed to match protocol
+            self.feature2_col = feature_names[1]  # Renamed to match protocol
         else:
             if feature_names is None:
                 feature_names = [f"Feature {i}" for i in range(2)]
             else:
                 feature_names = feature_names[:2]
             x_subset = x[:, :2]
-            self.feature_1_col = feature_names[0]
-            self.feature_2_col = feature_names[1]
+            self.feature1_col = feature_names[0]  # Renamed to match protocol
+            self.feature2_col = feature_names[1]  # Renamed to match protocol
 
         # Calculate errors (absolute difference between true and predicted values)
         errors = np.abs(y_true - y_pred)
@@ -99,16 +127,83 @@ class DecisionTreeSegmentation:
 
         # Create DataFrame with features and errors
         self.df = pd.DataFrame({
-            self.feature_1_col: x_subset[:, 0],
-            self.feature_2_col: x_subset[:, 1],
+            self.feature1_col: x_subset[:, 0],  # Renamed to match protocol
+            self.feature2_col: x_subset[:, 1],  # Renamed to match protocol
             self.error_col: errors,
         })
 
         # Train a decision tree to predict errors
         self.tree_model = DecisionTreeRegressor(max_depth=self.max_depth, min_samples_leaf=self.min_samples_leaf)
-        self.tree_model.fit(x_subset, errors)
+        self.train_tree_model(self.tree_model)  # Use the protocol method
 
         return self
+
+    def train_tree_model(self, model: BaseDecisionTree) -> BaseDecisionTree:
+        """Train the decision tree model.
+
+        Parameters
+        ----------
+        model : BaseDecisionTree
+            The decision tree model to train
+
+        Returns
+        -------
+        BaseDecisionTree
+            The trained decision tree model
+
+        Raises
+        ------
+        ValueError
+            If DataFrame and column names are not set before training
+
+        """
+        if self.df is None or self.feature1_col is None or self.feature2_col is None or self.error_col is None:
+            raise ValueError("DataFrame and column names must be set before training")
+
+        x_subset = self.df[[self.feature1_col, self.feature2_col]].values
+        errors = self.df[self.error_col].values
+
+        model.fit(x_subset, errors)
+        return model
+
+    def __call__(self, model: BaseDecisionTree) -> DataFrameGroupBy:
+        """Apply the model to segment the DataFrame.
+
+        Parameters
+        ----------
+        model : BaseDecisionTree
+            The decision tree model to use for segmentation
+
+        Returns
+        -------
+        DataFrameGroupBy
+            A pandas GroupBy object with the data grouped by segment
+
+        Raises
+        ------
+        ValueError
+            If DataFrame is not set before calling or if model is not provided and not fitted
+
+        """
+        if self.df is None:
+            raise ValueError("DataFrame must be set before calling")
+
+        if model is not None:
+            self.tree_model = model
+
+        if self.tree_model is None:
+            raise ValueError("Model not fitted. Call fit() or provide a model.")
+
+        # Create a copy of the DataFrame
+        result_df = self.df.copy()
+
+        # Get segment assignments (leaf node IDs)
+        x_subset = result_df[[self.feature1_col, self.feature2_col]].values
+        leaf_ids = self.tree_model.apply(x_subset)
+        result_df["segment_id"] = leaf_ids
+
+        # Return the grouped DataFrame
+        return result_df.groupby("segment_id")
 
     def get_segment_df(self, n_segments: int = 10) -> pd.DataFrame:
         """Get DataFrame with segment assignments and statistics.
@@ -136,7 +231,7 @@ class DecisionTreeSegmentation:
         result_df = self.df.copy()
 
         # Get segment assignments (leaf node IDs)
-        x_subset = result_df[[self.feature_1_col, self.feature_2_col]].values
+        x_subset = result_df[[self.feature1_col, self.feature2_col]].values
         leaf_ids = self.tree_model.apply(x_subset)
         result_df["segment_id"] = leaf_ids
 
@@ -180,7 +275,7 @@ class DecisionTreeSegmentation:
             raise ValueError("Model not fitted. Call fit() first.")
 
         # Get feature data
-        x_subset = self.df[[self.feature_1_col, self.feature_2_col]].values
+        x_subset = self.df[[self.feature1_col, self.feature2_col]].values
 
         # Get leaf node assignments for each data point
         leaf_ids = self.tree_model.apply(x_subset)
@@ -237,7 +332,7 @@ class DecisionTreeSegmentation:
             raise ValueError("Model not fitted. Call fit() first.")
 
         tree = self.tree_model.tree_
-        feature_names = [self.feature_1_col, self.feature_2_col]
+        feature_names = [self.feature1_col, self.feature2_col]
 
         # Get the leaf nodes with highest error values
         leaf_nodes = []
