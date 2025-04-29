@@ -16,6 +16,11 @@ This standalone example demonstrates segmentation analysis using random data.
    fig = plot_segmentations(df)
    fig.show()
 
+Basic Segmentation Example
+--------------------------
+
+First, let's set up some random classification data:
+
 .. plotly::
    :include-source:
 
@@ -31,7 +36,22 @@ This standalone example demonstrates segmentation analysis using random data.
         'prediction': np.random.choice([0, 1], 1000)
     })
 
+Now we'll analyze this data by categorical feature:
+
 .. code-block:: python
+
+    # Import necessary libraries
+    import numpy as np
+    import pandas as pd
+    from sklearn.metrics import accuracy_score
+    from tab_right.segmentations.base import SegmentationStats
+
+    # Generate random classification data
+    df = pd.DataFrame({
+        'feature': np.random.choice(['X', 'Y', 'Z'], 1000),
+        'label': np.random.choice([0, 1], 1000),
+        'prediction': np.random.choice([0, 1], 1000)
+    })
 
     # Segmentation analysis by categorical feature
     seg = SegmentationStats(
@@ -50,7 +70,31 @@ This standalone example demonstrates segmentation analysis using random data.
    :include-source:
 
     # Plot segmentation result (categorical)
+    import numpy as np
+    import pandas as pd
     import plotly.express as px
+    from sklearn.metrics import accuracy_score
+    from tab_right.segmentations.base import SegmentationStats
+
+    # Generate the same data as above
+    df = pd.DataFrame({
+        'feature': np.random.choice(['X', 'Y', 'Z'], 1000),
+        'label': np.random.choice([0, 1], 1000),
+        'prediction': np.random.choice([0, 1], 1000)
+    })
+
+    # Run the segmentation
+    seg = SegmentationStats(
+        df,
+        label_col='label',
+        pred_col='prediction',
+        feature='feature',
+        metric=accuracy_score,
+        is_categorical=True
+    )
+    result = seg.run()
+
+    # Create the visualization
     fig = px.bar(result, x='segment', y='score', title='Segmentation Metric by Category')
     fig.show()
 
@@ -74,6 +118,33 @@ This standalone example demonstrates segmentation analysis using random data.
    :include-source:
 
     # Plot segmentation result (continuous)
+    import numpy as np
+    import pandas as pd
+    import plotly.express as px
+    from sklearn.metrics import accuracy_score
+    from tab_right.segmentations.base import SegmentationStats
+
+    # Generate the same data as above
+    df = pd.DataFrame({
+        'feature': np.random.choice(['X', 'Y', 'Z'], 1000),
+        'label': np.random.choice([0, 1], 1000),
+        'prediction': np.random.choice([0, 1], 1000)
+    })
+
+    # Add continuous feature
+    df['cont_feature'] = np.random.normal(0, 1, 1000)
+
+    # Run the segmentation on continuous feature
+    seg2 = SegmentationStats(
+        df,
+        label_col='label',
+        pred_col='prediction',
+        feature='cont_feature',
+        metric=accuracy_score,
+        is_categorical=False
+    )
+    result2 = seg2.run(bins=5)
+
     # Convert Interval objects to strings for plotting
     result2['segment'] = result2['segment'].astype(str)
     fig2 = px.bar(result2, x='segment', y='score', title='Segmentation Metric by Bin')
