@@ -1,3 +1,9 @@
+"""Protocol definitions for drift detection and analysis in tab-right.
+
+This module defines protocol classes and type aliases used for implementing
+drift detection functionality across different feature types.
+"""
+
 from dataclasses import dataclass
 from typing import Callable, Iterable, Protocol, Union
 
