@@ -2,7 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from tab_right.drift.univariate import cramer_v, detect_univariate_drift, psi
+from tab_right.drift.cramer_v import cramer_v
+from tab_right.drift.psi import psi
+from tab_right.drift.univariate import detect_univariate_drift
 
 
 @pytest.mark.parametrize("backend", [None, "pyarrow"])
