@@ -50,7 +50,12 @@ def plot_segmentations(
 
 
 def plot_dt_segmentation(
-    segmentation, resolution: int = 100, cmap: str = "YlOrRd", figsize: Tuple[int, int] = (800, 600), show: bool = True
+    segmentation,
+    resolution: int = 100,
+    cmap: str = "RdYlGn_r",
+    figsize: Tuple[int, int] = (800, 600),
+    show: bool = True,
+    metric_name: str = "MSE",
 ) -> go.Figure:
     """Create an interactive heatmap visualization of tree-based error segmentation.
 
@@ -61,12 +66,15 @@ def plot_dt_segmentation(
     resolution : int, default=100
         Grid resolution for the heatmap. Higher values create smoother visualizations
         but increase computation time.
-    cmap : str, default='YlOrRd'
-        Colormap for the heatmap visualization (e.g., 'YlOrRd', 'Viridis', 'Blues')
+    cmap : str, default='RdYlGn_r'
+        Colormap for the heatmap visualization. Default is green for good performance,
+        red for bad performance.
     figsize : tuple, default=(800, 600)
         Figure size (width, height) in pixels
     show : bool, default=True
         Whether to display the plot immediately
+    metric_name : str, default="MSE"
+        Name of the error metric used (e.g., MSE, MAE, RMSE)
 
     Returns
     -------
@@ -101,12 +109,20 @@ def plot_dt_segmentation(
 
     # Create the heatmap visualization
     fig = go.Figure(
-        data=go.Heatmap(z=grid_errors, x=x_range, y=y_range, colorscale=cmap, colorbar=dict(title="Mean Error"))
+        data=go.Heatmap(
+            z=grid_errors,
+            x=x_range,
+            y=y_range,
+            colorscale=cmap,
+            colorbar=dict(title=f"{metric_name} Error"),
+            text=np.round(grid_errors, 3),  # Display score values rounded to 3 decimal places
+            hovertemplate="%{x:.2f}, %{y:.2f}<br>Error: %{z:.3f}<extra></extra>",
+        )
     )
 
     # Update layout
     fig.update_layout(
-        title="Error Segmentation by Decision Tree",
+        title=f"Error Segmentation by Decision Tree ({metric_name})",
         width=figsize[0],
         height=figsize[1],
         xaxis=dict(title=segmentation.feature_1_col),
@@ -122,10 +138,11 @@ def plot_dt_segmentation(
 def plot_dt_segmentation_with_stats(
     segmentation,
     resolution: int = 100,
-    cmap: str = "YlOrRd",
+    cmap: str = "RdYlGn_r",
     figsize: Tuple[int, int] = (1000, 500),
     n_top_segments: int = 5,
     show: bool = True,
+    metric_name: str = "MSE",
 ) -> go.Figure:
     """Create a visualization with both error heatmap and top segment statistics.
 
@@ -135,14 +152,16 @@ def plot_dt_segmentation_with_stats(
         Fitted DecisionTreeSegmentation object with a trained tree model
     resolution : int, default=100
         Grid resolution for the heatmap
-    cmap : str, default='YlOrRd'
-        Colormap for the heatmap visualization
+    cmap : str, default='RdYlGn_r'
+        Colormap for the heatmap visualization. Green for good performance, red for bad.
     figsize : tuple, default=(1000, 500)
         Figure size (width, height) in pixels
     n_top_segments : int, default=5
         Number of top segments to show in the bar chart
     show : bool, default=True
         Whether to display the plot immediately
+    metric_name : str, default="MSE"
+        Name of the error metric used (e.g., MSE, MAE, RMSE)
 
     Returns
     -------
@@ -162,7 +181,7 @@ def plot_dt_segmentation_with_stats(
     fig = make_subplots(
         rows=1,
         cols=2,
-        subplot_titles=("Error Segmentation Heatmap", "Top Error Segments"),
+        subplot_titles=(f"Error Segmentation Heatmap ({metric_name})", "Top Error Segments"),
         specs=[[{"type": "heatmap"}, {"type": "bar"}]],
         column_widths=[0.7, 0.3],
     )
@@ -186,7 +205,15 @@ def plot_dt_segmentation_with_stats(
 
     # Add heatmap to first subplot
     fig.add_trace(
-        go.Heatmap(z=grid_errors, x=x_range, y=y_range, colorscale=cmap, colorbar=dict(title="Mean Error", x=0.45)),
+        go.Heatmap(
+            z=grid_errors,
+            x=x_range,
+            y=y_range,
+            colorscale=cmap,
+            colorbar=dict(title=f"{metric_name} Error", x=0.45),
+            text=np.round(grid_errors, 3),  # Display score values rounded to 3 decimal places
+            hovertemplate="%{x:.2f}, %{y:.2f}<br>Error: %{z:.3f}<extra></extra>",
+        ),
         row=1,
         col=1,
     )
@@ -199,23 +226,29 @@ def plot_dt_segmentation_with_stats(
         go.Bar(
             x=stats["segment_id"].astype(str),
             y=stats["mean_error"],
-            text=stats["size_percent"].round(1).astype(str) + "%",
+            text=stats["mean_error"].round(3).astype(str),  # Display the score value
             textposition="auto",
-            marker_color="rgba(58, 71, 80, 0.6)",
-            name="Mean Error",
+            marker=dict(
+                color=stats["mean_error"],
+                colorscale=cmap,
+                colorbar=dict(title=f"{metric_name} Error", y=0.5, len=0.4, x=1.05),
+            ),
+            name=f"Mean {metric_name}",
         ),
         row=1,
         col=2,
     )
 
     # Update layout
-    fig.update_layout(title="Decision Tree Error Segmentation Analysis", width=figsize[0], height=figsize[1])
+    fig.update_layout(
+        title=f"Decision Tree Error Segmentation Analysis ({metric_name})", width=figsize[0], height=figsize[1]
+    )
 
     # Update axes
     fig.update_xaxes(title_text=segmentation.feature_1_col, row=1, col=1)
     fig.update_yaxes(title_text=segmentation.feature_2_col, row=1, col=1)
     fig.update_xaxes(title_text="Segment ID", row=1, col=2)
-    fig.update_yaxes(title_text="Mean Error", row=1, col=2)
+    fig.update_yaxes(title_text=f"Mean {metric_name} Error", row=1, col=2)
 
     if show:
         fig.show()
