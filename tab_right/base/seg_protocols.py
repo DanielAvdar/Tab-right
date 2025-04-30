@@ -5,7 +5,7 @@ including interfaces for segmentation calculations and feature-based segmentatio
 """
 
 from dataclasses import dataclass
-from typing import Callable, Protocol
+from typing import Callable, List, Protocol
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
@@ -13,8 +13,8 @@ from sklearn.tree import BaseDecisionTree
 
 
 @dataclass
-class SegmentationCalc(Protocol):
-    """Class schema for segmentation performance calculations.
+class BaseSegmentationCalc(Protocol):
+    """Base protocol for segmentation performance calculations.
 
     Parameters
     ----------
@@ -22,15 +22,11 @@ class SegmentationCalc(Protocol):
         Grouped DataFrame, each group represents a segment.
     label_col : str
         Column name for the true target values.
-    prediction_col : str
-        Column name for the predicted values.
-
 
     """
 
     gdf: DataFrameGroupBy
     label_col: str
-    prediction_col: str
 
     def __call__(self, metric: Callable[[pd.Series, pd.Series], float]) -> pd.DataFrame:
         """Call method to apply the metric to each group in the DataFrameGroupBy object.
@@ -50,6 +46,47 @@ class SegmentationCalc(Protocol):
             - `score`: The calculated error metric for the segment.
 
         """
+
+
+@dataclass
+class PredictionSegmentationCalc(BaseSegmentationCalc, Protocol):
+    """Protocol for segmentation performance calculations using a single prediction column.
+
+    Parameters
+    ----------
+    gdf : DataFrameGroupBy
+        Grouped DataFrame, each group represents a segment.
+    label_col : str
+        Column name for the true target values.
+    prediction_col : str
+        Column name for the predicted values.
+
+    """
+
+    prediction_col: str
+
+
+@dataclass
+class ProbabilitySegmentationCalc(BaseSegmentationCalc, Protocol):
+    """Protocol for segmentation performance calculations using probability columns.
+
+    Parameters
+    ----------
+    gdf : DataFrameGroupBy
+        Grouped DataFrame, each group represents a segment.
+    label_col : str
+        Column name for the true target values.
+    probability_cols : List[str]
+        Column names for the predicted probability values.
+
+    """
+
+    probability_cols: List[str]
+
+
+# For backward compatibility, SegmentationCalc remains as the main protocol
+# but now it's just a type alias for PredictionSegmentationCalc
+SegmentationCalc = PredictionSegmentationCalc
 
 
 @dataclass
@@ -99,8 +136,6 @@ class FindSegmentation2F(Protocol):
         ----------
         model : BaseDecisionTree
             The decision tree model to fit
-
-
 
         """
 
