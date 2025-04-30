@@ -5,13 +5,14 @@ including interfaces for segmentation calculations and feature-based segmentatio
 """
 
 from dataclasses import dataclass
-from typing import Callable, List, Protocol
+from typing import Callable, List, Protocol, runtime_checkable
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 from sklearn.tree import BaseDecisionTree
 
 
+@runtime_checkable
 @dataclass
 class BaseSegmentationCalc(Protocol):
     """Base protocol for segmentation performance calculations.
@@ -48,8 +49,9 @@ class BaseSegmentationCalc(Protocol):
         """
 
 
+@runtime_checkable
 @dataclass
-class PredictionSegmentationCalc(BaseSegmentationCalc, Protocol):
+class PredictionSegmentationCalc(Protocol):
     """Protocol for segmentation performance calculations using a single prediction column.
 
     Parameters
@@ -63,11 +65,33 @@ class PredictionSegmentationCalc(BaseSegmentationCalc, Protocol):
 
     """
 
+    gdf: DataFrameGroupBy
+    label_col: str
     prediction_col: str
 
+    def __call__(self, metric: Callable[[pd.Series, pd.Series], float]) -> pd.DataFrame:
+        """Call method to apply the metric to each group in the DataFrameGroupBy object.
 
+        Parameters
+        ----------
+        metric : Callable[[pd.Series, pd.Series], float]
+            A function that takes two pandas Series (true and predicted values)
+            and returns a float representing the error metric.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the calculated error metrics for each segment.
+            with 2 main columns:
+            - `segment_id`: The ID of the segment.
+            - `score`: The calculated error metric for the segment.
+
+        """
+
+
+@runtime_checkable
 @dataclass
-class ProbabilitySegmentationCalc(BaseSegmentationCalc, Protocol):
+class ProbabilitySegmentationCalc(Protocol):
     """Protocol for segmentation performance calculations using probability columns.
 
     Parameters
@@ -81,7 +105,28 @@ class ProbabilitySegmentationCalc(BaseSegmentationCalc, Protocol):
 
     """
 
+    gdf: DataFrameGroupBy
+    label_col: str
     probability_cols: List[str]
+
+    def __call__(self, metric: Callable[[pd.Series, pd.Series], float]) -> pd.DataFrame:
+        """Call method to apply the metric to each group in the DataFrameGroupBy object.
+
+        Parameters
+        ----------
+        metric : Callable[[pd.Series, pd.Series], float]
+            A function that takes two pandas Series (true and predicted values)
+            and returns a float representing the error metric.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the calculated error metrics for each segment.
+            with 2 main columns:
+            - `segment_id`: The ID of the segment.
+            - `score`: The calculated error metric for the segment.
+
+        """
 
 
 # For backward compatibility, SegmentationCalc remains as the main protocol
@@ -89,6 +134,7 @@ class ProbabilitySegmentationCalc(BaseSegmentationCalc, Protocol):
 SegmentationCalc = PredictionSegmentationCalc
 
 
+@runtime_checkable
 @dataclass
 class FindSegmentation2F(Protocol):
     """Class schema for segmentation performance calculations.

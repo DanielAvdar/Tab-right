@@ -1,7 +1,7 @@
 """Segmentation statistics utilities for tab-right package."""
 
 from dataclasses import dataclass, field
-from typing import Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
@@ -35,7 +35,7 @@ class SegmentationStats:
     df: pd.DataFrame
     label_col: Union[str, List[str]]
     feature: str
-    metric: Callable
+    metric: Callable[[pd.Series, pd.Series], float]  # Fix: Add complete type for metric
     # Parameters with defaults
     prediction_col: Optional[str] = None
     is_categorical: bool = False
@@ -47,11 +47,11 @@ class SegmentationStats:
         df: pd.DataFrame,
         label_col: Union[str, List[str]],
         feature: str,
-        metric: Callable,
+        metric: Callable[[pd.Series, pd.Series], float],  # Fix: Complete metric type
         prediction_col: Optional[str] = None,
         is_categorical: bool = False,
         pred_col: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,  # Fix: Add type for kwargs
     ) -> None:
         """Initialize the SegmentationStats class.
 
@@ -121,7 +121,15 @@ class SegmentationStats:
         self.gdf = df.groupby("_segment")
 
         def score_func(group: pd.DataFrame) -> float:
-            return float(self.metric(group[self.label_col], group[self.prediction_col]))
+            # Extract values from columns to match the metric function signature
+            labels_data = group[self.label_col]
+            preds_data = group[self.prediction_col]
+
+            # Convert to Series if needed
+            labels_series: pd.Series = labels_data if isinstance(labels_data, pd.Series) else labels_data.iloc[:, 0]
+            preds_series: pd.Series = preds_data if isinstance(preds_data, pd.Series) else preds_data.iloc[:, 0]
+
+            return float(self.metric(labels_series, preds_series))
 
         scores = self.gdf.apply(score_func)
         return pd.DataFrame({"segment": scores.index, "score": scores.values})
@@ -145,7 +153,7 @@ class SegmentationStats:
             return self._run_probability_mode(df)
         return self._run_metric_mode(df)
 
-    def __call__(self, metric: Callable[[pd.Series, pd.Series], float] = None) -> pd.DataFrame:
+    def __call__(self, metric: Optional[Callable[[pd.Series, pd.Series], float]] = None) -> pd.DataFrame:
         """Apply the metric to each group in the DataFrameGroupBy object.
 
         Parameters

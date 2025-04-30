@@ -12,7 +12,7 @@ from tab_right.base.seg_protocols import FindSegmentation2F
 
 
 @dataclass
-class DecisionTreeSegmentation(FindSegmentation2F):
+class DecisionTreeSegmentation(FindSegmentation2F):  # typing: FindSegmentation2F
     """DecisionTreeSegmentation provides error analysis using decision trees.
 
     This class uses decision trees to segment the feature space into regions
