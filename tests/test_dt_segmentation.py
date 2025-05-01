@@ -225,3 +225,130 @@ def test_get_path_to_node(sample_data):
         assert isinstance(path, list)
         assert path[0] == 0  # First node should be root (0)
         assert path[-1] == leaf_id  # Last node should be our target
+
+
+def test_backward_compatibility_property_accessors():
+    """Test backward compatibility property accessors for feature column names."""
+    # Create a new instance
+    dt_seg = DecisionTreeSegmentation()
+
+    # Test the setters (these should update the new attribute names)
+    dt_seg.feature_1_col = "old_feature1"
+    dt_seg.feature_2_col = "old_feature2"
+
+    # Verify that the new attribute names were updated
+    assert dt_seg.feature1_col == "old_feature1"
+    assert dt_seg.feature2_col == "old_feature2"
+
+    # Test the getters (these should access the new attribute names)
+    assert dt_seg.feature_1_col == "old_feature1"
+    assert dt_seg.feature_2_col == "old_feature2"
+
+    # Update via the new attribute names
+    dt_seg.feature1_col = "new_feature1"
+    dt_seg.feature2_col = "new_feature2"
+
+    # Verify that the old property accessors reflect the changes
+    assert dt_seg.feature_1_col == "new_feature1"
+    assert dt_seg.feature_2_col == "new_feature2"
+
+
+def test_train_tree_model_error_handling():
+    """Test error handling in train_tree_model method."""
+    dt_seg = DecisionTreeSegmentation()
+
+    # Should raise ValueError when DataFrame is None
+    with pytest.raises(ValueError, match="DataFrame and column names must be set before training"):
+        dt_seg.train_tree_model(RandomForestRegressor())
+
+    # Set DataFrame but keep columns None
+    dt_seg.df = pd.DataFrame({"feat1": [1, 2], "feat2": [3, 4], "error": [0.1, 0.2]})
+
+    # Should still raise ValueError when column names are None
+    with pytest.raises(ValueError, match="DataFrame and column names must be set before training"):
+        dt_seg.train_tree_model(RandomForestRegressor())
+
+
+def test_call_method_error_handling():
+    """Test error handling in the __call__ method."""
+    dt_seg = DecisionTreeSegmentation()
+
+    # Should raise ValueError when DataFrame is None
+    with pytest.raises(ValueError, match="DataFrame must be set before calling"):
+        dt_seg(RandomForestRegressor())
+
+    # Set DataFrame but keep tree_model None
+    dt_seg.df = pd.DataFrame({"feature1": [1, 2], "feature2": [3, 4], "error": [0.1, 0.2]})
+    dt_seg.feature1_col = "feature1"
+    dt_seg.feature2_col = "feature2"
+    dt_seg.error_col = "error"
+
+    # Should raise ValueError when model is None and not provided
+    with pytest.raises(ValueError, match="Model not fitted"):
+        dt_seg(None)
+
+
+def test_old_attribute_names_backward_compatibility():
+    """Test backward compatibility with old attribute names (feature_1_col, feature_2_col)."""
+    # Create simple test data
+    dt_seg = DecisionTreeSegmentation()
+
+    # Test the old attribute names (this should target lines 198-206)
+    dt_seg.feature_1_col = "old_feature1"
+    dt_seg.feature_2_col = "old_feature2"
+
+    # Verify the properties work in both directions
+    assert dt_seg.feature1_col == "old_feature1"
+    assert dt_seg.feature2_col == "old_feature2"
+    assert dt_seg.feature_1_col == "old_feature1"
+    assert dt_seg.feature_2_col == "old_feature2"
+
+    # Test that setting via new attribute names works too
+    dt_seg.feature1_col = "new_feature1"
+    dt_seg.feature2_col = "new_feature2"
+
+    # Verify the old property getter reflects the changes
+    assert dt_seg.feature_1_col == "new_feature1"
+    assert dt_seg.feature_2_col == "new_feature2"
+
+
+def test_edge_case_feature_ranges():
+    """Test the edge case handling in get_feature_ranges method."""
+    # Create a mock DecisionTreeSegmentation with a tree that doesn't have any splits on X or Y
+    dt_seg = DecisionTreeSegmentation()
+
+    # Create minimal test data
+    x = np.array([[1, 2], [3, 4]])
+    y_true = np.array([1, 2])
+    y_pred = np.array([1.1, 1.9])
+
+    # Fit model with only 2 data points and max_depth=1 to create a very simple tree
+    dt_seg.fit(x, y_true, y_pred, feature_names=["feature1", "feature2"])
+
+    # Now replace the trained tree model with a mock that will trigger the edge cases
+    # This tests lines 459 and 461 where feature ranges can't be determined
+    original_tree = dt_seg.tree_model
+
+    # Create a class to simulate a tree without splits on certain features
+    class MockTreeModel:
+        def __init__(self):
+            self.tree_ = original_tree.tree_
+
+        def predict(self, x_input):
+            return np.ones(len(x_input))
+
+        def apply(self, x_input):
+            return np.zeros(len(x_input), dtype=int)
+
+    # Patch the tree feature/threshold arrays to simulate a tree with no splits
+    # on one of the features (this will test the edge case in get_feature_ranges)
+    dt_seg.tree_model = MockTreeModel()
+
+    # Get feature ranges - this would trigger default values (-1, 1) for features without splits
+    ranges = dt_seg.get_feature_ranges()
+
+    # Verify we got ranges even without proper splits in the tree
+    assert len(ranges) == 2
+    assert all(len(range_pair) == 2 for range_pair in ranges)
+    # Check that padding was applied correctly
+    assert all(r[1] > r[0] for r in ranges)

@@ -52,3 +52,12 @@ def test_detect_task_categorical_class(strings):
         assert detect_task(s) == TaskType.BINARY
     else:
         assert detect_task(s) == TaskType.CLASS
+
+
+def test_detect_task_many_integers():
+    """Test detection of regression task for many unique integer values (>10)."""
+    # Create a Series with 15 unique integer values (more than 10)
+    s = pd.Series(list(range(15)))
+
+    # This should trigger the 'else' branch (line 47) for TaskType.REG
+    assert detect_task(s) == TaskType.REG

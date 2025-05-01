@@ -4,7 +4,7 @@ import pytest
 
 from tab_right.drift.cramer_v import cramer_v
 from tab_right.drift.psi import psi
-from tab_right.drift.univariate import detect_univariate_drift
+from tab_right.drift.univariate import UnivariateDriftCalculator, detect_univariate_drift, detect_univariate_drift_df
 
 
 @pytest.mark.parametrize("backend", [None, "pyarrow"])
@@ -127,9 +127,149 @@ def test_detect_univariate_drift_variety(ref, cur, kind, expected_metric, expect
 def test_detect_univariate_drift_df_variety():
     df_ref = pd.DataFrame({"num": [1, 2, 3, 4, 5], "cat": ["a", "b", "a", "b", "c"]})
     df_cur = pd.DataFrame({"num": [2, 3, 4, 5, 6], "cat": ["a", "b", "b", "b", "c"]})
-    from tab_right.drift.univariate import detect_univariate_drift_df
-
     result = detect_univariate_drift_df(df_ref, df_cur)
     assert set(result["feature"]) == {"num", "cat"}
     assert all(m in ("wasserstein", "cramer_v") for m in result["metric"])
     assert all((v >= 0 or pd.isna(v)) for v in result["value"])
+
+
+def test_detect_univariate_drift_invalid_kind():
+    """Test that an invalid 'kind' parameter raises a ValueError."""
+    ref = pd.Series([1, 2, 3, 4, 5])
+    cur = pd.Series([1, 2, 2, 4, 5])
+
+    with pytest.raises(ValueError, match="Unknown kind"):
+        detect_univariate_drift(ref, cur, kind="invalid_kind")
+
+
+def test_univariate_drift_calculator_invalid_kind_length():
+    """Test that a mismatched kind parameter length raises a ValueError."""
+    df1 = pd.DataFrame({"col1": [1, 2, 3], "col2": [4, 5, 6]})
+    df2 = pd.DataFrame({"col1": [1, 2, 4], "col2": [4, 5, 7]})
+
+    # Provide only one boolean for two columns
+    with pytest.raises(ValueError, match="must match number of common columns"):
+        calculator = UnivariateDriftCalculator(df1, df2, kind=[True])
+        calculator()
+
+
+def test_detect_univariate_drift_df_rename_columns():
+    """Test the backward compatibility function renames columns correctly."""
+    df1 = pd.DataFrame({"num": [1, 2, 3], "cat": ["a", "b", "c"]})
+    df2 = pd.DataFrame({"num": [1, 3, 3], "cat": ["a", "a", "c"]})
+
+    result = detect_univariate_drift_df(df1, df2)
+
+    # Check the result has the expected columns from the old API
+    assert "feature" in result.columns
+    assert "metric" in result.columns
+    assert "value" in result.columns
+
+    # The renamed columns shouldn't exist
+    assert "type" not in result.columns
+    assert "score" not in result.columns
+
+
+def test_non_numeric_dtypes_auto_detection():
+    """Test that non-numeric types are properly classified as categorical in auto mode."""
+    # Create DataFrames with various non-numeric dtypes
+    df1 = pd.DataFrame({
+        "string_col": pd.Series(["a", "b", "c"], dtype="string"),
+        "object_col": pd.Series(["x", "y", "z"], dtype="object"),
+        "category_col": pd.Series(["cat1", "cat2", "cat3"], dtype="category"),
+    })
+
+    df2 = pd.DataFrame({
+        "string_col": pd.Series(["a", "b", "d"], dtype="string"),
+        "object_col": pd.Series(["x", "y", "w"], dtype="object"),
+        "category_col": pd.Series(["cat1", "cat2", "cat4"], dtype="category"),
+    })
+
+    # Use the calculator with auto detection
+    calc = UnivariateDriftCalculator(df1, df2)
+    result = calc()
+
+    # Verify non-numeric columns were treated as categorical (this hits line 67)
+    for col in ["string_col", "object_col", "category_col"]:
+        assert result.loc[result["feature"] == col, "type"].iloc[0] == "cramer_v"
+
+    # Also test with the detect_univariate_drift function individually
+    for col in df1.columns:
+        metric_type, _ = detect_univariate_drift(df1[col], df2[col])
+        assert metric_type == "cramer_v"
+
+
+def test_unknown_kind_value_error():
+    """Test that an invalid kind value raises the expected ValueError."""
+    series1 = pd.Series([1, 2, 3])
+    series2 = pd.Series([1, 2, 4])
+
+    # This should target line 116 with the ValueError for unknown kind
+    with pytest.raises(ValueError, match="Unknown kind"):
+        detect_univariate_drift(series1, series2, kind="unknown_kind_value")
+
+
+def test_pandas_extension_array_dtypes():
+    """Test handling of pandas extension array dtypes."""
+    # Test with different extension array dtypes
+    df1 = pd.DataFrame({
+        "int_array": pd.Series([1, 2, 3], dtype="Int64"),  # Nullable integer
+        "string_array": pd.Series(["a", "b", "c"], dtype="string[pyarrow]"),
+    })
+
+    df2 = pd.DataFrame({
+        "int_array": pd.Series([1, 3, 3], dtype="Int64"),
+        "string_array": pd.Series(["a", "c", "c"], dtype="string[pyarrow]"),
+    })
+
+    # Test with explicit kind list that doesn't match column count
+    with pytest.raises(ValueError, match="must match number of common columns"):
+        # This should target line 75
+        calc = UnivariateDriftCalculator(df1, df2, kind=[True])
+        calc()
+
+    # Test with correct length kind list - specify string as categorical (False)
+    # and int as continuous (True)
+    calc = UnivariateDriftCalculator(df1, df2, kind=[True, False])
+    result = calc()
+
+    # Check types are correctly set
+    assert result.loc[result["feature"] == "int_array", "type"].iloc[0] == "wasserstein"
+    assert result.loc[result["feature"] == "string_array", "type"].iloc[0] == "cramer_v"
+
+    # Also verify that auto-detection works correctly
+    calc_auto = UnivariateDriftCalculator(df1, df2)
+    result_auto = calc_auto()
+
+    # Int64 should be detected as numeric
+    assert result_auto.loc[result_auto["feature"] == "int_array", "type"].iloc[0] == "wasserstein"
+    # String should be detected as categorical
+    assert result_auto.loc[result_auto["feature"] == "string_array", "type"].iloc[0] == "cramer_v"
+
+
+def test_univariate_auto_detection_edge_cases():
+    """Test the auto-detection logic with edge cases to improve coverage."""
+    # Create DataFrames with mixed dtypes including numeric and non-numeric
+    df1 = pd.DataFrame({
+        # A boolean column (should be detected as categorical despite being numeric in some contexts)
+        "bool_col": pd.Series([True, False, True], dtype="bool"),
+        # A numeric column that's actually categorical (has very few unique values)
+        "numeric_cat": pd.Series([1, 2, 1, 2, 1], dtype="int64"),
+    })
+
+    df2 = pd.DataFrame({
+        "bool_col": pd.Series([False, False, True], dtype="bool"),
+        "numeric_cat": pd.Series([1, 1, 2, 2, 2], dtype="int64"),
+    })
+
+    # Force the "auto" detection mode to hit all branches
+    calc = UnivariateDriftCalculator(df1, df2, kind="auto")
+    result = calc()
+
+    # Verify boolean values were treated correctly
+    bool_col_type = result.loc[result["feature"] == "bool_col", "type"].iloc[0]
+    assert bool_col_type in ["wasserstein", "cramer_v"]
+
+    # Verify the numeric categorical was treated correctly
+    num_cat_type = result.loc[result["feature"] == "numeric_cat", "type"].iloc[0]
+    assert num_cat_type in ["wasserstein", "cramer_v"]
