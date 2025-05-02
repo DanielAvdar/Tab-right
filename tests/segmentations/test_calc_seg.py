@@ -173,72 +173,72 @@ def test_run_modes(sample_data, mode, label_col, expected_score_type):
     assert isinstance(result["score"].iloc[0], expected_score_type)
 
 
-@pytest.mark.parametrize(
-    "test_case,should_raise,error_type,error_match", 
-    [
-        # Valid cases
-        ("valid_regression", False, None, None),
-        ("valid_probability", False, None, None),
-        # Invalid cases
-        ("missing_parameters", True, ValueError, "Either .*must be provided"),
-        ("nan_values", True, ValueError, "Label column contains NaN values"),
-        ("invalid_probabilities", True, ValueError, "Probabilities .* do not sum to 1"),
-        ("missing_metric", True, ValueError, "Metric function must be provided"),
-    ]
-)
-def test_validation_and_errors(sample_data, test_case, should_raise, error_type, error_match):
-    """Test validation and error handling."""
-    if test_case == "valid_regression":
-        seg_stats = SegmentationStats(
-            df=sample_data, 
-            label_col="y_true", 
-            feature="feature1", 
-            prediction_col="y_pred", 
-            metric=mean_absolute_error
-        )
-        seg_stats.check()  # Should not raise
-        
-    elif test_case == "valid_probability":
-        seg_stats = SegmentationStats(
-            df=sample_data, 
-            label_col=["prob_class1", "prob_class2"], 
-            feature="feature1", 
-            prediction_col="y_pred"
-        )
-        seg_stats.check()  # Should not raise
-        
-    elif test_case == "missing_parameters":
-        with pytest.raises(error_type, match=error_match):
-            SegmentationStats()
-            
-    elif test_case == "nan_values":
-        bad_data = sample_data.copy()
-        bad_data.loc[0, "y_true"] = np.nan
-        seg_stats = SegmentationStats(
-            df=bad_data, 
-            label_col="y_true", 
-            feature="feature1", 
-            prediction_col="y_pred", 
-            metric=mean_absolute_error
-        )
-        with pytest.raises(error_type, match=error_match):
-            seg_stats.check()
-            
-    elif test_case == "invalid_probabilities":
-        bad_prob_data = sample_data.copy()
-        bad_prob_data.loc[0, "prob_class1"] = 0.7
-        bad_prob_data.loc[0, "prob_class2"] = 0.7  # Sum > 1
-        seg_stats = SegmentationStats(
-            df=bad_prob_data, 
-            label_col=["prob_class1", "prob_class2"], 
-            feature="feature1", 
-            prediction_col="y_pred"
-        )
-        with pytest.raises(error_type, match=error_match):
-            seg_stats.check()
-            
-    elif test_case == "missing_metric":
-        df = pd.DataFrame({"feature": [1, 2, 3], "label": [10, 20, 30], "pred": [11, 19, 32]})
-        seg_stats = SegmentationStats(df=df, label_col="label", feature="feature", prediction_col="pred", metric=None)
-        with pytest.raises(error_type, match=error_match):
-            seg_stats()
+# --- Start Refactored Validation Tests ---
+
+def test_validation_valid_regression(sample_data):
+    """Test validation passes for a valid regression setup."""
+    seg_stats = SegmentationStats(
+        df=sample_data, 
+        label_col="y_true", 
+        feature="feature1", 
+        prediction_col="y_pred", 
+        metric=mean_absolute_error
+    )
+    seg_stats.check()  # Should not raise
+
+
+def test_validation_valid_probability(sample_data):
+    """Test validation passes for a valid probability setup."""
+    seg_stats = SegmentationStats(
+        df=sample_data, 
+        label_col=["prob_class1", "prob_class2"], 
+        feature="feature1", 
+        prediction_col="y_pred" # Required but not used in probability check
+    )
+    seg_stats.check()  # Should not raise
+
+
+def test_validation_error_missing_parameters():
+    """Test validation raises ValueError if essential parameters are missing."""
+    with pytest.raises(ValueError, match="Either .*must be provided"):
+        SegmentationStats()
+
+
+def test_validation_error_nan_values(sample_data):
+    """Test validation raises ValueError if label column contains NaN."""
+    bad_data = sample_data.copy()
+    bad_data.loc[0, "y_true"] = np.nan
+    seg_stats = SegmentationStats(
+        df=bad_data, 
+        label_col="y_true", 
+        feature="feature1", 
+        prediction_col="y_pred", 
+        metric=mean_absolute_error
+    )
+    with pytest.raises(ValueError, match="Label column contains NaN values"):
+        seg_stats.check()
+
+
+def test_validation_error_invalid_probabilities(sample_data):
+    """Test validation raises ValueError if probabilities don't sum to 1."""
+    bad_prob_data = sample_data.copy()
+    bad_prob_data.loc[0, "prob_class1"] = 0.7
+    bad_prob_data.loc[0, "prob_class2"] = 0.7  # Sum > 1
+    seg_stats = SegmentationStats(
+        df=bad_prob_data, 
+        label_col=["prob_class1", "prob_class2"], 
+        feature="feature1", 
+        prediction_col="y_pred" # Required but not used in probability check
+    )
+    with pytest.raises(ValueError, match="Probabilities .* do not sum to 1"):
+        seg_stats.check()
+
+
+def test_validation_error_missing_metric_for_metric_mode():
+    """Test validation raises ValueError if metric is missing for metric mode."""
+    df = pd.DataFrame({"feature": [1, 2, 3], "label": [10, 20, 30], "pred": [11, 19, 32]})
+    seg_stats = SegmentationStats(df=df, label_col="label", feature="feature", prediction_col="pred", metric=None)
+    with pytest.raises(ValueError, match="Metric function must be provided"):
+        seg_stats() # Calling triggers the metric mode check
+
+# --- End Refactored Validation Tests ---
