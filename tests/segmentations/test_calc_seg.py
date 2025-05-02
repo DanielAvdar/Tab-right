@@ -6,32 +6,7 @@ import pytest
 from sklearn.metrics import mean_absolute_error
 
 from tab_right.segmentations.calc_seg import SegmentationStats
-
-
-@pytest.fixture
-def sample_data():
-    """Create sample data for testing segmentation statistics."""
-    np.random.seed(42)
-    n_samples = 100
-
-    # Create a DataFrame with features and targets
-    df = pd.DataFrame({
-        "feature1": np.random.uniform(-1, 1, n_samples),
-        "feature2": np.random.uniform(0, 10, n_samples),
-        "category": np.random.choice(["A", "B", "C"], n_samples),
-    })
-
-    # Create target variable with some dependency on features
-    df["y_true"] = 2 * df["feature1"] + 0.5 * df["feature2"] + np.random.normal(0, 1, n_samples)
-
-    # Create predictions with some errors
-    df["y_pred"] = df["y_true"] + np.random.normal(0, 0.5, n_samples)
-
-    # For classification case, create probability columns
-    df["prob_class1"] = np.abs(np.sin(df["feature1"]))
-    df["prob_class2"] = 1 - df["prob_class1"]
-
-    return df
+from tests.test_utils import error_metric, create_decision_tree_model
 
 
 @pytest.mark.parametrize(
@@ -137,13 +112,13 @@ def test_call_method_with_metric(sample_data, metric_param, custom_metric):
 
 
 @pytest.mark.parametrize(
-    "mode,label_col,expected_score_type", 
+    "mode,label_col,expected_score_type,metric_fn",
     [
-        ("probability", ["prob_class1", "prob_class2"], dict),  # Test probability mode
-        ("metric", "y_true", float),  # Test metric mode
+        ("probability", ["prob_class1", "prob_class2"], dict, None),  # Test probability mode
+        ("metric", "y_true", float, lambda y_true, y_pred: float(np.mean(np.abs(y_true - y_pred)))),  # Test metric mode with scalar output
     ]
 )
-def test_run_modes(sample_data, mode, label_col, expected_score_type):
+def test_run_modes(sample_data, mode, label_col, expected_score_type, metric_fn):
     """Test different run modes (probability and metric)."""
     # Initialize for appropriate mode
     if mode == "probability":
@@ -154,7 +129,6 @@ def test_run_modes(sample_data, mode, label_col, expected_score_type):
             prediction_col="y_pred",  # Not used in probability mode, but required
         )
         result = seg_stats._run_probability_mode()
-        
         # Check that scores are dictionaries with expected keys
         assert all(key in result["score"].iloc[0] for key in label_col)
     else:
@@ -163,10 +137,9 @@ def test_run_modes(sample_data, mode, label_col, expected_score_type):
             label_col=label_col, 
             feature="feature1", 
             prediction_col="y_pred", 
-            metric=lambda y_true, y_pred: np.abs(y_true - y_pred).mean()
+            metric=metric_fn
         )
         result = seg_stats._run_metric_mode()
-        
     assert isinstance(result, pd.DataFrame)
     assert "segment_id" in result.columns
     assert "score" in result.columns
@@ -175,70 +148,36 @@ def test_run_modes(sample_data, mode, label_col, expected_score_type):
 
 # --- Start Refactored Validation Tests ---
 
-def test_validation_valid_regression(sample_data):
-    """Test validation passes for a valid regression setup."""
-    seg_stats = SegmentationStats(
-        df=sample_data, 
-        label_col="y_true", 
-        feature="feature1", 
-        prediction_col="y_pred", 
-        metric=mean_absolute_error
-    )
-    seg_stats.check()  # Should not raise
-
-
-def test_validation_valid_probability(sample_data):
-    """Test validation passes for a valid probability setup."""
-    seg_stats = SegmentationStats(
-        df=sample_data, 
-        label_col=["prob_class1", "prob_class2"], 
-        feature="feature1", 
-        prediction_col="y_pred" # Required but not used in probability check
-    )
-    seg_stats.check()  # Should not raise
-
-
-def test_validation_error_missing_parameters():
-    """Test validation raises ValueError if essential parameters are missing."""
-    with pytest.raises(ValueError, match="Either .*must be provided"):
-        SegmentationStats()
-
-
-def test_validation_error_nan_values(sample_data):
-    """Test validation raises ValueError if label column contains NaN."""
-    bad_data = sample_data.copy()
-    bad_data.loc[0, "y_true"] = np.nan
-    seg_stats = SegmentationStats(
-        df=bad_data, 
-        label_col="y_true", 
-        feature="feature1", 
-        prediction_col="y_pred", 
-        metric=mean_absolute_error
-    )
-    with pytest.raises(ValueError, match="Label column contains NaN values"):
-        seg_stats.check()
-
-
-def test_validation_error_invalid_probabilities(sample_data):
-    """Test validation raises ValueError if probabilities don't sum to 1."""
-    bad_prob_data = sample_data.copy()
-    bad_prob_data.loc[0, "prob_class1"] = 0.7
-    bad_prob_data.loc[0, "prob_class2"] = 0.7  # Sum > 1
-    seg_stats = SegmentationStats(
-        df=bad_prob_data, 
-        label_col=["prob_class1", "prob_class2"], 
-        feature="feature1", 
-        prediction_col="y_pred" # Required but not used in probability check
-    )
-    with pytest.raises(ValueError, match="Probabilities .* do not sum to 1"):
-        seg_stats.check()
-
-
-def test_validation_error_missing_metric_for_metric_mode():
-    """Test validation raises ValueError if metric is missing for metric mode."""
-    df = pd.DataFrame({"feature": [1, 2, 3], "label": [10, 20, 30], "pred": [11, 19, 32]})
-    seg_stats = SegmentationStats(df=df, label_col="label", feature="feature", prediction_col="pred", metric=None)
-    with pytest.raises(ValueError, match="Metric function must be provided"):
-        seg_stats() # Calling triggers the metric mode check
+@pytest.mark.parametrize(
+    "setup_func,expected_exception,expected_message",
+    [
+        # Missing essential parameters
+        (lambda sample_data: SegmentationStats(), ValueError, "Either .*must be provided"),
+        # Label column contains NaN
+        (lambda sample_data: SegmentationStats(
+            df=sample_data.assign(y_true=np.where(sample_data.index == 0, np.nan, sample_data["y_true"])),
+            label_col="y_true", feature="feature1", prediction_col="y_pred", metric=mean_absolute_error),
+         ValueError, "Label column contains NaN values"),
+        # Probabilities don't sum to 1
+        (lambda sample_data: SegmentationStats(
+            df=sample_data.assign(prob_class1=np.where(sample_data.index == 0, 0.7, sample_data["prob_class1"]),
+                                    prob_class2=np.where(sample_data.index == 0, 0.7, sample_data["prob_class2"])),
+            label_col=["prob_class1", "prob_class2"], feature="feature1", prediction_col="y_pred"),
+         ValueError, "Probabilities .* do not sum to 1"),
+        # Metric missing for metric mode
+        (lambda sample_data: SegmentationStats(
+            df=pd.DataFrame({"feature": [1, 2, 3], "label": [10, 20, 30], "pred": [11, 19, 32]}),
+            label_col="label", feature="feature", prediction_col="pred", metric=None),
+         ValueError, "Metric function must be provided"),
+    ]
+)
+def test_validation_errors(sample_data, setup_func, expected_exception, expected_message):
+    """Test validation error cases in a parameterized way."""
+    if "Metric function must be provided" in expected_message:
+        with pytest.raises(expected_exception, match=expected_message):
+            setup_func(sample_data)()
+    else:
+        with pytest.raises(expected_exception, match=expected_message):
+            setup_func(sample_data).check()
 
 # --- End Refactored Validation Tests ---

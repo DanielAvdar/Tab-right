@@ -7,31 +7,7 @@ from sklearn.tree import DecisionTreeRegressor
 
 from tab_right.segmentations.double_seg import DecisionTreeDoubleSegmentation
 from tab_right.segmentations.find_seg import DecisionTreeSegmentation
-
-
-@pytest.fixture
-def sample_data():
-    """Create sample data for testing double segmentation."""
-    np.random.seed(42)
-    n_samples = 100
-
-    # Create a DataFrame with features and targets
-    df = pd.DataFrame({
-        "feature1": np.random.uniform(-1, 1, n_samples),
-        "feature2": np.random.uniform(0, 10, n_samples),
-        "feature3": np.random.normal(0, 1, n_samples),
-    })
-
-    # Create target variable with some dependency on features
-    noise = np.random.normal(0, 0.5, n_samples)
-    df["y_true"] = df["feature1"] ** 2 + df["feature2"] * 0.5 + noise
-
-    # Create predictions with systematic errors
-    df["y_pred"] = (
-        df["y_true"] + 0.1 * df["feature1"] + 0.05 * df["feature2"] ** 2 + np.random.normal(0, 0.3, n_samples)
-    )
-
-    return df
+from tests.test_utils import error_metric, create_decision_tree_model
 
 
 @pytest.fixture
@@ -132,12 +108,8 @@ def test_call_method(segmentation_finder, sample_data, feature1_col, feature2_co
     # Create a double segmentation instance
     double_seg = DecisionTreeDoubleSegmentation(segmentation_finder=segmentation_finder)
 
-    # Define a simple error metric
-    def error_metric(y_true, y_pred):
-        return np.abs(y_true - y_pred.iloc[:, 0])
-
-    # Create a decision tree model
-    model = DecisionTreeRegressor(max_depth=model_depth)
+    # Use shared error_metric and model creator
+    model = create_decision_tree_model(max_depth=model_depth)
 
     # Call the double segmentation
     result = double_seg(feature1_col=feature1_col, feature2_col=feature2_col, error_metric=error_metric, model=model)
@@ -168,16 +140,8 @@ def test_end_to_end(sample_data, depth, min_segments):
     # Create the double segmentation instance
     double_seg = DecisionTreeDoubleSegmentation(segmentation_finder=finder)
 
-    # Define an error metric
-    def error_metric(y_true, y_pred):
-        if isinstance(y_pred, pd.DataFrame) and len(y_pred.columns) >= 1:
-            pred_values = y_pred.iloc[:, 0]
-        else:
-            pred_values = y_pred
-        return np.abs(y_true - pred_values)
-
-    # Create a decision tree model
-    model = DecisionTreeRegressor(max_depth=depth)
+    # Use shared error_metric and model creator
+    model = create_decision_tree_model(max_depth=depth)
 
     # Run the segmentation
     result = double_seg(feature1_col="feature1", feature2_col="feature2", error_metric=error_metric, model=model)

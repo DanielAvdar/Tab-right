@@ -8,28 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 
 from tab_right.segmentations.find_seg import DecisionTreeSegmentation
-
-
-@pytest.fixture
-def sample_data():
-    """Create sample data for testing decision tree segmentation."""
-    np.random.seed(42)
-    n_samples = 100
-
-    # Create a DataFrame with features and targets
-    df = pd.DataFrame({
-        "feature1": np.random.uniform(-1, 1, n_samples),
-        "feature2": np.random.uniform(0, 10, n_samples),
-        "feature3": np.random.normal(0, 1, n_samples),
-    })
-
-    # Create target variable with some dependency on features
-    df["y_true"] = 2 * df["feature1"] ** 2 - df["feature2"] * 0.5 + np.random.normal(0, 1, n_samples)
-
-    # Create predictions with some errors
-    df["y_pred"] = df["y_true"] + 0.1 * df["feature1"] + 0.05 * df["feature2"] + np.random.normal(0, 0.5, n_samples)
-
-    return df
+from tests.test_utils import error_metric, create_decision_tree_model
 
 
 @pytest.fixture
@@ -283,13 +262,9 @@ def test_call_method_protocol(sample_data, feature_col, max_depth):
         feature2_col="feature2",
     )
 
-    # Define a simple error metric for protocol usage
-    def error_metric(y_true, y_pred):
-        return np.abs(y_true - y_pred.iloc[:, 0])
-
     # Call with protocol-compatible parameters
     # The model is trained internally when called this way
-    grouped = dt_seg(feature_col=feature_col, error_metric=error_metric, model=DecisionTreeRegressor(max_depth=max_depth))
+    grouped = dt_seg(feature_col=feature_col, error_metric=error_metric, model=create_decision_tree_model(max_depth=max_depth))
     
     # Check results
     assert hasattr(grouped, "groups")
@@ -441,14 +416,8 @@ def test_integration_with_protocols(sample_data, feature_col, max_depth):
     # Create a segmentation instance
     dt_seg = DecisionTreeSegmentation(df=sample_data, label_col="y_true", prediction_col="y_pred")
 
-    # Define an error metric as required by the protocol
-    def error_metric(y_true, y_pred):
-        if isinstance(y_pred, pd.DataFrame) and len(y_pred.columns) >= 1:
-            return np.abs(y_true - y_pred.iloc[:, 0])
-        return np.abs(y_true - y_pred)
-
     # Create a decision tree model
-    model = DecisionTreeRegressor(max_depth=max_depth)
+    model = create_decision_tree_model(max_depth=max_depth)
 
     # Call as per the protocol definition
     result = dt_seg(feature_col=feature_col, error_metric=error_metric, model=model)
