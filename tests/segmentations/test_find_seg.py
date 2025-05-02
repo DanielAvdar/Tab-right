@@ -60,85 +60,131 @@ def training_data():
     return {"x_test": x_test, "y_test": y_test, "y_pred": y_pred}
 
 
-def test_init():
-    """Test initialization of DecisionTreeSegmentation class."""
-    # Test default initialization
-    dt_seg = DecisionTreeSegmentation()
-    assert dt_seg.max_depth == 5
-    assert dt_seg.min_samples_leaf == 20
-    assert dt_seg.df is None
-    assert dt_seg.tree_model is None
+@pytest.mark.parametrize(
+    "params,expected",
+    [
+        # Test default initialization
+        (
+            {},
+            {"max_depth": 5, "min_samples_leaf": 20, "df": None, "tree_model": None},
+        ),
+        # Test with custom parameters
+        (
+            {"max_depth": 3, "min_samples_leaf": 10},
+            {"max_depth": 3, "min_samples_leaf": 10},
+        ),
+        # Test with dataframe
+        (
+            {
+                "df": pd.DataFrame({
+                    "feature1": [1, 2, 3], "feature2": [4, 5, 6], 
+                    "y_true": [10, 20, 30], "y_pred": [11, 19, 31]
+                }),
+                "label_col": "y_true",
+                "prediction_col": "y_pred",
+                "feature1_col": "feature1",
+                "feature2_col": "feature2",
+            },
+            {
+                "label_col": "y_true", 
+                "prediction_col": "y_pred", 
+                "feature1_col": "feature1", 
+                "feature2_col": "feature2"
+            },
+        ),
+    ],
+)
+def test_init(params, expected):
+    """Test initialization of DecisionTreeSegmentation class with parametrized inputs."""
+    dt_seg = DecisionTreeSegmentation(**params)
+    
+    for attr, value in expected.items():
+        if attr == "df" and value is None:
+            assert dt_seg.df is None
+        elif attr == "tree_model" and value is None:
+            assert dt_seg.tree_model is None
+        elif attr == "df" and value is not None:
+            assert dt_seg.df is not None
+        else:
+            assert getattr(dt_seg, attr) == value
 
-    # Test with custom parameters
-    dt_seg = DecisionTreeSegmentation(max_depth=3, min_samples_leaf=10)
-    assert dt_seg.max_depth == 3
-    assert dt_seg.min_samples_leaf == 10
 
-    # Test with dataframe
-    df = pd.DataFrame({"feature1": [1, 2, 3], "feature2": [4, 5, 6], "y_true": [10, 20, 30], "y_pred": [11, 19, 31]})
-    dt_seg = DecisionTreeSegmentation(
-        df=df, label_col="y_true", prediction_col="y_pred", feature1_col="feature1", feature2_col="feature2"
-    )
-    assert dt_seg.df is not None
-    assert dt_seg.label_col == "y_true"
-    assert dt_seg.prediction_col == "y_pred"
-    assert dt_seg.feature1_col == "feature1"
-    assert dt_seg.feature2_col == "feature2"
-
-
-def test_backward_compatibility_properties():
+@pytest.mark.parametrize(
+    "old_names,new_names",
+    [
+        (
+            {"feature_1_col": "old_feature1", "feature_2_col": "old_feature2"},
+            {"feature1_col": "new_feature1", "feature2_col": "new_feature2"},
+        ),
+    ],
+)
+def test_backward_compatibility_properties(old_names, new_names):
     """Test backward compatibility property accessors."""
     dt_seg = DecisionTreeSegmentation()
 
     # Test setting via old properties
-    dt_seg.feature_1_col = "old_feature1"
-    dt_seg.feature_2_col = "old_feature2"
+    for old_prop, old_val in old_names.items():
+        setattr(dt_seg, old_prop, old_val)
 
     # Check that new properties were updated
-    assert dt_seg.feature1_col == "old_feature1"
-    assert dt_seg.feature2_col == "old_feature2"
+    assert dt_seg.feature1_col == old_names["feature_1_col"]
+    assert dt_seg.feature2_col == old_names["feature_2_col"]
 
     # Test getting via old properties
-    assert dt_seg.feature_1_col == "old_feature1"
-    assert dt_seg.feature_2_col == "old_feature2"
+    assert dt_seg.feature_1_col == old_names["feature_1_col"]
+    assert dt_seg.feature_2_col == old_names["feature_2_col"]
 
     # Test setting via new properties
-    dt_seg.feature1_col = "new_feature1"
-    dt_seg.feature2_col = "new_feature2"
+    for new_prop, new_val in new_names.items():
+        setattr(dt_seg, new_prop, new_val)
 
     # Check that old properties reflect changes
-    assert dt_seg.feature_1_col == "new_feature1"
-    assert dt_seg.feature_2_col == "new_feature2"
+    assert dt_seg.feature_1_col == new_names["feature1_col"]
+    assert dt_seg.feature_2_col == new_names["feature2_col"]
 
 
-def test_fit(training_data):
+@pytest.mark.parametrize(
+    "max_depth,feature_names,expected_cols",
+    [
+        (
+            3,
+            ["feature1", "feature2"],
+            ["feature1", "feature2", "abs_error", "y_true", "y_pred"],
+        ),
+    ],
+)
+def test_fit(training_data, max_depth, feature_names, expected_cols):
     """Test fitting the decision tree segmentation model."""
     x_test = training_data["x_test"]
     y_test = training_data["y_test"]
     y_pred = training_data["y_pred"]
 
     # Test fitting with specific feature names
-    dt_seg = DecisionTreeSegmentation(max_depth=3)
-    dt_seg.fit(x_test, y_test, y_pred, feature_names=["feature1", "feature2"])
+    dt_seg = DecisionTreeSegmentation(max_depth=max_depth)
+    dt_seg.fit(x_test, y_test, y_pred, feature_names=feature_names)
 
     # Check if model was fitted correctly
     assert dt_seg.tree_model is not None
-    assert dt_seg.feature1_col == "feature1"
-    assert dt_seg.feature2_col == "feature2"
+    assert dt_seg.feature1_col == feature_names[0]
+    assert dt_seg.feature2_col == feature_names[1]
     assert dt_seg.error_col == "abs_error"
     assert dt_seg.df is not None
     assert dt_seg.label_col == "y_true"
     assert dt_seg.prediction_col == "y_pred"
 
     # Check that DataFrame has expected columns
-    assert "feature1" in dt_seg.df.columns
-    assert "feature2" in dt_seg.df.columns
-    assert "abs_error" in dt_seg.df.columns
-    assert "y_true" in dt_seg.df.columns
-    assert "y_pred" in dt_seg.df.columns
+    for col in expected_cols:
+        assert col in dt_seg.df.columns
 
 
-def test_fit_numpy_array():
+@pytest.mark.parametrize(
+    "feature_names,expected_feature_names",
+    [
+        (None, ["Feature 0", "Feature 1"]),  # Default feature names
+        (["X", "Y", "Z"], ["X", "Y"]),  # Custom feature names
+    ],
+)
+def test_fit_numpy_array(feature_names, expected_feature_names):
     """Test fitting with numpy arrays."""
     np.random.seed(42)
     # Create numpy arrays
@@ -147,44 +193,58 @@ def test_fit_numpy_array():
     y_pred = y_true + np.random.normal(0, 0.2, size=100)
 
     dt_seg = DecisionTreeSegmentation()
-    dt_seg.fit(x, y_true, y_pred)
+    dt_seg.fit(x, y_true, y_pred, feature_names=feature_names)
 
-    # Check default feature names
-    assert dt_seg.feature1_col == "Feature 0"
-    assert dt_seg.feature2_col == "Feature 1"
-
-    # Check with custom feature names
-    dt_seg.fit(x, y_true, y_pred, feature_names=["X", "Y", "Z"])
-    assert dt_seg.feature1_col == "X"
-    assert dt_seg.feature2_col == "Y"
+    # Check feature names
+    assert dt_seg.feature1_col == expected_feature_names[0]
+    assert dt_seg.feature2_col == expected_feature_names[1]
 
 
-def test_train_tree_model(sample_data):
+@pytest.mark.parametrize(
+    "test_case,should_raise",
+    [
+        ("valid_model", False),
+        ("empty_model", True),
+    ],
+)
+def test_train_tree_model(sample_data, test_case, should_raise):
     """Test the train_tree_model method."""
-    dt_seg = DecisionTreeSegmentation(
-        df=sample_data, feature1_col="feature1", feature2_col="feature2", error_col="error"
-    )
+    if test_case == "valid_model":
+        dt_seg = DecisionTreeSegmentation(
+            df=sample_data, feature1_col="feature1", feature2_col="feature2", error_col="error"
+        )
 
-    # Add error column if it doesn't exist
-    if "error" not in sample_data.columns:
-        dt_seg.df["error"] = np.abs(sample_data["y_true"] - sample_data["y_pred"])
+        # Add error column if it doesn't exist
+        if "error" not in sample_data.columns:
+            dt_seg.df["error"] = np.abs(sample_data["y_true"] - sample_data["y_pred"])
 
-    # Train a new model
-    model = DecisionTreeRegressor(max_depth=2)
-    trained_model = dt_seg.train_tree_model(model)
+        # Train a new model
+        model = DecisionTreeRegressor(max_depth=2)
+        trained_model = dt_seg.train_tree_model(model)
 
-    # Check that model was trained
-    assert trained_model is not None
-    assert hasattr(trained_model, "tree_")
-    assert hasattr(trained_model, "predict")
+        # Check that model was trained
+        assert trained_model is not None
+        assert hasattr(trained_model, "tree_")
+        assert hasattr(trained_model, "predict")
 
-    # Train with missing data should raise error
-    dt_seg_empty = DecisionTreeSegmentation()
-    with pytest.raises(ValueError, match="DataFrame and column names must be set before training"):
-        dt_seg_empty.train_tree_model(DecisionTreeRegressor())
+    elif test_case == "empty_model":
+        dt_seg_empty = DecisionTreeSegmentation()
+        if should_raise:
+            with pytest.raises(ValueError, match="DataFrame and column names must be set before training"):
+                dt_seg_empty.train_tree_model(DecisionTreeRegressor())
 
 
-def test_calc_error():
+@pytest.mark.parametrize(
+    "y_true_values,y_pred_values,expected_errors",
+    [
+        (
+            [1, 2, 3, 4, 5],  # True values
+            [1.1, 2.2, 2.9, 4.1, 5.5],  # Predicted values
+            [0.1, 0.2, 0.1, 0.1, 0.5],  # Expected error values
+        ),
+    ],
+)
+def test_calc_error(y_true_values, y_pred_values, expected_errors):
     """Test the _calc_error classmethod."""
 
     # Define a test metric
@@ -192,26 +252,36 @@ def test_calc_error():
         return np.abs(y_true - y_pred.iloc[:, 0])
 
     # Create sample data
-    y_true = pd.Series([1, 2, 3, 4, 5])
-    y_pred = pd.DataFrame({"pred": [1.1, 2.2, 2.9, 4.1, 5.5]})
+    y_true = pd.Series(y_true_values)
+    y_pred = pd.DataFrame({"pred": y_pred_values})
 
     # Calculate errors
     errors = DecisionTreeSegmentation._calc_error(abs_error, y_true, y_pred)
 
     # Check results
     assert isinstance(errors, pd.Series)
-    assert len(errors) == 5
-    assert np.allclose(errors.values, np.array([0.1, 0.2, 0.1, 0.1, 0.5]), atol=1e-6)
+    assert len(errors) == len(y_true_values)
+    assert np.allclose(errors.values, np.array(expected_errors), atol=1e-6)
 
 
-def test_fit_model():
+@pytest.mark.parametrize(
+    "feature_values,error_values,max_depth",
+    [
+        (
+            [1, 2, 3, 4, 5],  # Feature values
+            [0.1, 0.2, 0.3, 0.4, 0.5],  # Error values
+            2,  # Max depth of the tree
+        ),
+    ],
+)
+def test_fit_model(feature_values, error_values, max_depth):
     """Test the _fit_model classmethod."""
     # Create sample data
-    feature = pd.Series([1, 2, 3, 4, 5])
-    error = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5])
+    feature = pd.Series(feature_values)
+    error = pd.Series(error_values)
 
     # Create model
-    model = DecisionTreeRegressor(max_depth=2)
+    model = DecisionTreeRegressor(max_depth=max_depth)
 
     # Fit model
     fitted_model = DecisionTreeSegmentation._fit_model(model, feature, error)
@@ -226,13 +296,24 @@ def test_fit_model():
     assert len(pred) == 1
 
 
-def test_extract_leaves():
+@pytest.mark.parametrize(
+    "x_values,y_values,max_depth,expected_leaves",
+    [
+        (
+            [[1], [2], [3], [4], [5], [6], [7], [8]],  # X values
+            [1, 1, 1, 1, 2, 2, 2, 2],  # Y values
+            1,  # Max depth
+            2,  # Expected number of leaves
+        ),
+    ],
+)
+def test_extract_leaves(x_values, y_values, max_depth, expected_leaves):
     """Test the _extract_leaves classmethod."""
     # Create and fit a simple model
-    x = np.array([[1], [2], [3], [4], [5], [6], [7], [8]]).reshape(-1, 1)
-    y = np.array([1, 1, 1, 1, 2, 2, 2, 2])
+    x = np.array(x_values).reshape(-1, 1)
+    y = np.array(y_values)
 
-    model = DecisionTreeRegressor(max_depth=1)
+    model = DecisionTreeRegressor(max_depth=max_depth)
     model.fit(x, y)
 
     # Extract leaves
@@ -242,10 +323,17 @@ def test_extract_leaves():
     assert isinstance(leaves, pd.DataFrame)
     assert "segment_id" in leaves.columns
     assert "segment_name" in leaves.columns
-    assert len(leaves) == 2  # With max_depth=1, we should have 2 leaves
+    assert len(leaves) == expected_leaves
 
 
-def test_call_method(sample_data):
+@pytest.mark.parametrize(
+    "mode,feature_col,max_depth",
+    [
+        ("original", None, 2),  # Original behavior
+        ("protocol", "feature1", 1),  # Protocol-compatible behavior
+    ],
+)
+def test_call_method(sample_data, mode, feature_col, max_depth):
     """Test the __call__ method."""
     # Create a segmentation instance
     dt_seg = DecisionTreeSegmentation(
@@ -264,124 +352,169 @@ def test_call_method(sample_data):
     model = DecisionTreeRegressor(max_depth=2)
     dt_seg.tree_model = model.fit(dt_seg.df[["feature1", "feature2"]], dt_seg.df["abs_error"])
 
-    # Call the model (original behavior)
-    grouped = dt_seg()
+    if mode == "original":
+        # Call the model (original behavior)
+        grouped = dt_seg()
+        
+        # Check results
+        assert hasattr(grouped, "groups")
+        assert isinstance(grouped, pd.core.groupby.DataFrameGroupBy)
+    else:
+        # Define a simple error metric for protocol usage
+        def error_metric(y_true, y_pred):
+            return np.abs(y_true - y_pred.iloc[:, 0])
 
-    # Check results
-    assert hasattr(grouped, "groups")
-    assert isinstance(grouped, pd.core.groupby.DataFrameGroupBy)
-
-    # Test protocol-compatible usage
-    def error_metric(y_true, y_pred):
-        return np.abs(y_true - y_pred.iloc[:, 0])
-
-    # Call with protocol-compatible parameters
-    grouped2 = dt_seg(feature_col="feature1", error_metric=error_metric, model=DecisionTreeRegressor(max_depth=1))
-
-    # Check results of protocol usage
-    assert hasattr(grouped2, "groups")
-    assert isinstance(grouped2, pd.core.groupby.DataFrameGroupBy)
+        # Call with protocol-compatible parameters
+        grouped = dt_seg(feature_col=feature_col, error_metric=error_metric, model=DecisionTreeRegressor(max_depth=max_depth))
+        
+        # Check results
+        assert hasattr(grouped, "groups")
+        assert isinstance(grouped, pd.core.groupby.DataFrameGroupBy)
 
 
-def test_get_feature_ranges(training_data):
+@pytest.mark.parametrize(
+    "test_case,should_raise,max_depth,expected_ranges",
+    [
+        ("valid_model", False, 3, 2),  # Valid model, 2 feature ranges
+        ("empty_model", True, None, None),  # Empty model, should raise error
+    ],
+)
+def test_get_feature_ranges(training_data, test_case, should_raise, max_depth, expected_ranges):
     """Test getting feature ranges."""
-    # Fit a model
-    dt_seg = DecisionTreeSegmentation(max_depth=3)
-    dt_seg.fit(
-        training_data["x_test"],
-        training_data["y_test"],
-        training_data["y_pred"],
-        feature_names=["feature1", "feature2"],
-    )
+    if test_case == "valid_model":
+        # Fit a model
+        dt_seg = DecisionTreeSegmentation(max_depth=max_depth)
+        dt_seg.fit(
+            training_data["x_test"],
+            training_data["y_test"],
+            training_data["y_pred"],
+            feature_names=["feature1", "feature2"],
+        )
 
-    # Get feature ranges
-    ranges = dt_seg.get_feature_ranges()
+        # Get feature ranges
+        ranges = dt_seg.get_feature_ranges()
 
-    # Check results
-    assert isinstance(ranges, list)
-    assert len(ranges) == 2
-    assert all(isinstance(r, tuple) and len(r) == 2 for r in ranges)
+        # Check results
+        assert isinstance(ranges, list)
+        assert len(ranges) == expected_ranges
+        assert all(isinstance(r, tuple) and len(r) == 2 for r in ranges)
 
-    # For each range, the max should be >= min (allowing for equal values in edge cases)
-    assert ranges[0][1] >= ranges[0][0]  # max >= min for feature 1
-    assert ranges[1][1] >= ranges[1][0]  # max >= min for feature 2
+        # For each range, the max should be >= min (allowing for equal values in edge cases)
+        assert ranges[0][1] >= ranges[0][0]  # max >= min for feature 1
+        assert ranges[1][1] >= ranges[1][0]  # max >= min for feature 2
 
-    # Test error if tree not fitted
-    dt_seg_empty = DecisionTreeSegmentation()
-    with pytest.raises(ValueError, match="Model not fitted"):
-        dt_seg_empty.get_feature_ranges()
+    elif test_case == "empty_model":
+        dt_seg_empty = DecisionTreeSegmentation()
+        if should_raise:
+            with pytest.raises(ValueError, match="Model not fitted"):
+                dt_seg_empty.get_feature_ranges()
 
 
-def test_get_segment_df(training_data):
+@pytest.mark.parametrize(
+    "test_case,should_raise,max_depth,n_segments,expected_columns",
+    [
+        (
+            "valid_model", 
+            False, 
+            3, 
+            3,  # Number of segments to return
+            ["segment_id", "mean_error", "median_error", "max_error", "size", "feature1", "feature2"]  # Expected columns
+        ),
+        ("empty_model", True, None, None, None),  # Empty model, should raise error
+    ],
+)
+def test_get_segment_df(training_data, test_case, should_raise, max_depth, n_segments, expected_columns):
     """Test getting segment DataFrame."""
-    # Fit a model
-    dt_seg = DecisionTreeSegmentation(max_depth=3)
-    dt_seg.fit(
-        training_data["x_test"],
-        training_data["y_test"],
-        training_data["y_pred"],
-        feature_names=["feature1", "feature2"],
-    )
+    if test_case == "valid_model":
+        # Fit a model
+        dt_seg = DecisionTreeSegmentation(max_depth=max_depth)
+        dt_seg.fit(
+            training_data["x_test"],
+            training_data["y_test"],
+            training_data["y_pred"],
+            feature_names=["feature1", "feature2"],
+        )
 
-    # Get segment DataFrame
-    segment_df = dt_seg.get_segment_df(n_segments=3)
+        # Get segment DataFrame
+        segment_df = dt_seg.get_segment_df(n_segments=n_segments)
 
-    # Check results
-    assert isinstance(segment_df, pd.DataFrame)
-    assert "segment_id" in segment_df.columns
-    assert "mean_error" in segment_df.columns
-    assert "median_error" in segment_df.columns
-    assert "max_error" in segment_df.columns
-    assert "size" in segment_df.columns
-    assert "feature1" in segment_df.columns
-    assert "feature2" in segment_df.columns
-    assert len(segment_df) <= 3  # Should have at most 3 segments
+        # Check results
+        assert isinstance(segment_df, pd.DataFrame)
+        
+        # Check expected columns
+        for col in expected_columns:
+            assert col in segment_df.columns
+            
+        assert len(segment_df) <= n_segments  # Should have at most n_segments
 
-    # Test error if tree not fitted
-    dt_seg_empty = DecisionTreeSegmentation()
-    with pytest.raises(ValueError, match="Model not fitted"):
-        dt_seg_empty.get_segment_df()
+    elif test_case == "empty_model":
+        dt_seg_empty = DecisionTreeSegmentation()
+        if should_raise:
+            with pytest.raises(ValueError, match="Model not fitted"):
+                dt_seg_empty.get_segment_df()
 
 
-def test_get_decision_rules(training_data):
+@pytest.mark.parametrize(
+    "test_case,should_raise,max_depth,n_segments,expected_rule_keys",
+    [
+        (
+            "valid_model", 
+            False, 
+            2,  # Small depth for predictable rules
+            3,  # Number of segments to return
+            ["feature", "operator", "threshold"]  # Expected keys in rule dictionaries
+        ),
+        ("empty_model", True, None, None, None),  # Empty model, should raise error
+    ],
+)
+def test_get_decision_rules(training_data, test_case, should_raise, max_depth, n_segments, expected_rule_keys):
     """Test getting decision rules."""
-    # Fit a model
-    dt_seg = DecisionTreeSegmentation(max_depth=2)  # Small depth for predictable rules
-    dt_seg.fit(
-        training_data["x_test"],
-        training_data["y_test"],
-        training_data["y_pred"],
-        feature_names=["feature1", "feature2"],
-    )
+    if test_case == "valid_model":
+        # Fit a model
+        dt_seg = DecisionTreeSegmentation(max_depth=max_depth)
+        dt_seg.fit(
+            training_data["x_test"],
+            training_data["y_test"],
+            training_data["y_pred"],
+            feature_names=["feature1", "feature2"],
+        )
 
-    # Get decision rules
-    rules = dt_seg.get_decision_rules(n_segments=3)
+        # Get decision rules
+        rules = dt_seg.get_decision_rules(n_segments=n_segments)
 
-    # Check results
-    assert isinstance(rules, dict)
-    assert len(rules) <= 3  # Should have at most 3 segments
+        # Check results
+        assert isinstance(rules, dict)
+        assert len(rules) <= n_segments  # Should have at most n_segments
 
-    # Check structure of rules
-    for segment_id, rule_list in rules.items():
-        assert isinstance(segment_id, int)
-        assert isinstance(rule_list, list)
+        # Check structure of rules
+        for segment_id, rule_list in rules.items():
+            assert isinstance(segment_id, int)
+            assert isinstance(rule_list, list)
 
-        for rule in rule_list:
-            assert isinstance(rule, dict)
-            assert "feature" in rule
-            assert "operator" in rule
-            assert "threshold" in rule
-            assert rule["feature"] in ["feature1", "feature2"]
-            assert rule["operator"] in ["≤", ">"]
-            assert isinstance(rule["threshold"], float)
+            for rule in rule_list:
+                assert isinstance(rule, dict)
+                # Check expected keys in each rule
+                for key in expected_rule_keys:
+                    assert key in rule
+                
+                assert rule["feature"] in ["feature1", "feature2"]
+                assert rule["operator"] in ["≤", ">"]
+                assert isinstance(rule["threshold"], float)
 
-    # Test error if tree not fitted
-    dt_seg_empty = DecisionTreeSegmentation()
-    with pytest.raises(ValueError, match="Model not fitted"):
-        dt_seg_empty.get_decision_rules()
+    elif test_case == "empty_model":
+        dt_seg_empty = DecisionTreeSegmentation()
+        if should_raise:
+            with pytest.raises(ValueError, match="Model not fitted"):
+                dt_seg_empty.get_decision_rules()
 
 
-def test_integration_with_protocols(sample_data):
+@pytest.mark.parametrize(
+    "feature_col,max_depth",
+    [
+        ("feature1", 2),  # Test with feature1 and depth 2
+    ],
+)
+def test_integration_with_protocols(sample_data, feature_col, max_depth):
     """Test integration with the FindSegmentation protocol."""
     # Create a segmentation instance
     dt_seg = DecisionTreeSegmentation(df=sample_data, label_col="y_true", prediction_col="y_pred")
@@ -393,10 +526,10 @@ def test_integration_with_protocols(sample_data):
         return np.abs(y_true - y_pred)
 
     # Create a decision tree model
-    model = DecisionTreeRegressor(max_depth=2)
+    model = DecisionTreeRegressor(max_depth=max_depth)
 
     # Call as per the protocol definition
-    result = dt_seg(feature_col="feature1", error_metric=error_metric, model=model)
+    result = dt_seg(feature_col=feature_col, error_metric=error_metric, model=model)
 
     # Check results
     assert hasattr(result, "groups")
