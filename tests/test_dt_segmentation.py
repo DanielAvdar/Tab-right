@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 
 from tab_right.plotting.plot_segmentations import plot_dt_segmentation, plot_dt_segmentation_with_stats
-from tab_right.segmentations.dt_segmentation import DecisionTreeSegmentation
+from tab_right.segmentations.find_seg import DecisionTreeSegmentation
 
 
 @pytest.fixture

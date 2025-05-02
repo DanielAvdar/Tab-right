@@ -9,7 +9,7 @@ from plotly.subplots import make_subplots
 
 # Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
-    from tab_right.segmentations.dt_segmentation import DecisionTreeSegmentation
+    from tab_right.segmentations.find_seg import DecisionTreeSegmentation
 
 
 def plot_segmentations(

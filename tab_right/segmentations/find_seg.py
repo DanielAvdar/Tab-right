@@ -8,11 +8,9 @@ import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 from sklearn.tree import BaseDecisionTree, DecisionTreeRegressor
 
-from tab_right.base.seg_protocols import FindSegmentation2F
-
 
 @dataclass
-class DecisionTreeSegmentation(FindSegmentation2F):
+class DecisionTreeSegmentation:
     """DecisionTreeSegmentation provides error analysis using decision trees.
 
     This class uses decision trees to segment the feature space into regions

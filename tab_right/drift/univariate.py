@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
-from tab_right.base.drifts_protocols import DriftCalc
+from tab_right.base_architecture.drifts_protocols import DriftCalc
 from tab_right.drift.cramer_v import cramer_v
 
 
