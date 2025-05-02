@@ -1,47 +1,56 @@
 """Decision tree based segmentation analysis for model errors."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 from sklearn.tree import BaseDecisionTree, DecisionTreeRegressor
 
+from tab_right.base_architecture.seg_protocols import FindSegmentation
+
 
 @dataclass
-class DecisionTreeSegmentation:
-    """DecisionTreeSegmentation provides error analysis using decision trees.
-
-    This class uses decision trees to segment the feature space into regions
-    with similar error characteristics based on two features.
+class DecisionTreeSegmentation(FindSegmentation):
+    """Find feature segmentation using decision trees, implementing FindSegmentation protocol.
 
     Parameters
     ----------
     df : Optional[pd.DataFrame], default=None
-        Input DataFrame containing features and errors
+        DataFrame containing the data to be segmented.
     feature1_col : Optional[str], default=None
         Column name for first feature
     feature2_col : Optional[str], default=None
         Column name for second feature
     error_col : Optional[str], default=None
         Column name for error values
-    tree_model : Optional[DecisionTreeRegressor], default=None
-        Fitted decision tree model for segmentation
+    label_col : Optional[str], default=None
+        Column name for the true target values.
+    prediction_col : Optional[Union[str, List[str]]], default=None
+        Column names for the predicted values. Can be a single column or a list of columns.
     max_depth : int, default=5
         Maximum depth of the decision tree
     min_samples_leaf : int, default=20
         Minimum number of samples required in a leaf node
+    tree_model : Optional[BaseDecisionTree], default=None
+        Fitted decision tree model for segmentation
 
     """
 
+    # Parameters required by the FindSegmentation protocol with defaults
+    # for backward compatibility
     df: Optional[pd.DataFrame] = None
+    label_col: Optional[str] = None
+    prediction_col: Optional[Union[str, List[str]]] = None
+
+    # Additional parameters specific to this implementation
     feature1_col: Optional[str] = None
     feature2_col: Optional[str] = None
     error_col: Optional[str] = None
-    tree_model: Optional[DecisionTreeRegressor] = None
     max_depth: int = 5
     min_samples_leaf: int = 20
+    tree_model: Optional[BaseDecisionTree] = None
 
     @property
     def feature_1_col(self) -> Optional[str]:
@@ -113,11 +122,120 @@ class DecisionTreeSegmentation:
             self.error_col: errors,
         })
 
+        # Add target and prediction columns if they aren't set
+        if self.label_col is None:
+            self.label_col = "y_true"
+            self.df[self.label_col] = y_true
+
+        if self.prediction_col is None:
+            self.prediction_col = "y_pred"
+            self.df[self.prediction_col] = y_pred
+
         # Train decision tree
         self.tree_model = DecisionTreeRegressor(max_depth=self.max_depth, min_samples_leaf=self.min_samples_leaf)
         self.train_tree_model(self.tree_model)
 
         return self
+
+    @classmethod
+    def _calc_error(
+        cls,
+        metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
+        y_true: pd.Series,
+        y_pred: pd.DataFrame,
+    ) -> pd.Series:
+        """Calculate the error metric for each group in the DataFrame.
+
+        Parameters
+        ----------
+        metric : Callable[[pd.Series, pd.DataFrame], pd.Series]
+            A function that takes a pandas Series (true values) and a DataFrame (predicted values)
+            and returns a Series representing the error metric for each row in the DataFrame.
+        y_true : pd.Series
+            The true target values.
+        y_pred : pd.DataFrame
+            The predicted values for each group, can be probabilities (multiple columns)
+             or classes or continuous values.
+
+        Returns
+        -------
+        pd.Series
+            Series of error values for each row in the DataFrame.
+
+        """
+        return metric(y_true, y_pred)
+
+    @classmethod
+    def _fit_model(
+        cls,
+        model: BaseDecisionTree,
+        feature: pd.Series,
+        error: pd.Series,
+    ) -> BaseDecisionTree:
+        """Fit the decision tree model to the feature and error data.
+
+        Parameters
+        ----------
+        model : BaseDecisionTree
+            The decision tree model to fit.
+        feature : pd.Series
+            The feature data to use for fitting the model.
+        error : pd.Series
+            The error calculated for each row in the DataFrame, which is used as the target variable.
+
+        Returns
+        -------
+        BaseDecisionTree
+            The fitted decision tree model.
+
+        """
+        # Reshape feature to be 2D if it's 1D
+        if len(feature.shape) == 1:
+            feature_array = feature.values.reshape(-1, 1)
+        else:
+            feature_array = feature.values
+
+        model.fit(feature_array, error.values)
+        return model
+
+    @classmethod
+    def _extract_leaves(
+        cls,
+        model: BaseDecisionTree,
+    ) -> pd.DataFrame:
+        """Extract the leaves of the fitted decision tree model.
+
+        Parameters
+        ----------
+        model : BaseDecisionTree
+            The fitted decision tree model to extract leaves from.
+
+        Returns
+        -------
+        pd.DataFrame
+            A DataFrame containing the leaves of the decision tree.
+            columns:
+            - `segment_id`: The ID of the segment, for grouping.
+            - `segment_name`: (str) the range or category of the first feature.
+
+        """
+        tree = model.tree_
+        leaf_ids = []
+
+        # Get leaf nodes
+        for i in range(tree.node_count):
+            if tree.children_left[i] == tree.children_right[i]:  # Leaf node
+                leaf_ids.append(i)
+
+        # Create segment names based on decision paths
+        segments = []
+        for leaf_id in leaf_ids:
+            # This is a simplification - in a real implementation, you would
+            # trace the path from root to leaf to generate a meaningful name
+            segment_name = f"Segment {leaf_id}"
+            segments.append({"segment_id": leaf_id, "segment_name": segment_name})
+
+        return pd.DataFrame(segments)
 
     def train_tree_model(self, model: BaseDecisionTree) -> BaseDecisionTree:
         """Train the decision tree model.
@@ -147,13 +265,25 @@ class DecisionTreeSegmentation:
         model.fit(x_subset, errors)
         return model
 
-    def __call__(self, model: Optional[BaseDecisionTree] = None) -> DataFrameGroupBy:
+    def __call__(
+        self,
+        model: Optional[BaseDecisionTree] = None,
+        feature_col: Optional[str] = None,
+        error_metric: Optional[Callable[[pd.Series, pd.DataFrame], pd.Series]] = None,
+    ) -> DataFrameGroupBy:
         """Apply the model to segment the DataFrame.
+
+        This implementation maintains backward compatibility with the existing code
+        while also allowing the protocol-compatible usage with feature_col and error_metric.
 
         Parameters
         ----------
         model : BaseDecisionTree, optional
             The decision tree model to use for segmentation
+        feature_col : str, optional
+            The name of the feature to segment by, required for protocol-compatible usage
+        error_metric : Callable[[pd.Series, pd.DataFrame], pd.Series], optional
+            A function that calculates error metrics, required for protocol-compatible usage
 
         Returns
         -------
@@ -175,7 +305,47 @@ class DecisionTreeSegmentation:
         if self.tree_model is None:
             raise ValueError("Model not fitted. Call fit() or provide a model.")
 
-        # Create a copy and add segment assignments
+        # Protocol-compatible usage (overrides the default behavior)
+        if feature_col is not None and error_metric is not None:
+            # Use the provided feature column
+            feature_data = self.df[feature_col]
+
+            # Calculate error using the provided metric
+            y_true = self.df[self.label_col] if self.label_col is not None else self.df.iloc[:, 0]
+
+            # Handle different formats of prediction_col
+            if isinstance(self.prediction_col, list):
+                y_pred = self.df[self.prediction_col]
+            elif self.prediction_col is not None:
+                y_pred = self.df[[self.prediction_col]]
+            else:
+                y_pred = self.df.iloc[:, 1:2]
+
+            # Calculate error for each row
+            errors = self._calc_error(error_metric, y_true, y_pred)
+
+            # Fit the model to the feature and errors
+            fitted_model = self._fit_model(self.tree_model, feature_data, errors)
+
+            # Extract leaf information
+            self._extract_leaves(fitted_model)
+
+            # Assign segments to the data
+            if len(feature_data.shape) == 1:
+                feature_array = feature_data.values.reshape(-1, 1)
+            else:
+                feature_array = feature_data.values
+
+            leaf_ids = fitted_model.apply(feature_array)
+
+            # Create result DataFrame with segment assignments
+            result_df = self.df.copy()
+            result_df["segment_id"] = leaf_ids
+
+            # Return grouped DataFrame
+            return result_df.groupby("segment_id")
+
+        # Original functionality (backward compatibility)
         result_df = self.df.copy()
         x_subset = result_df[[self.feature1_col, self.feature2_col]]
         leaf_ids = self.tree_model.apply(x_subset)
