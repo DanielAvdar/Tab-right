@@ -6,7 +6,7 @@ import pytest
 from sklearn.metrics import mean_absolute_error
 
 from tab_right.segmentations.calc_seg import SegmentationStats
-from tests.test_utils import error_metric, create_decision_tree_model
+from .test_utils import error_metric, create_decision_tree_model
 
 
 @pytest.mark.parametrize(

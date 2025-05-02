@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 
 from tab_right.segmentations.find_seg import DecisionTreeSegmentation
-from tests.test_utils import error_metric, create_decision_tree_model
+from .test_utils import error_metric, create_decision_tree_model
 
 
 @pytest.fixture
