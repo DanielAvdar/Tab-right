@@ -156,14 +156,14 @@ class FindSegmentation2F(Protocol):
     feature1_col: str
     feature2_col: str
     error_col: str
+    decision_tree: BaseDecisionTree
 
-    def train_tree_model(self, model: BaseDecisionTree) -> BaseDecisionTree:
+    def fit(
+        self,
+    ) -> BaseDecisionTree:
         """Train the decision tree model.
 
-        Parameters.
-        ----------
-        model: BaseDecisionTree
-            The decision tree model to be fitted, on the features to predict the error.
+        update the self.decision_tree with the fitted model.
 
         Returns
         -------
@@ -172,16 +172,45 @@ class FindSegmentation2F(Protocol):
 
         """
 
-    def __call__(self, model: BaseDecisionTree) -> DataFrameGroupBy:
+    def groups(self, model: BaseDecisionTree) -> pd.DataFrame:
+        """Get the groups of the DataFrame based on the decision tree model.
+
+        Parameters
+        ----------
+        model : BaseDecisionTree
+            Fitted decision tree model.
+
+        Returns
+        -------
+        pd.DataFrame
+            A DataFrame containing the groups defined by the decision tree model.
+            columns:
+            - `segment_id`: The ID of the segment, for grouping.
+            - `feature1`: (str) the range or category of the first feature.
+            - `feature2`: (str) the range or category of the second feature.
+
+        """
+
+    def __call__(self, metric: Callable[[pd.Series, pd.Series], float]) -> pd.DataFrame:
         """Call method to apply the model to the DataFrame.
 
-        This method fits the tree model and produces a DataFrameGroupBy based on the
-        decision tree of the fitted model.
+        This method fits (if needed) the tree model, groups by the tree model leaves, and use one of the
+        SegmentationCalc
 
         Parameters
         ----------
         model : BaseDecisionTree
             The decision tree model to fit
+
+        Returns
+        -------
+        pd.DataFrame
+            A DataFrame containing the groups defined by the decision tree model.
+            columns:
+            - `segment_id`: The ID of the segment, for grouping.
+            - `feature1`: (str) the range or category of the first feature.
+            - `feature2`: (str) the range or category of the second feature.
+            - `score`: The calculated error metric for the segment.
 
         """
 

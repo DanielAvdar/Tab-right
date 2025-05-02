@@ -3,7 +3,6 @@
 import numpy as np
 import pandas as pd
 from plotly import graph_objects as go
-from scipy.stats import wasserstein_distance
 
 
 def plot_feature_drift(
@@ -13,6 +12,9 @@ def plot_feature_drift(
     show_score: bool = True,
     ref_label: str = "Train Dataset",
     cur_label: str = "Test Dataset",
+    normalize: bool = True,
+    normalization_method: str = "range",
+    show_raw_score: bool = False,
 ) -> go.Figure:
     """Plot distribution drift for a single feature, with means, medians, and drift score (Earth Mover's Distance).
 
@@ -30,6 +32,12 @@ def plot_feature_drift(
         Label for the reference data.
     cur_label : str, default "Test Dataset"
         Label for the current data.
+    normalize : bool, default True
+        Whether to normalize the Wasserstein distance.
+    normalization_method : str, default "range"
+        Method to use for normalization: "range", "std", or "iqr".
+    show_raw_score : bool, default False
+        Whether to show both normalized and raw scores.
 
     Returns
     -------
@@ -39,8 +47,21 @@ def plot_feature_drift(
     """
     feature_name = feature_name or str(reference.name) if reference.name is not None else "feature"
     drift_score = None
+    raw_score = None
+
     if len(reference) > 0 and len(current) > 0:
-        drift_score = wasserstein_distance(reference, current)
+        # Import here to avoid circular imports
+        from tab_right.drift.univariate import detect_univariate_drift_with_options
+
+        # Get both raw and normalized scores
+        result = detect_univariate_drift_with_options(
+            reference, current, kind="continuous", normalize=normalize, normalization_method=normalization_method
+        )
+
+        drift_score = result["score"]
+        if "raw_score" in result:
+            raw_score = result["raw_score"]
+
     # Compute KDEs for smooth lines
     from scipy.stats import gaussian_kde
 
@@ -100,11 +121,19 @@ def plot_feature_drift(
         template="plotly_white",
     )
     if show_score:
-        score_text = (
-            f"Drift Score ({feature_name}): <b>{drift_score:.3f}</b>"
-            if drift_score is not None
-            else "Drift Score: N/A (empty input)"
-        )
+        if normalize and show_raw_score and raw_score is not None:
+            score_text = (
+                f"Drift Score ({feature_name}): <b>{drift_score:.3f}</b> (Raw: {raw_score:.3f})"
+                if drift_score is not None
+                else "Drift Score: N/A (empty input)"
+            )
+        else:
+            score_text = (
+                f"Drift Score ({feature_name}): <b>{drift_score:.3f}</b>"
+                if drift_score is not None
+                else "Drift Score: N/A (empty input)"
+            )
+
         fig.add_annotation(
             xref="paper",
             yref="paper",

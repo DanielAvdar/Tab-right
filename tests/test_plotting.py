@@ -42,6 +42,32 @@ def test_plot_feature_drift_empty():
     assert any("Drift Score" in (a.text or "") for a in fig.layout.annotations or [])
 
 
+def test_plot_feature_drift_with_raw_scores():
+    """Test the plot_feature_drift function with raw score display option enabled."""
+    # Create test data
+    ref = pd.Series([1, 2, 3, 4, 5])
+    cur = pd.Series([2, 3, 4, 5, 6])
+
+    # Test with show_raw_score=True to hit the uncovered line 125
+    fig = plot_feature_drift(
+        reference=ref,
+        current=cur,
+        feature_name="test_feature",
+        show_score=True,
+        normalize=True,
+        show_raw_score=True,  # This should hit the uncovered line
+    )
+
+    # Verify that the figure was created successfully
+    assert isinstance(fig, go.Figure)
+
+    # Check that the annotation exists and contains both normalized and raw scores
+    assert len(fig.layout.annotations) == 1
+    annotation_text = fig.layout.annotations[0].text
+    assert "Drift Score" in annotation_text
+    assert "Raw:" in annotation_text  # This confirms the raw score is included
+
+
 def test_plot_drift_basic():
     # Create a sample DataFrame with drift values
     drift_df = pd.DataFrame({"feature": ["feature1", "feature2", "feature3"], "value": [0.8, 0.5, 0.2]})
