@@ -10,7 +10,7 @@ from typing import Callable, List, Protocol, Union, runtime_checkable
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 from sklearn.tree import BaseDecisionTree
-import abc
+
 
 @runtime_checkable
 @dataclass
@@ -53,9 +53,6 @@ class BaseSegmentationCalc(Protocol):
         """
 
 
-
-
-
 @runtime_checkable
 @dataclass
 class FindSegmentation(Protocol):
@@ -74,7 +71,6 @@ class FindSegmentation(Protocol):
     df: pd.DataFrame
     label_col: str
     prediction_col: Union[str, List[str]]
-
 
     @classmethod
     def _calc_error(
@@ -97,6 +93,7 @@ class FindSegmentation(Protocol):
              or classes or continuous values.
 
         """
+
     @classmethod
     def _fit_model(
         cls,
@@ -121,6 +118,7 @@ class FindSegmentation(Protocol):
             The fitted decision tree model.
 
         """
+
     @classmethod
     def _extract_leaves(
         cls,
@@ -175,6 +173,7 @@ class FindSegmentation(Protocol):
 
         """
 
+
 @runtime_checkable
 @dataclass
 class DoubleSegmentation(Protocol):
@@ -190,7 +189,7 @@ class DoubleSegmentation(Protocol):
     segmentation_finder: FindSegmentation
 
     @classmethod
-    def _combine_2_features(cls,df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
+    def _combine_2_features(cls, df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
         """Combine two DataFrames by concatenating them along the columns.
 
         Parameters
@@ -224,7 +223,6 @@ class DoubleSegmentation(Protocol):
         cls,
         df: pd.DataFrame,
         seg: pd.Series,
-
     ) -> DataFrameGroupBy:
         """Group the DataFrame by segment ID and calculate the mean score for each group.
 

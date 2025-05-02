@@ -1,42 +1,25 @@
-from dataclasses import dataclass
-from typing import Callable, Protocol, runtime_checkable
-
 import pandas as pd
-from pandas.api.typing import DataFrameGroupBy
+from plotly.graph_objects import Figure
 
 
-@runtime_checkable
-@dataclass
-class PlotSegmentation2F(Protocol):
-    """Base protocol for segmentation performance calculations.
+def plot_double_segmentation(
+    df: pd.DataFrame,
+) -> Figure:
+    """Plot the double segmentation of a given DataFrame as a bar chart.
 
     Parameters
     ----------
-    gdf : DataFrameGroupBy
-        Grouped DataFrame, each group represents a segment.
-    label_col : str
-        Column name for the true target values.
+    df : pd.DataFrame
+        A DataFrame containing the groups defined by the decision tree model.
+        columns:
+        - `segment_id`: The ID of the segment, for grouping.
+        - `feature_1`: (str) the range or category of the first feature.
+        - `feature_2`: (str) the range or category of the second feature.
+        - `score`: (float) The calculated error metric for the segment.
+
+    Returns
+    -------
+    Figure
+        A heatmap showing each segment with its corresponding avg score, col of heatmap is feature_1, row is feature_2.
 
     """
-
-    gdf: DataFrameGroupBy
-    label_col: str
-
-    def __call__(self, metric: Callable[[pd.Series, pd.Series], float]) -> pd.DataFrame:
-        """Call method to apply the metric to each group in the DataFrameGroupBy object.
-
-        Parameters
-        ----------
-        metric : Callable[[pd.Series, pd.Series], float]
-            A function that takes two pandas Series (true and predicted values)
-            and returns a float representing the error metric.
-
-        Returns
-        -------
-        pd.DataFrame
-            DataFrame containing the calculated error metrics for each segment.
-            with 2 main columns:
-            - `segment_id`: The ID of the segment.
-            - `score`: The calculated error metric for the segment.
-
-        """
