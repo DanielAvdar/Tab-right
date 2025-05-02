@@ -5,7 +5,7 @@ including interfaces for segmentation calculations and feature-based segmentatio
 """
 
 from dataclasses import dataclass
-from typing import Callable, List, Protocol, runtime_checkable
+from typing import Callable, List, Protocol, Union, runtime_checkable
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
@@ -136,62 +136,29 @@ SegmentationCalc = PredictionSegmentationCalc
 
 @runtime_checkable
 @dataclass
-class FindSegmentation2F(Protocol):
-    """Class schema for segmentation performance calculations.
+class FindSegmentation(Protocol):
+    """Class schema for find feature segmentation, by using a decision tree.
 
     Parameters.
     ----------
     df : pd.DataFrame
         DataFrame containing the data to be segmented.
-    feature1_col : str
-        Column name for the first feature to be used in segmentation.
-    feature2_col : str
-        Column name for the second feature to be used in segmentation.
-    error_col : str
-        Column name for the error metric to be calculated.
+    label_col : str
+        Column name for the true target values.
+    prediction_col : Union[str, List[str]]
 
     """
 
     df: pd.DataFrame
-    feature1_col: str
-    feature2_col: str
-    error_col: str
-    decision_tree: BaseDecisionTree
+    label_col: str
+    prediction_col: Union[str, List[str]]
 
-    def fit(
+    def __call__(
         self,
-    ) -> BaseDecisionTree:
-        """Train the decision tree model.
-
-        update the self.decision_tree with the fitted model.
-
-        Returns
-        -------
-        BaseDecisionTree
-            The trained decision tree model.
-
-        """
-
-    def groups(self, model: BaseDecisionTree) -> pd.DataFrame:
-        """Get the groups of the DataFrame based on the decision tree model.
-
-        Parameters
-        ----------
-        model : BaseDecisionTree
-            Fitted decision tree model.
-
-        Returns
-        -------
-        pd.DataFrame
-            A DataFrame containing the groups defined by the decision tree model.
-            columns:
-            - `segment_id`: The ID of the segment, for grouping.
-            - `feature1`: (str) the range or category of the first feature.
-            - `feature2`: (str) the range or category of the second feature.
-
-        """
-
-    def __call__(self, metric: Callable[[pd.Series, pd.Series], float]) -> pd.DataFrame:
+        feature_col: str,
+        error_metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
+        model: BaseDecisionTree,
+    ) -> pd.DataFrame:
         """Call method to apply the model to the DataFrame.
 
         This method fits (if needed) the tree model, groups by the tree model leaves, and use one of the
@@ -199,6 +166,11 @@ class FindSegmentation2F(Protocol):
 
         Parameters
         ----------
+        feature_col : str
+            The name of the feature, which we want to find the segmentation for.
+        error_metric : Callable[[pd.Series, pd.DataFrame], pd.Series]
+            A function that takes a pandas Series (true values) and a DataFrame (predicted values)
+            and returns a Series representing the error metric for each row in the DataFrame.
         model : BaseDecisionTree
             The decision tree model to fit
 
@@ -208,13 +180,70 @@ class FindSegmentation2F(Protocol):
             A DataFrame containing the groups defined by the decision tree model.
             columns:
             - `segment_id`: The ID of the segment, for grouping.
-            - `feature1`: (str) the range or category of the first feature.
-            - `feature2`: (str) the range or category of the second feature.
-            - `score`: The calculated error metric for the segment.
+            - `segment_name`: (str) the range or category of the first feature.
+            - `score`: (float) The calculated error metric for the segment.
 
         """
 
+        def _calc_error(
+            metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
+            y_true: pd.Series,
+            y_pred: pd.DataFrame,
+        ) -> pd.Series:
+            """Calculate the error metric for each group in the DataFrame.
 
-# def find_segmentation_combinations(df: pd.DataFrame, features: list[str], error_col: str) -> list[FindSegmentation2F]:
-#     """Find all combinations of two features in the DataFrame and return a list of FindSegmentation2F objects."""
-find_segmentation_combinations = Callable[[pd.DataFrame, list[FindSegmentation2F], str], list[FindSegmentation2F]]
+            Parameters
+            ----------
+            metric : Callable[[pd.Series, pd.DataFrame], pd.Series]
+                A function that takes a pandas Series (true values) and a DataFrame (predicted values)
+                and returns a Series representing the error metric for each row in the DataFrame.
+            y_true : pd.Series
+                The true target values.
+            y_pred : pd.DataFrame
+                The predicted values for each group, can be probabilities (multiple columns)
+                 or classes or continuous values.
+
+            """
+
+        def _fit_model(
+            model: BaseDecisionTree,
+            feature: pd.Series,
+            error: pd.Series,
+        ) -> BaseDecisionTree:
+            """Fit the decision tree model to the feature and error data.
+
+            Parameters
+            ----------
+            model : BaseDecisionTree
+                The decision tree model to fit.
+            feature : pd.Series
+                The feature data to use for fitting the model.
+            error : pd.Series
+                The error calculated for each row in the DataFrame, which is used as the target variable.
+
+            Returns
+            -------
+            BaseDecisionTree
+                The fitted decision tree model.
+
+            """
+
+        def _extract_leaves(
+            model: BaseDecisionTree,
+        ) -> pd.DataFrame:
+            """Extract the leaves of the fitted decision tree model.
+
+            Parameters
+            ----------
+            model : BaseDecisionTree
+                The fitted decision tree model to extract leaves from.
+
+            Returns
+            -------
+            pd.DataFrame
+                A DataFrame containing the leaves of the decision tree.
+                columns:
+                - `segment_id`: The ID of the segment, for grouping.
+                - `segment_name`: (str) the range or category of the first feature.
+
+            """
