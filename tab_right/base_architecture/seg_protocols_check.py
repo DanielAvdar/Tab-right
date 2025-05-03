@@ -5,21 +5,13 @@ from sklearn.tree import DecisionTreeClassifier
 
 from .seg_protocols import DoubleSegmentation, FindSegmentation
 
-
-class TestFindSegmentation:
+class TestProtocols:
     class_to_check = FindSegmentation
 
     @abc.abstractmethod
     @pytest.fixture
     def instance_to_check(self) -> FindSegmentation:
         """Fixture to create an instance of the class."""
-
-    def test_call(self, instance_to_check):
-        model = DecisionTreeClassifier()
-        result = instance_to_check("feature", lambda y, p: abs(y - p.mean(axis=1)), model)
-        assert "segment_id" in result.columns
-        assert "segment_name" in result.columns
-        assert "score" in result.columns
 
     def test_protocol_followed(self, instance_to_check):
         """Test if the protocol is followed correctly."""
@@ -28,12 +20,23 @@ class TestFindSegmentation:
         # check if it is dataclass
         assert hasattr(instance_to_check, "__dataclass_fields__")
 
+class TestFindSegmentation(TestProtocols):
+    class_to_check = FindSegmentation
 
-class TestBaseSegmentationCalc:
-    @abc.abstractmethod
-    @pytest.fixture
-    def instance_to_check(self) -> FindSegmentation:
-        """Fixture to create an instance of the class."""
+
+
+    def test_call(self, instance_to_check):
+        model = DecisionTreeClassifier()
+        result = instance_to_check("feature", lambda y, p: abs(y - p.mean(axis=1)), model)
+        assert "segment_id" in result.columns
+        assert "segment_name" in result.columns
+        assert "score" in result.columns
+
+
+
+
+class TestBaseSegmentationCalc(TestProtocols):
+
 
     def test_call(self, instance_to_check):
         result = instance_to_check(lambda y, p: abs(y - p).mean())
@@ -41,11 +44,8 @@ class TestBaseSegmentationCalc:
         assert "score" in result.columns
 
 
-class TestDoubleSegmentation:
-    @abc.abstractmethod
-    @pytest.fixture
-    def instance_to_check(self) -> DoubleSegmentation:
-        """Fixture to create an instance of the class."""
+class TestDoubleSegmentation(TestProtocols):
+
 
     def test_call(self, instance_to_check):
         model = DecisionTreeClassifier()
