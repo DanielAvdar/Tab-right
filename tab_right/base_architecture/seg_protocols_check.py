@@ -2,9 +2,10 @@ import abc
 
 import pytest
 import pandas as pd
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeRegressor
 
 from .seg_protocols import DoubleSegmentation, FindSegmentation
+from pandas.api.typing import DataFrameGroupBy
 
 class TestProtocols:
     class_to_check = FindSegmentation
@@ -25,7 +26,7 @@ class TestFindSegmentation(TestProtocols):
     class_to_check = FindSegmentation
 
     def test_call(self, instance_to_check):
-        model = DecisionTreeClassifier()
+        model = DecisionTreeRegressor()
         result = instance_to_check("feature", lambda y, p: abs(y - p.mean(axis=1)), model)
         assert "segment_id" in result.columns
         assert "segment_name" in result.columns
@@ -44,12 +45,12 @@ class TestFindSegmentation(TestProtocols):
     def test_fit_model(self):
         feature = pd.Series([1, 2, 3, 4])
         error = pd.Series([0.1, 0.2, 0.3, 0.4])
-        model = DecisionTreeClassifier()
+        model = DecisionTreeRegressor()
         fitted_model = FindSegmentation._fit_model(model, feature, error)
         assert hasattr(fitted_model, 'tree_')
 
     def test_extract_leaves(self):
-        model = DecisionTreeClassifier(max_depth=2)
+        model = DecisionTreeRegressor(max_depth=2)
         feature = pd.Series([1, 2, 3, 4])
         error = pd.Series([0.1, 0.2, 0.3, 0.4])
         model.fit(feature.values.reshape(-1, 1), error)
@@ -67,7 +68,7 @@ class TestBaseSegmentationCalc(TestProtocols):
 class TestDoubleSegmentation(TestProtocols):
 
     def test_call(self, instance_to_check):
-        model = DecisionTreeClassifier()
+        model = DecisionTreeRegressor()
         result = instance_to_check("feature1", "feature2", lambda y, p: abs(y - p.mean(axis=1)), model)
         assert "segment_id" in result.columns
         assert "feature_1" in result.columns
@@ -96,4 +97,4 @@ class TestDoubleSegmentation(TestProtocols):
         })
         seg = df['segment_id']
         grouped = DoubleSegmentation._group_by_segment(df, seg)
-        assert isinstance(grouped, pd.core.groupby.DataFrameGroupBy)
+        assert isinstance(grouped, DataFrameGroupBy)
