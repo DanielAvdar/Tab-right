@@ -44,6 +44,7 @@ def plot_single_segmentation(
     Returns
     -------
     Figure
-        A bar chart showing each segment with its corresponding avg score, col of bar chart is feature_1, y axis is score.
+        A bar chart showing each segment with its corresponding avg score, col of bar chart is
+        feature_1, y axis is score.
 
     """

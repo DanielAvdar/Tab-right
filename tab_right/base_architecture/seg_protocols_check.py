@@ -118,6 +118,10 @@ class CheckDoubleSegmentation(CheckProtocols):
         assert "score" in result.columns
 
     def test_combine_2_features(self, instance_to_check):
+        """Test the method that combines features from two dataframes.
+
+        Verifies that feature columns are properly combined and segment IDs are preserved.
+        """
         segment_id1 = list(range(6))
         segment_name1 = ["A", "B", "C", "D", "E", "F"]
         score1 = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
@@ -135,6 +139,10 @@ class CheckDoubleSegmentation(CheckProtocols):
         assert combined["segment_id"].equals(pd.Series(range(6)))
 
     def test_group_by_segment(self, instance_to_check):
+        """Test the group_by_segment method functionality.
+
+        Ensures the method correctly groups a DataFrame by segment ID and returns a DataFrameGroupBy object.
+        """
         df = pd.DataFrame({"segment_id": [1, 1, 2, 2], "score": [0.1, 0.2, 0.3, 0.4]})
         seg = df["segment_id"]
         grouped = instance_to_check._group_by_segment(df, seg)
