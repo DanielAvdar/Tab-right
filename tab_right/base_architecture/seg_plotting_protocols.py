@@ -1,12 +1,13 @@
 """Module for defining plotting protocols."""
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 import pandas as pd
 from plotly.graph_objects import Figure
 
 
+@runtime_checkable
 @dataclass
 class DoubleSegmPlotting(Protocol):
     """Class schema for double segmentation plotting.
