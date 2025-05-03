@@ -37,7 +37,12 @@ Tab-right
    introduction
    examples
    drift_example
-   segmentation_example
+
+   Segmentation:
+      seg_calc_example
+      seg_find_example
+      seg_double_example
+
    api
 
 Quickstart
