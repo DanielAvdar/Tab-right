@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 from plotly.graph_objects import Figure
 
 
-def plot_single_segmentation_impl(df: pd.DataFrame) -> Figure:
+def plot_single_segmentation_impl(df: pd.DataFrame, lower_is_better: bool = True) -> Figure:
     """Implement the single segmentation plot as a bar chart.
 
     Parameters
@@ -22,6 +22,9 @@ def plot_single_segmentation_impl(df: pd.DataFrame) -> Figure:
         - `segment_id`: The ID of the segment, for grouping.
         - `segment_name`: (str) the range or category of the feature.
         - `score`: (float) The calculated error metric for the segment.
+    lower_is_better : bool, default=True
+        Whether lower values of the metric indicate better performance.
+        Affects the color scale in visualizations (green for better, red for worse).
 
     Returns
     -------
@@ -32,6 +35,12 @@ def plot_single_segmentation_impl(df: pd.DataFrame) -> Figure:
     """
     # Sort by segment_id to ensure consistent ordering
     df_sorted = df.sort_values(by="segment_id")
+    
+    # Choose colorscale based on lower_is_better
+    if lower_is_better:
+        colorscale = [[0, 'green'], [0.5, 'yellow'], [1, 'red']]  # Low (green) to high (red)
+    else:
+        colorscale = [[0, 'red'], [0.5, 'yellow'], [1, 'green']]  # Low (red) to high (green)
 
     # Create a bar chart
     fig = go.Figure(
@@ -39,7 +48,11 @@ def plot_single_segmentation_impl(df: pd.DataFrame) -> Figure:
             go.Bar(
                 x=df_sorted["segment_name"].astype(str),
                 y=df_sorted["score"],
-                marker_color=df_sorted["score"],
+                marker=dict(
+                    color=df_sorted["score"],
+                    colorscale=colorscale,
+                    colorbar=dict(title="Score"),
+                ),
                 text=df_sorted["score"].round(3),
                 textposition="auto",
             )
@@ -58,7 +71,7 @@ def plot_single_segmentation_impl(df: pd.DataFrame) -> Figure:
     return fig
 
 
-def plot_single_segmentation(df: pd.DataFrame) -> Figure:
+def plot_single_segmentation(df: pd.DataFrame, lower_is_better: bool = True) -> Figure:
     """Plot the single segmentation of a given DataFrame as a bar chart.
 
     Parameters
@@ -69,6 +82,9 @@ def plot_single_segmentation(df: pd.DataFrame) -> Figure:
         - `segment_id`: The ID of the segment, for grouping.
         - `segment_name`: (str) the range or category of the feature.
         - `score`: (float) The calculated error metric for the segment.
+    lower_is_better : bool, default=True
+        Whether lower values of the metric indicate better performance.
+        Affects the color scale in visualizations (green for better, red for worse).
 
     Returns
     -------
@@ -77,7 +93,7 @@ def plot_single_segmentation(df: pd.DataFrame) -> Figure:
         the feature segments (segment_name), and y-axis shows the score.
 
     """
-    return plot_single_segmentation_impl(df)
+    return plot_single_segmentation_impl(df, lower_is_better)
 
 
 @dataclass
@@ -96,11 +112,17 @@ class DoubleSegmPlotting:
         - `feature_1`: (str) the range or category of the first feature.
         - `feature_2`: (str) the range or category of the second feature.
         - `score`: (float) The calculated error metric for the segment.
+    metric_name : str, default="score"
+        The name of the metric column in the DataFrame.
+    lower_is_better : bool, default=True
+        Whether lower values of the metric indicate better performance.
+        Affects the color scale in visualizations (green for better, red for worse).
 
     """
 
     df: pd.DataFrame
     metric_name: str = "score"
+    lower_is_better: bool = True
 
     def get_heatmap_df(self) -> pd.DataFrame:
         """Get the DataFrame for the heatmap from the double segmentation df.
@@ -126,10 +148,18 @@ class DoubleSegmPlotting:
         -------
         Figure
             A heatmap showing each segment with its corresponding avg score,
-            from get_heatmap_df() method.
+            from get_heatmap_df() method. Colors are determined by the lower_is_better parameter:
+            - If lower_is_better=True: Lower values are green (better), higher values are red (worse)
+            - If lower_is_better=False: Higher values are green (better), lower values are red (worse)
 
         """
         heatmap_df = self.get_heatmap_df()
+        
+        # Choose colorscale based on lower_is_better
+        if self.lower_is_better:
+            colorscale = [[0, 'green'], [0.5, 'yellow'], [1, 'red']]  # Low (green) to high (red)
+        else:
+            colorscale = [[0, 'red'], [0.5, 'yellow'], [1, 'green']]  # Low (red) to high (green)
 
         # Create heatmap
         fig = go.Figure(
@@ -137,7 +167,7 @@ class DoubleSegmPlotting:
                 z=heatmap_df.values,
                 x=heatmap_df.columns,
                 y=heatmap_df.index,
-                colorscale="Viridis",
+                colorscale=colorscale,
                 text=heatmap_df.round(3).values,
                 texttemplate="%{text}",
                 colorbar=dict(title=self.metric_name),

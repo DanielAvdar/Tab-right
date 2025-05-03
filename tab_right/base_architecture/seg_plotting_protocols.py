@@ -24,11 +24,17 @@ class DoubleSegmPlotting(Protocol):
         - `feature_1`: (str) the range or category of the first feature.
         - `feature_2`: (str) the range or category of the second feature.
         - `score`: (float) The calculated error metric for the segment.
+    metric_name : str, default="score"
+        The name of the metric column in the DataFrame.
+    lower_is_better : bool, default=True
+        Whether lower values of the metric indicate better performance.
+        Affects the color scale in visualizations (green for better, red for worse).
 
     """
 
     df: pd.DataFrame
     metric_name: str = "score"
+    lower_is_better: bool = True
 
     def get_heatmap_df(self) -> pd.DataFrame:
         """Get the DataFrame for the heatmap. from the double segmentation df.
@@ -50,13 +56,16 @@ class DoubleSegmPlotting(Protocol):
         -------
         Figure
             A heatmap showing each segment with its corresponding avg score,
-            from get_heatmap_df() method.
+            from get_heatmap_df() method. Colors are determined by the lower_is_better parameter:
+            - If lower_is_better=True: Lower values are green (better), higher values are red (worse)
+            - If lower_is_better=False: Higher values are green (better), lower values are red (worse)
 
         """
 
 
 def plot_single_segmentation(
     df: pd.DataFrame,
+    lower_is_better: bool = True,
 ) -> Figure:
     """Plot the single segmentation of a given DataFrame as a bar chart.
 
@@ -68,11 +77,17 @@ def plot_single_segmentation(
         - `segment_id`: The ID of the segment, for grouping.
         - `segment_name`: (str) the range or category of the feature.
         - `score`: (float) The calculated error metric for the segment.
+    lower_is_better : bool, default=True
+        Whether lower values of the metric indicate better performance.
+        Affects the color scale in visualizations (green for better, red for worse).
 
     Returns
     -------
     Figure
         A bar chart showing each segment with its corresponding avg score, x-axis represents
-        the feature segments (segment_name), and y-axis shows the score.
+        the feature segments (segment_name), and y-axis shows the score. Colors are determined 
+        by the lower_is_better parameter:
+        - If lower_is_better=True: Lower values are green (better), higher values are red (worse)
+        - If lower_is_better=False: Higher values are green (better), lower values are red (worse)
 
     """
