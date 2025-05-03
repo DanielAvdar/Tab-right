@@ -17,7 +17,15 @@ class BaseSegmentationCalcImp(BaseSegmentationCalc):
         self.prediction_col = prediction_col
 
     def __call__(self, metric: Callable[[pd.Series, pd.Series], float]) -> pd.DataFrame:
-        """Perform the segmentation calculation using the provided metric."""
+        """Perform the segmentation calculation using the provided metric.
+
+        Args:
+            metric: A callable that takes two pd.Series (labels and predictions) and returns a float metric.
+
+        Returns:
+            pd.DataFrame: A dataframe containing segment IDs and their corresponding metric scores.
+
+        """
         results = []
         for segment_id, group in self.gdf:
             score = metric(group[self.label_col], group[self.prediction_col])

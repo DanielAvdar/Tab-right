@@ -17,6 +17,16 @@ class DoubleSegmentationImp(DoubleSegmentation):
 
     @classmethod
     def _combine_2_features(cls, df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
+        """Combine two feature DataFrames.
+
+        Args:
+            df1: First feature DataFrame
+            df2: Second feature DataFrame
+
+        Returns:
+            pd.DataFrame: Combined features with scores
+
+        """
         combined = pd.concat([df1.reset_index(drop=True), df2.reset_index(drop=True)], axis=1)
         combined = combined.iloc[:, :5]  # Ensure the combined DataFrame has exactly 5 columns
         combined.columns = ["segment_id", "feature_1", "score_1", "feature_2", "score_2"]
@@ -38,6 +48,18 @@ class DoubleSegmentationImp(DoubleSegmentation):
         error_metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
         model: DecisionTreeRegressor,
     ) -> pd.DataFrame:
+        """Perform double segmentation on two features.
+
+        Args:
+            feature1_col: Name of the first feature column
+            feature2_col: Name of the second feature column
+            error_metric: Function to calculate error between true and predicted values
+            model: Decision tree regressor model to use for segmentation
+
+        Returns:
+            pd.DataFrame: Combined segmentation results with scores
+
+        """
         seg1 = self.segmentation_finder(feature1_col, error_metric, model)
         seg2 = self.segmentation_finder(feature2_col, error_metric, model)
         combined = self._combine_2_features(seg1, seg2)

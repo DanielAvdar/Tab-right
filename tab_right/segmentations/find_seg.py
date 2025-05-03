@@ -1,10 +1,9 @@
 """Module for finding segmentations."""
 
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, List, Union
 
 import pandas as pd
-import pytest
 from sklearn.tree import BaseDecisionTree
 
 from tab_right.base_architecture.seg_protocols import FindSegmentation
@@ -16,7 +15,7 @@ class FindSegmentationImp(FindSegmentation):
 
     df: pd.DataFrame
     label_col: str
-    prediction_col: str
+    prediction_col: Union[str, List[str]]
 
     def __post_init__(self) -> None:
         """Post-initialization logic for `FindSegmentationImp`."""
@@ -63,14 +62,20 @@ class FindSegmentationImp(FindSegmentation):
         error_metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
         model: BaseDecisionTree,
     ) -> pd.DataFrame:
+        """Find segmentations based on feature and error metric.
+
+        Args:
+            feature_col: Name of the feature column to use for segmentation
+            error_metric: Function to calculate error between true and predicted values
+            model: Decision tree model to use for segmentation
+
+        Returns:
+            pd.DataFrame: Segmentation results containing segment IDs, names and scores
+
+        """
         feature = self.df[feature_col]
         y_true = self.df[self.label_col]
         y_pred = self.df[[self.prediction_col]]
         error = self._calc_error(error_metric, y_true, y_pred)
         fitted_model = self._fit_model(model, feature, error)
         return self._extract_leaves(fitted_model)
-
-    @pytest.fixture
-    def instance_to_check(self) -> FindSegmentation:
-        """Fixture to create an instance of the class."""
-        # todo: create implementation of instance_to_check instance.
