@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from pandas.api.typing import DataFrameGroupBy
-from sklearn.metrics import log_loss, mean_absolute_error
+from sklearn.metrics import log_loss, mean_absolute_error,mean_squared_error
 from sklearn.tree import DecisionTreeRegressor
 
 from .seg_plotting_protocols import DoubleSegmPlotting
@@ -43,7 +43,9 @@ class CheckProtocols:
 
         """
         # For non-aggregated metrics (return error per sample)
-        return partial(mean_absolute_error, multioutput="raw_values")
+        def metric_single(y, p):
+            return abs(y - p)
+        return metric_single
 
 
 class CheckFindSegmentation(CheckProtocols):
@@ -78,7 +80,7 @@ class CheckFindSegmentation(CheckProtocols):
         result = instance_to_check._calc_error(metric, y_true, y_pred)
         assert len(result) == len(y_true)
         assert isinstance(result, pd.Series)
-        assert np.allclose(result.values, metric(y_true, y_pred))
+        assert metric(y_true, y_pred).equals(result)
 
     def test_fit_model(self, instance_to_check):
         """Test the model fitting method of the instance."""
