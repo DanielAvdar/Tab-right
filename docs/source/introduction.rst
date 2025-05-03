@@ -48,11 +48,3 @@ Install the latest version from PyPI:
 .. code-block:: bash
 
    pip install tab-right
-
-For development or the latest features, clone the repository and install in editable mode:
-
-.. code-block:: bash
-
-   git clone https://github.com/DanielAvdar/tab-right.git
-   cd tab-right
-   pip install -e .
