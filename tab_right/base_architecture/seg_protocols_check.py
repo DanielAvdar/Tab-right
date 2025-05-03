@@ -5,11 +5,10 @@ import pytest
 from pandas.api.typing import DataFrameGroupBy
 from sklearn.tree import DecisionTreeRegressor
 
-from .seg_protocols import DoubleSegmentation, FindSegmentation
+from .seg_protocols import DoubleSegmentation, FindSegmentation,BaseSegmentationCalc
 
 
 class CheckProtocols:
-    class_to_check = FindSegmentation
 
     @abc.abstractmethod
     @pytest.fixture
@@ -66,6 +65,7 @@ class CheckFindSegmentation(CheckProtocols):
 
 
 class CheckBaseSegmentationCalc(CheckProtocols):
+    class_to_check = BaseSegmentationCalc
     def test_attributes(self, instance_to_check):
         assert hasattr(instance_to_check, "df")
         assert hasattr(instance_to_check, "label_col")
@@ -78,6 +78,7 @@ class CheckBaseSegmentationCalc(CheckProtocols):
 
 
 class CheckDoubleSegmentation(CheckProtocols):
+    class_to_check = DoubleSegmentation
 
     def test_attributes(self, instance_to_check):
         assert hasattr(instance_to_check, "segmentation_finder")
