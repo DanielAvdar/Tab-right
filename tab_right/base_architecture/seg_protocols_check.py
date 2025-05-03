@@ -171,11 +171,12 @@ class CheckDoubleSegmentation(CheckProtocols):
         assert hasattr(instance_to_check, "segmentation_finder")
         assert isinstance(instance_to_check.segmentation_finder, FindSegmentation)
 
-    def test_call(self, instance_to_check: Any, skl_metric: Callable) -> None:
+    def test_call(self, instance_to_check: Any) -> None:
         """Test the `__call__` method of the instance."""
         model = DecisionTreeRegressor()
         metric = self.get_metric(instance_to_check.segmentation_finder.prediction_col)
-        result = instance_to_check("feature1", "feature2", metric, model, metric)
+        score_metric = lambda y_true, y_pred: mean_absolute_error(y_true, y_pred)
+        result = instance_to_check("feature1", "feature2", metric, model, score_metric)
         assert "segment_id" in result.columns
         assert "feature_1" in result.columns
         assert "feature_2" in result.columns

@@ -268,7 +268,7 @@ class DoubleSegmentation(Protocol):
         feature2_col: str,
         error_func: MetricType,
         model: BaseDecisionTree,
-        score_metric: ScoreMetricType = None,
+        score_metric: ScoreMetricType,
     ) -> pd.DataFrame:
         """Call method to apply the model to the DataFrame.
 
@@ -286,7 +286,7 @@ class DoubleSegmentation(Protocol):
             and returns a Series representing the error metric for each row.
         model : BaseDecisionTree
             The decision tree model to fit
-        score_metric : ScoreMetricType, optional
+        score_metric : ScoreMetricType
             A metric function that calculates score for all datapoints and returns a float.
             This is used for the final score calculation.
 
