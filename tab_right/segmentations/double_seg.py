@@ -47,12 +47,13 @@ class DoubleSegmentationImp:
 
         Returns:
             BaseSegmentationCalc: A SegmentationCalc instance with grouped data
+
         """
         grouped_df = df.groupby(seg)
         return SegmentationCalc(
             gdf=grouped_df,
             label_col=self.segmentation_finder.label_col,
-            prediction_col=self.segmentation_finder.prediction_col
+            prediction_col=self.segmentation_finder.prediction_col,
         )
 
     def __call__(
@@ -79,7 +80,7 @@ class DoubleSegmentationImp:
         seg1 = self.segmentation_finder(feature1_col, error_func, model)
         seg2 = self.segmentation_finder(feature2_col, error_func, model)
         combined = self._combine_2_features(seg1, seg2)
-        
+
         # If a score_metric is provided, use it to calculate scores
         if score_metric:
             df = self.segmentation_finder.df
@@ -87,14 +88,10 @@ class DoubleSegmentationImp:
             result_df = seg_calc(score_metric)
             # Merge the scores back into the combined DataFrame
             combined = pd.merge(
-                combined,
-                result_df[["segment_id", "score"]],
-                on="segment_id",
-                how="left",
-                suffixes=("_old", "")
+                combined, result_df[["segment_id", "score"]], on="segment_id", how="left", suffixes=("_old", "")
             )
             # Drop the old score column if it exists
             if "score_old" in combined.columns:
                 combined = combined.drop(columns=["score_old"])
-        
+
         return combined

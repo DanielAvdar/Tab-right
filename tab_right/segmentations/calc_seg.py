@@ -19,12 +19,13 @@ class SegmentationCalc:
         results: Union[float, pd.Series],
     ) -> float:
         """Reduce metric results to a single value.
-        
+
         Args:
             results: Metric results to reduce
-            
+
         Returns:
             float: Reduced metric result
+
         """
         if isinstance(results, pd.Series):
             return results.mean()

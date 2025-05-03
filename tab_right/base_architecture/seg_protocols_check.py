@@ -1,18 +1,15 @@
 """Module for checking segmentation protocols."""
 
 import abc
-from functools import partial
 from typing import Any, Callable, Union
 
-import numpy as np
 import pandas as pd
 import pytest
-from pandas.api.typing import DataFrameGroupBy
-from sklearn.metrics import log_loss, mean_absolute_error,mean_squared_error
+from sklearn.metrics import log_loss, mean_absolute_error, mean_squared_error
 from sklearn.tree import DecisionTreeRegressor
 
 from .seg_plotting_protocols import DoubleSegmPlotting
-from .seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation, ScoreMetricType
+from .seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation
 
 
 class CheckProtocols:
@@ -42,9 +39,11 @@ class CheckProtocols:
             Callable metric function that handles both single and multiple predictions
 
         """
+
         # For non-aggregated metrics (return error per sample)
         def metric_single(y, p):
             return abs(y - p)
+
         return metric_single
 
 
@@ -156,16 +155,27 @@ class CheckDoubleSegmentation(CheckProtocols):
 
     class_to_check = DoubleSegmentation
 
+    @pytest.fixture(
+        params=[
+            log_loss,
+            mean_absolute_error,
+            mean_squared_error,
+        ]
+    )
+    def skl_metric(self, request) -> Callable:
+        """Fixture to create parameterized instances of the class."""
+        return request.param
+
     def test_attributes(self, instance_to_check: Any) -> None:
         """Test attributes of the instance to ensure compliance."""
         assert hasattr(instance_to_check, "segmentation_finder")
         assert isinstance(instance_to_check.segmentation_finder, FindSegmentation)
 
-    def test_call(self, instance_to_check: Any) -> None:
+    def test_call(self, instance_to_check: Any, skl_metric: Callable) -> None:
         """Test the `__call__` method of the instance."""
         model = DecisionTreeRegressor()
         metric = self.get_metric(instance_to_check.segmentation_finder.prediction_col)
-        result = instance_to_check("feature1", "feature2", metric, model)
+        result = instance_to_check("feature1", "feature2", metric, model, metric)
         assert "segment_id" in result.columns
         assert "feature_1" in result.columns
         assert "feature_2" in result.columns

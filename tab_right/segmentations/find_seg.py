@@ -48,12 +48,13 @@ class FindSegmentationImp:
         model: BaseDecisionTree,
     ) -> pd.DataFrame:
         """Extract leaf nodes from fitted model.
-        
+
         Args:
             model: Fitted decision tree model
-            
+
         Returns:
             pd.DataFrame: DataFrame with segment information
+
         """
         # Extract leaf indices and map them to segment IDs
         leaf_indices = model.apply(model.tree_.value.reshape(-1, 1))
