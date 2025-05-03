@@ -1,6 +1,7 @@
 import abc
 
 import pytest
+import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 
 from .seg_protocols import DoubleSegmentation, FindSegmentation
@@ -23,8 +24,6 @@ class TestProtocols:
 class TestFindSegmentation(TestProtocols):
     class_to_check = FindSegmentation
 
-
-
     def test_call(self, instance_to_check):
         model = DecisionTreeClassifier()
         result = instance_to_check("feature", lambda y, p: abs(y - p.mean(axis=1)), model)
@@ -32,20 +31,40 @@ class TestFindSegmentation(TestProtocols):
         assert "segment_name" in result.columns
         assert "score" in result.columns
 
+    def test_calc_error(self):
+        y_true = pd.Series([1, 0, 1, 0])
+        y_pred = pd.DataFrame({
+            'prob_0': [0.8, 0.2, 0.7, 0.3],
+            'prob_1': [0.2, 0.8, 0.3, 0.7]
+        })
+        metric = lambda y, p: abs(y - p['prob_1'])
+        result = FindSegmentation._calc_error(metric, y_true, y_pred)
+        assert len(result) == len(y_true)
 
+    def test_fit_model(self):
+        feature = pd.Series([1, 2, 3, 4])
+        error = pd.Series([0.1, 0.2, 0.3, 0.4])
+        model = DecisionTreeClassifier()
+        fitted_model = FindSegmentation._fit_model(model, feature, error)
+        assert hasattr(fitted_model, 'tree_')
 
+    def test_extract_leaves(self):
+        model = DecisionTreeClassifier(max_depth=2)
+        feature = pd.Series([1, 2, 3, 4])
+        error = pd.Series([0.1, 0.2, 0.3, 0.4])
+        model.fit(feature.values.reshape(-1, 1), error)
+        leaves = FindSegmentation._extract_leaves(model)
+        assert 'segment_id' in leaves.columns
+        assert 'segment_name' in leaves.columns
 
 class TestBaseSegmentationCalc(TestProtocols):
-
 
     def test_call(self, instance_to_check):
         result = instance_to_check(lambda y, p: abs(y - p).mean())
         assert "segment_id" in result.columns
         assert "score" in result.columns
 
-
 class TestDoubleSegmentation(TestProtocols):
-
 
     def test_call(self, instance_to_check):
         model = DecisionTreeClassifier()
@@ -54,3 +73,27 @@ class TestDoubleSegmentation(TestProtocols):
         assert "feature_1" in result.columns
         assert "feature_2" in result.columns
         assert "score" in result.columns
+
+    def test_combine_2_features(self):
+        df1 = pd.DataFrame({
+            'segment_id': [1, 2],
+            'segment_name': ['A', 'B'],
+            'score': [0.1, 0.2]
+        })
+        df2 = pd.DataFrame({
+            'segment_id': [1, 2],
+            'segment_name': ['C', 'D'],
+            'score': [0.3, 0.4]
+        })
+        combined = DoubleSegmentation._combine_2_features(df1, df2)
+        assert 'feature_1' in combined.columns
+        assert 'feature_2' in combined.columns
+
+    def test_group_by_segment(self):
+        df = pd.DataFrame({
+            'segment_id': [1, 1, 2, 2],
+            'score': [0.1, 0.2, 0.3, 0.4]
+        })
+        seg = df['segment_id']
+        grouped = DoubleSegmentation._group_by_segment(df, seg)
+        assert isinstance(grouped, pd.core.groupby.DataFrameGroupBy)
