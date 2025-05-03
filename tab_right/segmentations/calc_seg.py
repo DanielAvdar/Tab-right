@@ -7,7 +7,7 @@ import pandas as pd
 from tab_right.base_architecture.seg_protocols import BaseSegmentationCalc
 
 
-class BaseSegmentationCalcImp(BaseSegmentationCalc):
+class SegmentationCalc(BaseSegmentationCalc):
     """Implementation of base segmentation calculations."""
 
     def __init__(self, gdf: pd.core.groupby.DataFrameGroupBy, label_col: str, prediction_col: str):

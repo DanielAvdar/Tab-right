@@ -6,6 +6,7 @@ from typing import Any, Callable, Union
 import pandas as pd
 import pytest
 from pandas.api.typing import DataFrameGroupBy
+from sklearn.metrics import log_loss, mean_absolute_error
 from sklearn.tree import DecisionTreeRegressor
 
 from .seg_plotting_protocols import DoubleSegmPlotting
@@ -28,24 +29,22 @@ class CheckProtocols:
         assert hasattr(instance_to_check, "__dataclass_fields__")
         assert isinstance(instance_to_check, self.class_to_check)
 
-    def get_metric(self, prediction_col: Union[str, list[str]], agg=False) -> Callable:
-        """Get the metric name from the prediction column."""
+    def get_metric(self, prediction_col: Union[str, list[str]]) -> Callable:
+        """Get scikit-learn metric function based on the prediction column.
 
-        def metric_single(y, p):
-            if isinstance(p, pd.DataFrame):
-                # p = p.mean(axis=1)
-                return abs(y - p.mean(axis=1))
-            return abs(y - p)
+        Args:
+            prediction_col: Column name(s) for predictions
+            agg: Whether to return an aggregated metric or per-sample errors
 
-        def agg_metric(func):
-            def wrapper(y, p):
-                return func(y, p).mean()
+        Returns:
+            Callable metric function that handles both single and multiple predictions
 
-            return wrapper
-
-        if agg:
-            return agg_metric(metric_single)
-        return metric_single
+        """
+        # For non-aggregated metrics (return error per sample)
+        if isinstance(prediction_col, str):
+            return mean_absolute_error
+        elif isinstance(prediction_col, list):
+            return log_loss
 
 
 class CheckFindSegmentation(CheckProtocols):
@@ -113,7 +112,7 @@ class CheckBaseSegmentationCalc(CheckProtocols):
 
     def test_call(self, instance_to_check: Any) -> None:
         """Test the `__call__` method of the instance."""
-        metric = self.get_metric(instance_to_check.prediction_col, agg=True)
+        metric = self.get_metric(instance_to_check.prediction_col)
         result = instance_to_check(metric)
         assert "segment_id" in result.columns
         assert "score" in result.columns

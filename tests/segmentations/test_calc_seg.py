@@ -2,14 +2,14 @@ import pandas as pd
 import pytest
 
 from tab_right.base_architecture.seg_protocols_check import CheckBaseSegmentationCalc
-from tab_right.segmentations.calc_seg import BaseSegmentationCalcImp
+from tab_right.segmentations.calc_seg import SegmentationCalc
 
 
 def make_example(data, label_col="label", prediction_col="prediction"):
     """Create a sample DataFrame for testing."""
     df = pd.DataFrame(data)
     gdf = df.groupby("segment_id")
-    return BaseSegmentationCalcImp(gdf, label_col, prediction_col)
+    return SegmentationCalc(gdf, label_col, prediction_col)
 
 
 class TestBaseSegmentationCalcImp(CheckBaseSegmentationCalc):

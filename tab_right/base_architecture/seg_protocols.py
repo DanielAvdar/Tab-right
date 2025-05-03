@@ -33,12 +33,12 @@ class BaseSegmentationCalc(Protocol):
     label_col: str
     prediction_col: Union[str, List[str]]
 
-    def __call__(self, metric: Callable[[pd.Series, pd.Series], float]) -> pd.DataFrame:
+    def __call__(self, metric: Callable[[pd.Series, pd.Series], pd.Series]) -> pd.DataFrame:
         """Call method to apply the metric to each group in the DataFrameGroupBy object.
 
         Parameters
         ----------
-        metric : Callable[[pd.Series, pd.Series], float]
+        metric : Callable[[pd.Series, pd.Series], pd.Series]
             A function that takes two pandas Series (true and predicted values)
             and returns a float representing the error metric.
 
@@ -48,7 +48,7 @@ class BaseSegmentationCalc(Protocol):
             DataFrame containing the calculated error metrics for each segment.
             with 2 main columns:
             - `segment_id`: The ID of the segment.
-            - `score`: The avg error metric for the segment.
+            - `score`: The avg error metric for each segment.
 
         """
 

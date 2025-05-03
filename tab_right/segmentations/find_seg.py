@@ -39,7 +39,7 @@ class FindSegmentationImp(FindSegmentation):
     ) -> BaseDecisionTree:
         # Convert continuous error values to discrete bins for classification
         # Add duplicates='drop' to handle duplicate bin edges
-        error_bins = pd.qcut(error, q=4, labels=False, duplicates='drop')
+        error_bins = pd.qcut(error, q=4, labels=False, duplicates="drop")
         model.fit(feature.values.reshape(-1, 1), error_bins)
         return model
 
@@ -76,13 +76,13 @@ class FindSegmentationImp(FindSegmentation):
         """
         feature = self.df[feature_col]
         y_true = self.df[self.label_col]
-        
+
         # Fix for handling both string and list prediction columns
         if isinstance(self.prediction_col, str):
             y_pred = self.df[[self.prediction_col]]
         else:
             y_pred = self.df[self.prediction_col]
-            
+
         error = self._calc_error(error_metric, y_true, y_pred)
         fitted_model = self._fit_model(model, feature, error)
         return self._extract_leaves(fitted_model)
