@@ -38,13 +38,13 @@ def plot_single_segmentation(
         A DataFrame containing the groups defined by the decision tree model.
         columns:
         - `segment_id`: The ID of the segment, for grouping.
-        - `feature_1`: (str) the range or category of the first feature.
+        - `segment_name`: (str) the range or category of the feature.
         - `score`: (float) The calculated error metric for the segment.
 
     Returns
     -------
     Figure
-        A bar chart showing each segment with its corresponding avg score, col of bar chart is
-        feature_1, y axis is score.
+        A bar chart showing each segment with its corresponding avg score, x-axis represents
+        the feature segments (segment_name), and y-axis shows the score.
 
     """
