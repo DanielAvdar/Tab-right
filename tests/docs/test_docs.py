@@ -38,7 +38,6 @@ def collect_examples(folder_name):
 
 
 @pytest.mark.parametrize("file_path, line, example", collect_examples(""))
-@pytest.mark.skip
 def test_doc_examples(file_path, line, example, monkeypatch):
     monkeypatch.setattr(go.Figure, "show", lambda self: None)
     example.evaluate()
