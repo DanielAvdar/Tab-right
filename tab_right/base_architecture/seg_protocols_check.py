@@ -32,10 +32,10 @@ class CheckProtocols:
         """Get the metric name from the prediction column."""
 
         def metric_single(y, p):
+            if isinstance(p, pd.DataFrame):
+                # p = p.mean(axis=1)
+                return abs(y - p.mean(axis=1))
             return abs(y - p)
-
-        def metric_multi(y, p):
-            return abs(y - p.mean(axis=1))
 
         def agg_metric(func):
             def wrapper(y, p):
@@ -43,10 +43,9 @@ class CheckProtocols:
 
             return wrapper
 
-        metric = metric_single if isinstance(prediction_col, str) else metric_multi
         if agg:
-            return agg_metric(metric)
-        return metric
+            return agg_metric(metric_single)
+        return metric_single
 
 
 class CheckFindSegmentation(CheckProtocols):
