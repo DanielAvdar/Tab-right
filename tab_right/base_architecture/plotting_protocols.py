@@ -1,3 +1,5 @@
+"""Module for defining plotting protocols."""
+
 import pandas as pd
 from plotly.graph_objects import Figure
 
