@@ -1,7 +1,7 @@
 """Module for checking segmentation protocols."""
 
 import abc
-from typing import Any
+from typing import Any, Callable, Union
 
 import pandas as pd
 import pytest
@@ -28,6 +28,26 @@ class CheckProtocols:
         assert hasattr(instance_to_check, "__dataclass_fields__")
         assert isinstance(instance_to_check, self.class_to_check)
 
+    def get_metric(self, prediction_col: Union[str, list[str]], agg=False) -> Callable:
+        """Get the metric name from the prediction column."""
+
+        def metric_single(y, p):
+            return abs(y - p)
+
+        def metric_multi(y, p):
+            return abs(y - p.mean(axis=1))
+
+        def agg_metric(func):
+            def wrapper(y, p):
+                return func(y, p).mean()
+
+            return wrapper
+
+        metric = metric_single if isinstance(prediction_col, str) else metric_multi
+        if agg:
+            return agg_metric(metric)
+        return metric
+
 
 class CheckFindSegmentation(CheckProtocols):
     """Class for checking compliance of `FindSegmentation` protocol."""
@@ -43,7 +63,8 @@ class CheckFindSegmentation(CheckProtocols):
     def test_call(self, instance_to_check: Any) -> None:
         """Test the `__call__` method of the instance."""
         model = DecisionTreeRegressor()
-        result = instance_to_check("feature", lambda y, p: abs(y - p.mean(axis=1)), model)
+        metric = self.get_metric(instance_to_check.prediction_col)
+        result = instance_to_check("feature", metric, model)
         assert "segment_id" in result.columns
         assert "segment_name" in result.columns
         assert "score" in result.columns
@@ -53,11 +74,13 @@ class CheckFindSegmentation(CheckProtocols):
         y_true = pd.Series([1, 0, 1, 0])
         y_pred = pd.DataFrame({"prob_0": [0.8, 0.2, 0.7, 0.3], "prob_1": [0.2, 0.8, 0.3, 0.7]})
 
-        def metric(y, p):
-            return abs(y - p["prob_1"])
+        metric = self.get_metric(
+            ["prob_0", "prob_1"],
+        )
 
         result = instance_to_check._calc_error(metric, y_true, y_pred)
         assert len(result) == len(y_true)
+        assert metric(y_true, y_pred).equals(result)
 
     def test_fit_model(self, instance_to_check):
         """Test the model fitting method of the instance."""
@@ -91,7 +114,8 @@ class CheckBaseSegmentationCalc(CheckProtocols):
 
     def test_call(self, instance_to_check: Any) -> None:
         """Test the `__call__` method of the instance."""
-        result = instance_to_check(lambda y, p: abs(y - p).mean())
+        metric = self.get_metric(instance_to_check.prediction_col, agg=True)
+        result = instance_to_check(metric)
         assert "segment_id" in result.columns
         assert "score" in result.columns
         number_of_groups = len(instance_to_check.gdf.groups)
@@ -112,7 +136,8 @@ class CheckDoubleSegmentation(CheckProtocols):
     def test_call(self, instance_to_check: Any) -> None:
         """Test the `__call__` method of the instance."""
         model = DecisionTreeRegressor()
-        result = instance_to_check("feature1", "feature2", lambda y, p: abs(y - p.mean(axis=1)), model)
+        metric = self.get_metric(instance_to_check.segmentation_finder.prediction_col)
+        result = instance_to_check("feature1", "feature2", metric, model)
         assert "segment_id" in result.columns
         assert "feature_1" in result.columns
         assert "feature_2" in result.columns
