@@ -1,13 +1,17 @@
-from tab_right.base_architecture.seg_protocols import FindSegmentation
-
+import pandas as pd
 import pytest
+from sklearn.tree import DecisionTreeRegressor
+
+from tab_right.base_architecture.seg_protocols_check import CheckFindSegmentation
+from tab_right.segmentations.find_seg import FindSegmentationImp
 
 
-
-class FindSegmentationImp(FindSegmentation):
+class TestFindSegmentationImp(CheckFindSegmentation):
     """Test class for double segmentation."""
 
     @pytest.fixture
-    def instance_to_check(self) -> FindSegmentation:
-        """Fixture to create an instance of the class."""
-        # todo: create implementation of instance_to_check instance.
+    def instance_to_check(self):
+        df = pd.DataFrame({"feature": [1, 2, 3, 4], "label": [0, 1, 0, 1], "prediction": [0.1, 0.9, 0.2, 0.8]})
+        return FindSegmentationImp(df, "label", "prediction")
+
+
