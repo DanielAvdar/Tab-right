@@ -86,6 +86,7 @@ class FindSegmentation(Protocol):
     label_col : str
         Column name for the true target values.
     prediction_col : str
+        Column name for the predicted values.
 
     """
 
@@ -98,20 +99,19 @@ class FindSegmentation(Protocol):
         cls,
         metric: MetricType,
         y_true: pd.Series,
-        y_pred: pd.DataFrame,
+        y_pred: pd.Series,
     ) -> pd.Series:
         """Calculate the error metric for each group in the DataFrame.
 
         Parameters
         ----------
         metric : MetricType
-            A function that takes a pandas Series (true values) and a DataFrame (predicted values)
-            and returns a Series representing the error metric for each row in the DataFrame.
+            A function that takes a pandas Series (true values) and a Series (predicted values)
+            and returns a Series representing the error metric for each row.
         y_true : pd.Series
             The true target values.
-        y_pred : pd.DataFrame
-            The predicted values for each group, can be probabilities (multiple columns)
-             or classes or continuous values.
+        y_pred : pd.Series
+            The predicted values for each group.
 
         """
 
@@ -178,8 +178,8 @@ class FindSegmentation(Protocol):
         feature_col : str
             The name of the feature, which we want to find the segmentation for.
         error_metric : MetricType
-            A function that takes a pandas Series (true values) and a DataFrame (predicted values)
-            and returns a Series representing the error metric for each row in the DataFrame.
+            A function that takes a pandas Series (true values) and a Series (predicted values)
+            and returns a Series representing the error metric for each row.
         model : BaseDecisionTree
             The decision tree model to fit
 
@@ -281,8 +281,8 @@ class DoubleSegmentation(Protocol):
         feature2_col : str
             The name of the second feature, which we want to find the segmentation for.
         error_metric : MetricType
-            A function that takes a pandas Series (true values) and a DataFrame (predicted values)
-            and returns a Series representing the error metric for each row in the DataFrame.
+            A function that takes a pandas Series (true values) and a Series (predicted values)
+            and returns a Series representing the error metric for each row.
         model : BaseDecisionTree
             The decision tree model to fit
 

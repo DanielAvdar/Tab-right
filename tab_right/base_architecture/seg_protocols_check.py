@@ -4,6 +4,7 @@ import abc
 from functools import partial
 from typing import Any, Callable, Union
 
+import numpy as np
 import pandas as pd
 import pytest
 from pandas.api.typing import DataFrameGroupBy
@@ -68,7 +69,7 @@ class CheckFindSegmentation(CheckProtocols):
     def test_calc_error(self, instance_to_check: Any) -> None:
         """Test the error calculation method of the instance."""
         y_true = pd.Series([1, 0, 1, 0])
-        y_pred = pd.DataFrame({"prediction": [0.1, 0.9, 0.2, 0.8]})
+        y_pred = pd.Series([0.1, 0.9, 0.2, 0.8])
 
         metric = self.get_metric(
             "prediction",
@@ -76,7 +77,8 @@ class CheckFindSegmentation(CheckProtocols):
 
         result = instance_to_check._calc_error(metric, y_true, y_pred)
         assert len(result) == len(y_true)
-        assert metric(y_true, y_pred).equals(result)
+        assert isinstance(result, pd.Series)
+        assert np.allclose(result.values, metric(y_true, y_pred))
 
     def test_fit_model(self, instance_to_check):
         """Test the model fitting method of the instance."""
