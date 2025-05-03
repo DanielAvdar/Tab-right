@@ -6,7 +6,8 @@ from typing import Callable
 import pandas as pd
 from sklearn.tree import DecisionTreeRegressor
 
-from tab_right.base_architecture.seg_protocols import FindSegmentation, ScoreMetricType
+from tab_right.base_architecture.seg_protocols import BaseSegmentationCalc, FindSegmentation, ScoreMetricType
+from tab_right.segmentations.calc_seg import SegmentationCalc
 
 
 @dataclass
@@ -33,13 +34,26 @@ class DoubleSegmentationImp:
         combined["score"] = combined[["score_1", "score_2"]].apply(pd.to_numeric, errors="coerce").mean(axis=1)
         return combined
 
-    @classmethod
     def _group_by_segment(
-        cls,
+        self,
         df: pd.DataFrame,
         seg: pd.Series,
-    ) -> pd.core.groupby.DataFrameGroupBy:
-        return df.groupby(seg)
+    ) -> BaseSegmentationCalc:
+        """Group DataFrame by segment ID and create a BaseSegmentationCalc instance.
+
+        Args:
+            df: DataFrame to group
+            seg: Segment IDs to group by
+
+        Returns:
+            BaseSegmentationCalc: A SegmentationCalc instance with grouped data
+        """
+        grouped_df = df.groupby(seg)
+        return SegmentationCalc(
+            gdf=grouped_df,
+            label_col=self.segmentation_finder.label_col,
+            prediction_col=self.segmentation_finder.prediction_col
+        )
 
     def __call__(
         self,
@@ -65,4 +79,22 @@ class DoubleSegmentationImp:
         seg1 = self.segmentation_finder(feature1_col, error_func, model)
         seg2 = self.segmentation_finder(feature2_col, error_func, model)
         combined = self._combine_2_features(seg1, seg2)
+        
+        # If a score_metric is provided, use it to calculate scores
+        if score_metric:
+            df = self.segmentation_finder.df
+            seg_calc = self._group_by_segment(df, combined["segment_id"])
+            result_df = seg_calc(score_metric)
+            # Merge the scores back into the combined DataFrame
+            combined = pd.merge(
+                combined,
+                result_df[["segment_id", "score"]],
+                on="segment_id",
+                how="left",
+                suffixes=("_old", "")
+            )
+            # Drop the old score column if it exists
+            if "score_old" in combined.columns:
+                combined = combined.drop(columns=["score_old"])
+        
         return combined

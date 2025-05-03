@@ -240,13 +240,12 @@ class DoubleSegmentation(Protocol):
 
         """
 
-    @classmethod
     def _group_by_segment(
-        cls,
+        self,
         df: pd.DataFrame,
         seg: pd.Series,
-    ) -> DataFrameGroupBy:
-        """Group the DataFrame by segment ID and calculate the mean score for each group.
+    ) -> BaseSegmentationCalc:
+        """Group the DataFrame by segment ID and returns a BaseSegmentationCalc instance.
 
         Parameters
         ----------
@@ -258,8 +257,8 @@ class DoubleSegmentation(Protocol):
 
         Returns
         -------
-        DataFrameGroupBy
-            A DataFrameGroupBy object containing the grouped DataFrame.
+        BaseSegmentationCalc
+            A BaseSegmentationCalc instance containing the grouped data with label and prediction columns.
 
         """
 

@@ -199,8 +199,8 @@ class CheckDoubleSegmentation(CheckProtocols):
         """
         df = pd.DataFrame({"segment_id": [1, 1, 2, 2], "score": [0.1, 0.2, 0.3, 0.4]})
         seg = df["segment_id"]
-        grouped = instance_to_check._group_by_segment(df, seg)
-        assert isinstance(grouped, DataFrameGroupBy)
+        bsc = instance_to_check._group_by_segment(df, seg)
+        assert isinstance(bsc, BaseSegmentationCalc)
 
 
 class CheckDoubleSegmPlotting(CheckProtocols):
