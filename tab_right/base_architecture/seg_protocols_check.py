@@ -8,6 +8,7 @@ import pytest
 from pandas.api.typing import DataFrameGroupBy
 from sklearn.tree import DecisionTreeRegressor
 
+from .seg_plotting_protocols import DoubleSegmPlotting
 from .seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation
 
 
@@ -147,3 +148,42 @@ class CheckDoubleSegmentation(CheckProtocols):
         seg = df["segment_id"]
         grouped = instance_to_check._group_by_segment(df, seg)
         assert isinstance(grouped, DataFrameGroupBy)
+
+
+class CheckDoubleSegmPlotting(CheckProtocols):
+    """Class for checking compliance of `DoubleSegmPlotting` protocol."""
+
+    class_to_check = DoubleSegmPlotting
+
+    def test_attributes(self, instance_to_check: Any) -> None:
+        """Test attributes of the instance to ensure compliance."""
+        assert hasattr(instance_to_check, "df")
+        assert hasattr(instance_to_check, "metric_name")
+        assert isinstance(instance_to_check.df, pd.DataFrame)
+
+    def test_get_heatmap_df(self, instance_to_check: Any) -> None:
+        """Test the `get_heatmap_df` method of the instance."""
+        result = instance_to_check.get_heatmap_df()
+        assert isinstance(result, pd.DataFrame)
+        # Verify the result is a pivot table format with feature_1 as columns and feature_2 as index
+        assert len(result.columns) > 0
+        assert len(result.index) > 0
+        assert len(result.columns) == len(instance_to_check.df["feature_1"].unique())
+        assert len(result.index) == len(instance_to_check.df["feature_2"].unique())
+        # The values in the DataFrame should be the metric scores
+        assert result.values.dtype.kind in "fiub"  # Numeric types (float, int, uint, bool)
+
+    def test_plotly_heatmap(self, instance_to_check: Any) -> None:
+        """Test the `plotly_heatmap` method of the instance."""
+        from plotly.graph_objects import Figure, Heatmap
+
+        result = instance_to_check.plotly_heatmap()
+        assert isinstance(result, Figure)
+
+        # Verify the figure contains a heatmap trace
+        assert len(result.data) > 0
+        assert any(isinstance(trace, Heatmap) for trace in result.data)
+
+        # Check that the layout includes appropriate axis titles
+        assert result.layout.xaxis.title is not None
+        assert result.layout.yaxis.title is not None
