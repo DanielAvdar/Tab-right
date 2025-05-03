@@ -33,6 +33,15 @@ class TestBaseSegmentationCalcImp(CheckBaseSegmentationCalc):
             ),
             make_example(
                 data={
+                    "segment_id": [1, 1, 2, 2, 3, 3],
+                    "label": [0, 1, 0, 1, 0, 1],
+                    "prob1": [0.1, 0.9, 0.2, 0.8, 0.3, 0.7],
+                    "prob2": [0.2, 0.8, 0.3, 0.7, 0.4, 0.6],
+                },
+                prediction_col=["prob1", "prob2"],
+            ),
+            make_example(
+                data={
                     "segment_id": [1, 1, 2, 2],
                     "label": [0, 1, 0, 1],
                     "prediction": [0.1, 0.9, 0.2, 0.8],
@@ -42,6 +51,6 @@ class TestBaseSegmentationCalcImp(CheckBaseSegmentationCalc):
             ),
         ]
     )
-    def instance_to_check(self, request):
+    def instance_to_check(self, request) -> SegmentationCalc:
         """Fixture to create parameterized instances of the class."""
         return request.param

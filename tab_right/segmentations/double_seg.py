@@ -5,10 +5,10 @@ from typing import Callable
 import pandas as pd
 from sklearn.tree import DecisionTreeRegressor
 
-from tab_right.base_architecture.seg_protocols import DoubleSegmentation, FindSegmentation
+from tab_right.base_architecture.seg_protocols import FindSegmentation
 
 
-class DoubleSegmentationImp(DoubleSegmentation):
+class DoubleSegmentationImp:
     """Implementation of double segmentation logic."""
 
     def __init__(self, segmentation_finder: FindSegmentation):

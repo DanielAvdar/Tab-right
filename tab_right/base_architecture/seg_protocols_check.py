@@ -1,6 +1,7 @@
 """Module for checking segmentation protocols."""
 
 import abc
+from functools import partial
 from typing import Any, Callable, Union
 
 import pandas as pd
@@ -41,10 +42,7 @@ class CheckProtocols:
 
         """
         # For non-aggregated metrics (return error per sample)
-        if isinstance(prediction_col, str):
-            return mean_absolute_error
-        elif isinstance(prediction_col, list):
-            return log_loss
+        return partial(mean_absolute_error, multioutput="raw_values")
 
 
 class CheckFindSegmentation(CheckProtocols):
@@ -70,10 +68,10 @@ class CheckFindSegmentation(CheckProtocols):
     def test_calc_error(self, instance_to_check: Any) -> None:
         """Test the error calculation method of the instance."""
         y_true = pd.Series([1, 0, 1, 0])
-        y_pred = pd.DataFrame({"prob_0": [0.8, 0.2, 0.7, 0.3], "prob_1": [0.2, 0.8, 0.3, 0.7]})
+        y_pred = pd.DataFrame({"prediction": [0.1, 0.9, 0.2, 0.8]})
 
         metric = self.get_metric(
-            ["prob_0", "prob_1"],
+            "prediction",
         )
 
         result = instance_to_check._calc_error(metric, y_true, y_pred)
@@ -104,11 +102,39 @@ class CheckBaseSegmentationCalc(CheckProtocols):
 
     class_to_check = BaseSegmentationCalc
 
+    def get_metric(self, prediction_col: Union[str, list[str]]) -> Callable:
+        """Get scikit-learn metric function based on the prediction column.
+
+        Args:
+            prediction_col: Column name(s) for predictions
+            agg: Whether to return an aggregated metric or per-sample errors
+
+        Returns:
+            Callable metric function that handles both single and multiple predictions
+
+        """
+        # For non-aggregated metrics (return error per sample)
+        if isinstance(prediction_col, list):
+            return log_loss
+
+        return super().get_metric(prediction_col)
+
     def test_attributes(self, instance_to_check: Any) -> None:
         """Test attributes of the instance to ensure compliance."""
         assert hasattr(instance_to_check, "gdf")
         assert hasattr(instance_to_check, "label_col")
         assert hasattr(instance_to_check, "prediction_col")
+
+    def test_reduce_metric_results(self, instance_to_check: Any) -> None:
+        """Test the metric reduction method of the instance."""
+        results = pd.Series([0.1, 0.2, 0.3, 0.4])
+        reduced_result = instance_to_check._reduce_metric_results(results)
+        assert isinstance(reduced_result, float)
+        assert reduced_result == results.mean()
+        results = 0.5
+        reduced_result = instance_to_check._reduce_metric_results(results)
+        assert isinstance(reduced_result, float)
+        assert reduced_result == results
 
     def test_call(self, instance_to_check: Any) -> None:
         """Test the `__call__` method of the instance."""

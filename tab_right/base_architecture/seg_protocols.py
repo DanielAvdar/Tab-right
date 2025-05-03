@@ -11,6 +11,8 @@ import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 from sklearn.tree import BaseDecisionTree
 
+MetricType = Callable[[pd.Series, pd.Series], pd.Series]
+
 
 @runtime_checkable
 @dataclass
@@ -32,6 +34,25 @@ class BaseSegmentationCalc(Protocol):
     gdf: DataFrameGroupBy
     label_col: str
     prediction_col: Union[str, List[str]]
+
+    def _reduce_metric_results(
+        self,
+        results: Union[float, pd.Series],
+    ) -> float:
+        """Reduce the metric results to a single value, the metric produce series of values.
+            if produce a single value, return it. it used for getting single value for each segment.
+
+        Parameters
+        ----------
+        results : Union[float, pd.Series]
+            The metric results to reduce.
+
+        Returns
+        -------
+        float
+            The reduced metric result.
+
+        """
 
     def __call__(self, metric: Callable[[pd.Series, pd.Series], pd.Series]) -> pd.DataFrame:
         """Call method to apply the metric to each group in the DataFrameGroupBy object.
@@ -64,18 +85,18 @@ class FindSegmentation(Protocol):
         DataFrame containing the data to be segmented.
     label_col : str
         Column name for the true target values.
-    prediction_col : Union[str, List[str]]
+    prediction_col : str
 
     """
 
     df: pd.DataFrame
     label_col: str
-    prediction_col: Union[str, List[str]]
+    prediction_col: str
 
     @classmethod
     def _calc_error(
         cls,
-        metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
+        metric: MetricType,
         y_true: pd.Series,
         y_pred: pd.DataFrame,
     ) -> pd.Series:
@@ -83,7 +104,7 @@ class FindSegmentation(Protocol):
 
         Parameters
         ----------
-        metric : Callable[[pd.Series, pd.DataFrame], pd.Series]
+        metric : MetricType
             A function that takes a pandas Series (true values) and a DataFrame (predicted values)
             and returns a Series representing the error metric for each row in the DataFrame.
         y_true : pd.Series
@@ -144,7 +165,7 @@ class FindSegmentation(Protocol):
     def __call__(
         self,
         feature_col: str,
-        error_metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
+        error_metric: MetricType,
         model: BaseDecisionTree,
     ) -> pd.DataFrame:
         """Call method to apply the model to the DataFrame.
@@ -156,7 +177,7 @@ class FindSegmentation(Protocol):
         ----------
         feature_col : str
             The name of the feature, which we want to find the segmentation for.
-        error_metric : Callable[[pd.Series, pd.DataFrame], pd.Series]
+        error_metric : MetricType
             A function that takes a pandas Series (true values) and a DataFrame (predicted values)
             and returns a Series representing the error metric for each row in the DataFrame.
         model : BaseDecisionTree
@@ -245,7 +266,7 @@ class DoubleSegmentation(Protocol):
         self,
         feature1_col: str,
         feature2_col: str,
-        error_metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
+        error_metric: MetricType,
         model: BaseDecisionTree,
     ) -> pd.DataFrame:
         """Call method to apply the model to the DataFrame.
@@ -259,7 +280,7 @@ class DoubleSegmentation(Protocol):
             The name of the first feature, which we want to find the segmentation for.
         feature2_col : str
             The name of the second feature, which we want to find the segmentation for.
-        error_metric : Callable[[pd.Series, pd.DataFrame], pd.Series]
+        error_metric : MetricType
             A function that takes a pandas Series (true values) and a DataFrame (predicted values)
             and returns a Series representing the error metric for each row in the DataFrame.
         model : BaseDecisionTree

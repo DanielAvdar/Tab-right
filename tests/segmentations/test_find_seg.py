@@ -22,21 +22,19 @@ class TestFindSegmentationImp(CheckFindSegmentation):
             ),
             make_example(
                 data={
-                    "feature": [1, 2, 3, 4],
-                    "label": [0, 1, 0, 1],
-                    "prediction1": [0.1, 0.9, 0.2, 0.8],
-                    "prediction2": [0.2, 0.8, 0.3, 0.7],
+                    "feature": [1, 2, 3, 4, 5, 6],
+                    "label": [0, 1, 0, 1, 0, 1],
+                    "prediction": [0.1, 0.9, 0.2, 0.8, 0.3, 0.7],
                 },
-                prediction_col=["prediction1", "prediction2"],
+                prediction_col="prediction",
             ),
             make_example(
-                data={
-                    "feature": [1, 2, 3, 4],
-                    "label": [0, 1, 0, 1],
-                    "prediction1": [0.1, 0.9, 0.2, 0.8],
-                    "prediction2": [0.2, 0.8, 0.3, 0.7],
-                },
-                prediction_col="prediction1",
+                data={"feature": [-1, -2, -3, -4], "label": [0, 1, 0, 1], "prediction": [0.1, 0.9, 0.2, 0.8]},
+                prediction_col="prediction",
+            ),
+            make_example(
+                data={"feature": [-1, -2, -3, -4], "label": [0, 1, 0, 1], "prediction": [-0.1, -0.9, -0.2, -0.8]},
+                prediction_col="prediction",
             ),
         ]
     )

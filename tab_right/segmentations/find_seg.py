@@ -6,11 +6,9 @@ from typing import Callable, List, Union
 import pandas as pd
 from sklearn.tree import BaseDecisionTree
 
-from tab_right.base_architecture.seg_protocols import FindSegmentation
-
 
 @dataclass
-class FindSegmentationImp(FindSegmentation):
+class FindSegmentationImp:
     """Test class for double segmentation."""
 
     df: pd.DataFrame
@@ -24,9 +22,9 @@ class FindSegmentationImp(FindSegmentation):
     @classmethod
     def _calc_error(
         cls,
-        metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
+        metric: Callable[[pd.Series, pd.Series], pd.Series],
         y_true: pd.Series,
-        y_pred: pd.DataFrame,
+        y_pred: pd.Series,
     ) -> pd.Series:
         return metric(y_true, y_pred)
 
@@ -77,11 +75,7 @@ class FindSegmentationImp(FindSegmentation):
         feature = self.df[feature_col]
         y_true = self.df[self.label_col]
 
-        # Fix for handling both string and list prediction columns
-        if isinstance(self.prediction_col, str):
-            y_pred = self.df[[self.prediction_col]]
-        else:
-            y_pred = self.df[self.prediction_col]
+        y_pred = self.df[self.prediction_col]
 
         error = self._calc_error(error_metric, y_true, y_pred)
         fitted_model = self._fit_model(model, feature, error)
