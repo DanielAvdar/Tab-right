@@ -6,7 +6,7 @@ from typing import Callable
 import pandas as pd
 from sklearn.tree import DecisionTreeRegressor
 
-from tab_right.base_architecture.seg_protocols import FindSegmentation
+from tab_right.base_architecture.seg_protocols import FindSegmentation, ScoreMetricType
 
 
 @dataclass
@@ -45,22 +45,24 @@ class DoubleSegmentationImp:
         self,
         feature1_col: str,
         feature2_col: str,
-        error_metric: Callable[[pd.Series, pd.Series], pd.Series],
+        error_func: Callable[[pd.Series, pd.Series], pd.Series],
         model: DecisionTreeRegressor,
+        score_metric: ScoreMetricType = None,
     ) -> pd.DataFrame:
         """Perform double segmentation on two features.
 
         Args:
             feature1_col: Name of the first feature column
             feature2_col: Name of the second feature column
-            error_metric: Function to calculate error between true and predicted values
+            error_func: Function to calculate error between true and predicted values for each datapoint
             model: Decision tree regressor model to use for segmentation
+            score_metric: Optional function to calculate overall score for datapoints, returns a float
 
         Returns:
             pd.DataFrame: Combined segmentation results with scores
 
         """
-        seg1 = self.segmentation_finder(feature1_col, error_metric, model)
-        seg2 = self.segmentation_finder(feature2_col, error_metric, model)
+        seg1 = self.segmentation_finder(feature1_col, error_func, model)
+        seg2 = self.segmentation_finder(feature2_col, error_func, model)
         combined = self._combine_2_features(seg1, seg2)
         return combined

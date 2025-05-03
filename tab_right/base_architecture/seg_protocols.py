@@ -12,6 +12,7 @@ from pandas.api.typing import DataFrameGroupBy
 from sklearn.tree import BaseDecisionTree
 
 MetricType = Callable[[pd.Series, pd.Series], pd.Series]
+ScoreMetricType = Callable[[pd.Series, pd.Series], float]
 
 
 @runtime_checkable
@@ -165,7 +166,7 @@ class FindSegmentation(Protocol):
     def __call__(
         self,
         feature_col: str,
-        error_metric: MetricType,
+        error_func: MetricType,
         model: BaseDecisionTree,
     ) -> pd.DataFrame:
         """Call method to apply the model to the DataFrame.
@@ -177,7 +178,7 @@ class FindSegmentation(Protocol):
         ----------
         feature_col : str
             The name of the feature, which we want to find the segmentation for.
-        error_metric : MetricType
+        error_func : MetricType
             A function that takes a pandas Series (true values) and a Series (predicted values)
             and returns a Series representing the error metric for each row.
         model : BaseDecisionTree
@@ -266,8 +267,9 @@ class DoubleSegmentation(Protocol):
         self,
         feature1_col: str,
         feature2_col: str,
-        error_metric: MetricType,
+        error_func: MetricType,
         model: BaseDecisionTree,
+        score_metric: ScoreMetricType = None,
     ) -> pd.DataFrame:
         """Call method to apply the model to the DataFrame.
 
@@ -280,11 +282,14 @@ class DoubleSegmentation(Protocol):
             The name of the first feature, which we want to find the segmentation for.
         feature2_col : str
             The name of the second feature, which we want to find the segmentation for.
-        error_metric : MetricType
+        error_func : MetricType
             A function that takes a pandas Series (true values) and a Series (predicted values)
             and returns a Series representing the error metric for each row.
         model : BaseDecisionTree
             The decision tree model to fit
+        score_metric : ScoreMetricType, optional
+            A metric function that calculates score for all datapoints and returns a float.
+            This is used for the final score calculation.
 
         Returns
         -------

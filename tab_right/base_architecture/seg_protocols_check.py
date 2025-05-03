@@ -12,7 +12,7 @@ from sklearn.metrics import log_loss, mean_absolute_error,mean_squared_error
 from sklearn.tree import DecisionTreeRegressor
 
 from .seg_plotting_protocols import DoubleSegmPlotting
-from .seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation
+from .seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation, ScoreMetricType
 
 
 class CheckProtocols:

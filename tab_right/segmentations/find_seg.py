@@ -67,14 +67,14 @@ class FindSegmentationImp:
     def __call__(
         self,
         feature_col: str,
-        error_metric: Callable[[pd.Series, pd.Series], pd.Series],
+        error_func: Callable[[pd.Series, pd.Series], pd.Series],
         model: BaseDecisionTree,
     ) -> pd.DataFrame:
         """Find segmentations based on feature and error metric.
 
         Args:
             feature_col: Name of the feature column to use for segmentation
-            error_metric: Function to calculate error between true and predicted values
+            error_func: Function to calculate error between true and predicted values
             model: Decision tree model to use for segmentation
 
         Returns:
@@ -85,6 +85,6 @@ class FindSegmentationImp:
         y_true = self.df[self.label_col]
         y_pred = self.df[self.prediction_col]  # Now only handling a single string column
 
-        error = self._calc_error(error_metric, y_true, y_pred)
+        error = self._calc_error(error_func, y_true, y_pred)
         fitted_model = self._fit_model(model, feature, error)
         return self._extract_leaves(fitted_model)
