@@ -48,7 +48,7 @@ class BaseSegmentationCalc(Protocol):
             DataFrame containing the calculated error metrics for each segment.
             with 2 main columns:
             - `segment_id`: The ID of the segment.
-            - `score`: The calculated error metric for the segment.
+            - `score`: The avg error metric for the segment.
 
         """
 

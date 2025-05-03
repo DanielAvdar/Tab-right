@@ -93,6 +93,9 @@ class CheckBaseSegmentationCalc(CheckProtocols):
         result = instance_to_check(lambda y, p: abs(y - p).mean())
         assert "segment_id" in result.columns
         assert "score" in result.columns
+        number_of_groups = len(instance_to_check.gdf.groups)
+        number_of_segments = len(result)
+        assert number_of_groups == number_of_segments
 
 
 class CheckDoubleSegmentation(CheckProtocols):
