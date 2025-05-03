@@ -1,8 +1,9 @@
 """Module for finding segmentations."""
 
 from dataclasses import dataclass
-from typing import Callable, List, Union
+from typing import Callable, Union
 
+import numpy as np
 import pandas as pd
 from sklearn.tree import BaseDecisionTree
 
@@ -13,7 +14,7 @@ class FindSegmentationImp:
 
     df: pd.DataFrame
     label_col: str
-    prediction_col: Union[str, List[str]]
+    prediction_col: str  # Changed from Union[str, List[str]] to str only
 
     def __post_init__(self) -> None:
         """Post-initialization logic for `FindSegmentationImp`."""
@@ -24,7 +25,7 @@ class FindSegmentationImp:
         cls,
         metric: Callable[[pd.Series, pd.Series], pd.Series],
         y_true: pd.Series,
-        y_pred: pd.Series,
+        y_pred: Union[pd.Series, pd.DataFrame],
     ) -> pd.Series:
         return metric(y_true, y_pred)
 
@@ -33,7 +34,7 @@ class FindSegmentationImp:
         cls,
         model: BaseDecisionTree,
         feature: pd.Series,
-        error: pd.Series,
+        error: Union[pd.Series, np.ndarray],
     ) -> BaseDecisionTree:
         # Convert continuous error values to discrete bins for classification
         # Add duplicates='drop' to handle duplicate bin edges
@@ -46,6 +47,14 @@ class FindSegmentationImp:
         cls,
         model: BaseDecisionTree,
     ) -> pd.DataFrame:
+        """Extract leaf nodes from fitted model.
+        
+        Args:
+            model: Fitted decision tree model
+            
+        Returns:
+            pd.DataFrame: DataFrame with segment information
+        """
         # Extract leaf indices and map them to segment IDs
         leaf_indices = model.apply(model.tree_.value.reshape(-1, 1))
         unique_leaves = pd.unique(leaf_indices)
@@ -58,7 +67,7 @@ class FindSegmentationImp:
     def __call__(
         self,
         feature_col: str,
-        error_metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
+        error_metric: Callable[[pd.Series, pd.Series], pd.Series],
         model: BaseDecisionTree,
     ) -> pd.DataFrame:
         """Find segmentations based on feature and error metric.
@@ -74,8 +83,7 @@ class FindSegmentationImp:
         """
         feature = self.df[feature_col]
         y_true = self.df[self.label_col]
-
-        y_pred = self.df[self.prediction_col]
+        y_pred = self.df[self.prediction_col]  # Now only handling a single string column
 
         error = self._calc_error(error_metric, y_true, y_pred)
         fitted_model = self._fit_model(model, feature, error)

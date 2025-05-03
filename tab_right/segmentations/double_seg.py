@@ -1,5 +1,6 @@
 """Module for double segmentation implementation."""
 
+from dataclasses import dataclass
 from typing import Callable
 
 import pandas as pd
@@ -8,12 +9,11 @@ from sklearn.tree import DecisionTreeRegressor
 from tab_right.base_architecture.seg_protocols import FindSegmentation
 
 
+@dataclass
 class DoubleSegmentationImp:
     """Implementation of double segmentation logic."""
 
-    def __init__(self, segmentation_finder: FindSegmentation):
-        """Initialize the double segmentation implementation."""
-        self.segmentation_finder = segmentation_finder
+    segmentation_finder: FindSegmentation
 
     @classmethod
     def _combine_2_features(cls, df1: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
@@ -45,7 +45,7 @@ class DoubleSegmentationImp:
         self,
         feature1_col: str,
         feature2_col: str,
-        error_metric: Callable[[pd.Series, pd.DataFrame], pd.Series],
+        error_metric: Callable[[pd.Series, pd.Series], pd.Series],
         model: DecisionTreeRegressor,
     ) -> pd.DataFrame:
         """Perform double segmentation on two features.
