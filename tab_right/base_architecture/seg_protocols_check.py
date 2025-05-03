@@ -18,12 +18,6 @@ class CheckProtocols:
 
     def test_protocol_followed(self, instance_to_check):
         """Test if the protocol is followed correctly."""
-        # Check if the class has the required attributes
-        assert hasattr(instance_to_check, "gdf")
-        assert hasattr(instance_to_check, "label_col")
-        assert hasattr(instance_to_check, "prediction_col")
-        assert callable(instance_to_check)
-
         # check if it is dataclass
         assert hasattr(instance_to_check, "__dataclass_fields__")
         assert isinstance(instance_to_check, self.class_to_check)
@@ -31,6 +25,12 @@ class CheckProtocols:
 
 class CheckFindSegmentation(CheckProtocols):
     class_to_check = FindSegmentation
+
+
+    def test_attributes(self, instance_to_check):
+        assert hasattr(instance_to_check, "df")
+        assert hasattr(instance_to_check, "label_col")
+        assert hasattr(instance_to_check, "prediction_col")
 
     def test_call(self, instance_to_check):
         model = DecisionTreeRegressor()
@@ -66,6 +66,11 @@ class CheckFindSegmentation(CheckProtocols):
 
 
 class CheckBaseSegmentationCalc(CheckProtocols):
+    def test_attributes(self, instance_to_check):
+        assert hasattr(instance_to_check, "df")
+        assert hasattr(instance_to_check, "label_col")
+        assert hasattr(instance_to_check, "prediction_col")
+
     def test_call(self, instance_to_check):
         result = instance_to_check(lambda y, p: abs(y - p).mean())
         assert "segment_id" in result.columns
@@ -73,6 +78,11 @@ class CheckBaseSegmentationCalc(CheckProtocols):
 
 
 class CheckDoubleSegmentation(CheckProtocols):
+
+    def test_attributes(self, instance_to_check):
+        assert hasattr(instance_to_check, "segmentation_finder")
+        assert isinstance(instance_to_check.segmentation_finder, FindSegmentation)
+
     def test_call(self, instance_to_check):
         model = DecisionTreeRegressor()
         result = instance_to_check("feature1", "feature2", lambda y, p: abs(y - p.mean(axis=1)), model)
