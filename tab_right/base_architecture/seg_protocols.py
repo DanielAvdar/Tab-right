@@ -68,8 +68,9 @@ class BaseSegmentationCalc(Protocol):
         -------
         pd.DataFrame
             DataFrame containing the calculated error metrics for each segment.
-            with 2 main columns:
+            Expected columns:
             - `segment_id`: The ID of the segment.
+            - `name`: The name of the segment (category or bin range string).
             - `score`: The avg error metric for each segment.
 
         """

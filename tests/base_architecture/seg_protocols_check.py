@@ -61,6 +61,7 @@ class CheckBaseSegmentationCalc(CheckProtocols):
         metric = self.get_metric() if isinstance(instance_to_check.prediction_col, str) else log_loss
         result = instance_to_check(metric)
         assert "segment_id" in result.columns
+        assert "name" in result.columns  # Added assertion for 'name' column
         assert "score" in result.columns
         number_of_groups = len(instance_to_check.gdf.groups)
         number_of_segments = len(result)
