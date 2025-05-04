@@ -9,6 +9,7 @@
 [![Tests](https://github.com/DanielAvdar/tab-right/actions/workflows/ci.yml/badge.svg)](https://github.com/DanielAvdar/tab-right/actions/workflows/ci.yml)
 [![Code Checks](https://github.com/DanielAvdar/tab-right/actions/workflows/code-checks.yml/badge.svg)](https://github.com/DanielAvdar/tab-right/actions/workflows/code-checks.yml)
 [![codecov](https://codecov.io/gh/DanielAvdar/tab-right/graph/badge.svg?token=N0V9KANTG2)](https://codecov.io/gh/DanielAvdar/tab-right)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 ![Last Commit](https://img.shields.io/github/last-commit/DanielAvdar/tab-right/main)
 
 **tab-right** is a Python package designed to simplify the analysis of tabular data for inference models—both machine learning and non-ML. The core philosophy is that most analyses, such as segmentation strength, drift analysis, and feature predictive value, can be performed using model predictions alone, without direct access to the model itself. This approach enables powerful, model-agnostic diagnostics and interpretability, making the package easy to implement and use.

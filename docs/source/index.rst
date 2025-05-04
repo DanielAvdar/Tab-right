@@ -25,6 +25,18 @@
 .. image:: https://img.shields.io/github/last-commit/DanielAvdar/tab-right/main
    :alt: Last Commit
 
+.. image:: https://github.com/DanielAvdar/tab-right/actions/workflows/ci.yml/badge.svg
+   :target: https://github.com/DanielAvdar/tab-right/actions/workflows/ci.yml
+   :alt: Tests
+
+.. image:: https://github.com/DanielAvdar/tab-right/actions/workflows/code-checks.yml/badge.svg
+   :target: https://github.com/DanielAvdar/tab-right/actions/workflows/code-checks.yml
+   :alt: Code Checks
+
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+   :target: https://github.com/astral-sh/ruff
+   :alt: Ruff
+
 .. include:: introduction.rst
 
 Tab-right
