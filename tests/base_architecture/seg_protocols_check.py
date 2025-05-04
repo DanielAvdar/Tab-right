@@ -5,7 +5,6 @@ from typing import Any, Callable
 import pandas as pd
 from pandas.core.groupby import DataFrameGroupBy
 from sklearn.metrics import log_loss
-from sklearn.tree import DecisionTreeRegressor
 
 from tab_right.base_architecture.seg_plotting_protocols import DoubleSegmPlottingP
 from tab_right.base_architecture.seg_protocols import BaseSegmentationCalc, DoubleSegmentation
@@ -111,15 +110,37 @@ class CheckDoubleSegmentation(CheckProtocols):
         instance_to_check: Any,
     ) -> None:
         """Test the `__call__` method of the instance."""
-        model = DecisionTreeRegressor()
-        error_func = self.get_metric()
-        metric = self.get_metric(agg=True)
+        # Use the aggregated metric function as required by the protocol's __call__ signature
+        score_metric = self.get_metric(agg=True)
+        # Define dummy feature names and bin counts
+        feature1_col = "feature1"  # Assuming 'feature1' exists in the test instance's df
+        feature2_col = "feature2"  # Assuming 'feature2' exists in the test instance's df
+        bins_1 = 4
+        bins_2 = 4
 
-        result = instance_to_check("feature1", "feature2", error_func, model, metric)
+        # Call the instance with the correct arguments: feature cols, metric, and bins
+        result = instance_to_check(feature1_col, feature2_col, score_metric, bins_1, bins_2)  # Corrected arguments
+        assert isinstance(result, pd.DataFrame)
         assert "segment_id" in result.columns
         assert "feature_1" in result.columns
         assert "feature_2" in result.columns
         assert "score" in result.columns
+        # Ensure no NaN values in the final score output
+        assert not result["score"].isnull().any()
+        # Ensure features columns correctly reflect the grouping
+        unique_f1 = instance_to_check.df[feature1_col].nunique()
+        unique_f2 = instance_to_check.df[feature2_col].nunique()
+        # Calculate max expected groups more accurately based on binning logic
+        max_expected_groups_f1 = (
+            min(bins_1, unique_f1) if pd.api.types.is_numeric_dtype(instance_to_check.df[feature1_col]) else unique_f1
+        )
+        max_expected_groups_f2 = (
+            min(bins_2, unique_f2) if pd.api.types.is_numeric_dtype(instance_to_check.df[feature2_col]) else unique_f2
+        )
+        max_expected_groups = max_expected_groups_f1 * max_expected_groups_f2
+
+        assert result["segment_id"].nunique() <= max_expected_groups
+        assert result["segment_id"].nunique() > 0
 
 
 class CheckDoubleSegmPlotting(CheckProtocols):
