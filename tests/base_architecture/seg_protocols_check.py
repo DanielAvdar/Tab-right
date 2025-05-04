@@ -1,16 +1,15 @@
 """Module for checking segmentation protocols."""
 
-import abc
 from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
-import pytest
 from sklearn.metrics import log_loss
 from sklearn.tree import DecisionTreeRegressor
 
 from tab_right.base_architecture.seg_plotting_protocols import DoubleSegmPlottingP
 from tab_right.base_architecture.seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation
+
 
 class CheckProtocols:
     """Base class for checking protocol compliance."""
@@ -18,7 +17,6 @@ class CheckProtocols:
     class_to_check: Any = None
 
     def get_metric(self, agg: bool = False) -> Callable:
-
         def metric_single(y: pd.Series, p: pd.Series) -> pd.Series:
             return abs(y - p)
 
@@ -28,18 +26,6 @@ class CheckProtocols:
         if agg:
             return agg_metric_single
         return metric_single
-
-    @abc.abstractmethod
-    @pytest.fixture
-    def instance_to_check(self, request: pytest.FixtureRequest | None = None): # type: ignore
-        """Fixture to create an instance of the class.
-
-        Args:
-            request: Optional fixture request for parameterized fixtures
-
-        Returns:
-            An instance of the class being tested
-        """
 
     def test_protocol_followed(self, instance_to_check: Any) -> None:
         """Test if the protocol is followed correctly."""

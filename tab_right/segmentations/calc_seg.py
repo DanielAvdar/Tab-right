@@ -1,12 +1,10 @@
 """Module for calculating segmentation metrics."""
 
 from dataclasses import dataclass
-from typing import Dict, List, TypeVar, Union, Callable
+from typing import Callable, Dict, List, Union
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
-
-from tab_right.base_architecture.seg_protocols import ScoreMetricType, ScoreMetricProbType
 
 
 @dataclass
