@@ -35,6 +35,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx_plotly_directive",
+    "matplotlib.sphinxext.plot_directive",
 ]
 
 templates_path = ["_templates"]
