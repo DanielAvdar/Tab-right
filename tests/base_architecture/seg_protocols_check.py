@@ -1,12 +1,12 @@
 """Module for checking segmentation protocols."""
 
 import abc
-from typing import Any, Callable, List, TypeVar, Union
+from typing import Any, Callable, TypeVar
 
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import log_loss
 from sklearn.tree import DecisionTreeRegressor
 
 from tab_right.base_architecture.seg_plotting_protocols import DoubleSegmPlottingP
@@ -24,7 +24,7 @@ class CheckProtocols:
 
     class_to_check: Any = None
 
-    def get_metric(self, prediction_col: Union[str, List[str]]) -> Callable:
+    def get_metric(self, agg: bool = False) -> Callable:
         """Get scikit-learn metric function based on the prediction column.
 
         Args:
@@ -38,6 +38,11 @@ class CheckProtocols:
         def metric_single(y: pd.Series, p: pd.Series) -> pd.Series:
             return abs(y - p)
 
+        def agg_metric_single(y: pd.Series, p: pd.Series) -> float:
+            return float(abs(y - p).mean())
+
+        if agg:
+            return agg_metric_single
         return metric_single
 
     @abc.abstractmethod
@@ -74,7 +79,7 @@ class CheckFindSegmentation(CheckProtocols):
     def test_call(self, instance_to_check: FindSegmentation) -> None:
         """Test the `__call__` method of the instance."""
         model = DecisionTreeRegressor(min_samples_leaf=2)
-        metric = self.get_metric(instance_to_check.prediction_col)
+        metric = self.get_metric()
         result = instance_to_check("feature", metric, model)
         assert "segment_id" in result.columns
         assert "segment_name" in result.columns
@@ -87,9 +92,7 @@ class CheckFindSegmentation(CheckProtocols):
         y_true = pd.Series([1, 0, 1, 0])
         y_pred = pd.Series([0.1, 0.9, 0.2, 0.8])
 
-        metric = self.get_metric(
-            "prediction",
-        )
+        metric = self.get_metric()
 
         result = instance_to_check._calc_error(metric, y_true, y_pred)
         assert len(result) == len(y_true)
@@ -164,13 +167,14 @@ class CheckBaseSegmentationCalc(CheckProtocols):
 
     def test_call(self, instance_to_check: Any) -> None:
         """Test the `__call__` method of the instance."""
-        metric = self.get_metric(instance_to_check.prediction_col)
+        metric = self.get_metric() if isinstance(instance_to_check.prediction_col, str) else log_loss
         result = instance_to_check(metric)
         assert "segment_id" in result.columns
         assert "score" in result.columns
         number_of_groups = len(instance_to_check.gdf.groups)
         number_of_segments = len(result)
         assert number_of_groups == number_of_segments
+        assert not result.isnull().values.any()
 
 
 class CheckDoubleSegmentation(CheckProtocols):
@@ -179,37 +183,24 @@ class CheckDoubleSegmentation(CheckProtocols):
     # Use the protocol type directly
     class_to_check = DoubleSegmentation
 
-    @pytest.fixture(
-        params=[
-            mean_absolute_error,
-            mean_squared_error,
-        ]
-    )
-    def skl_metric(self, request: pytest.FixtureRequest) -> Callable:
-        """Fixture to create parameterized instances of the class.
-
-        Returns
-        -------
-        Callable
-            A scikit-learn metric function from the parametrized list.
-
-        """
-        return request.param
-
-    def test_attributes(self, instance_to_check: Any, skl_metric) -> None:
+    def test_attributes(
+        self,
+        instance_to_check: Any,
+    ) -> None:
         """Test attributes of the instance to ensure compliance."""
         assert hasattr(instance_to_check, "segmentation_finder")
         assert isinstance(instance_to_check.segmentation_finder, FindSegmentation)
 
-    def test_call(self, instance_to_check: Any, skl_metric: Any) -> None:
+    def test_call(
+        self,
+        instance_to_check: Any,
+    ) -> None:
         """Test the `__call__` method of the instance."""
         model = DecisionTreeRegressor()
-        metric = self.get_metric(instance_to_check.segmentation_finder.prediction_col)
+        error_func = self.get_metric()
+        metric = self.get_metric(agg=True)
 
-        def score_metric(y_true: pd.Series, y_pred: pd.Series) -> float:
-            return skl_metric(y_true, y_pred)
-
-        result = instance_to_check("feature1", "feature2", metric, model, score_metric)
+        result = instance_to_check("feature1", "feature2", error_func, model, metric)
         assert "segment_id" in result.columns
         assert "feature_1" in result.columns
         assert "feature_2" in result.columns
