@@ -79,13 +79,13 @@ class DoubleSegmentationImp:
         # Group by the (potentially binned) features
         gdf = temp_df.groupby(group_cols, observed=False)
 
-        # Store group names for later use in __call__
-        self._group_names = {i: name for i, name in enumerate(gdf.groups.keys())}
-        self._group_cols = group_cols  # Store which columns were used for grouping
+        # Store group names for later use in __call__ and for SegmentationCalc
+        # This maps the original group key (category or interval tuple) to segment_id
+        segment_map = {name: i for i, name in enumerate(gdf.groups.keys())}
+        # This maps segment_id back to the original group key
+        segment_names_map = {i: name for name, i in segment_map.items()}
 
         # Assign segment IDs based on group enumeration
-        segment_map = {name: i for i, name in enumerate(gdf.groups.keys())}
-
         def get_segment_id(row: pd.Series) -> int:
             key: Tuple[Any, ...] = tuple(row[col] for col in group_cols)
             return segment_map.get(key, -1)  # Assign -1 if key not found (shouldn't happen with observed=False)
@@ -95,7 +95,13 @@ class DoubleSegmentationImp:
         # Regroup with segment_id to pass to SegmentationCalc
         final_gdf = temp_df.groupby("segment_id", observed=False)
 
-        return SegmentationCalc(gdf=final_gdf, label_col=self.label_col, prediction_col=self.prediction_col)
+        # Use the corrected class name and pass the segment_names mapping
+        return SegmentationCalc(
+            gdf=final_gdf,
+            label_col=self.label_col,
+            prediction_col=self.prediction_col,
+            segment_names=segment_names_map,  # Pass the mapping
+        )
 
     def __call__(
         self,
@@ -128,30 +134,23 @@ class DoubleSegmentationImp:
 
         """
         calc_instance = self._group_2_features(feature1_col, feature2_col, bins_1, bins_2)
+        # The 'name' column from SegmentationCalc now contains the original group key (tuple)
         scores_df = calc_instance(score_metric)  # Calculate scores per segment_id
 
-        # Map segment_id back to feature names/bins
-        feature_info = []
-        for seg_id, group_key in self._group_names.items():
-            # Ensure group_key is always a tuple, even if only one grouping column was used (shouldn't happen here)
-            if not isinstance(group_key, tuple):
-                group_key = (group_key,)
+        # Extract feature_1 and feature_2 names from the 'name' column (which holds the tuple key)
+        def extract_feature_name(segment_name_tuple, index):
+            # Ensure segment_name_tuple is always a tuple
+            if not isinstance(segment_name_tuple, tuple):
+                segment_name_tuple = (segment_name_tuple,)
+            try:
+                val = segment_name_tuple[index]
+                # Convert intervals to strings for readability
+                return str(val) if isinstance(val, pd.Interval) else val
+            except IndexError:
+                return None  # Should not happen in double segmentation
 
-            f1_val = group_key[0]
-            f2_val = group_key[1] if len(group_key) > 1 else None  # Handle potential edge case
+        scores_df["feature_1"] = scores_df["name"].apply(lambda x: extract_feature_name(x, 0))
+        scores_df["feature_2"] = scores_df["name"].apply(lambda x: extract_feature_name(x, 1))
 
-            # Convert intervals to strings for readability
-            if isinstance(f1_val, pd.Interval):
-                f1_val = str(f1_val)
-            if isinstance(f2_val, pd.Interval):
-                f2_val = str(f2_val)
-
-            feature_info.append({"segment_id": seg_id, "feature_1": f1_val, "feature_2": f2_val})
-
-        feature_df = pd.DataFrame(feature_info)
-
-        # Merge scores with feature information
-        result_df = pd.merge(feature_df, scores_df, on="segment_id")
-
-        # Ensure correct column order
-        return result_df[["segment_id", "feature_1", "feature_2", "score"]]
+        # Drop the intermediate 'name' column and reorder
+        return scores_df[["segment_id", "feature_1", "feature_2", "score"]]

@@ -7,12 +7,19 @@ from ..seg_protocols_check import CheckBaseSegmentationCalc
 
 
 def make_example(
-    data: dict, label_col: str = "label", prediction_col: str | list[str] = "prediction"
+    data: dict,
+    label_col: str = "label",
+    prediction_col: str | list[str] = "prediction",
+    segment_col: str = "segment_id",
 ) -> SegmentationCalc:
     """Create a sample DataFrame for testing."""
     df = pd.DataFrame(data)
-    gdf = df.groupby("segment_id")
-    return SegmentationCalc(gdf, label_col, prediction_col)
+    gdf = df.groupby(segment_col)
+    # Create a dummy segment_names map based on the groups
+    # Ensure keys are the actual group names (segment IDs)
+    segment_names = {name: name for name in gdf.groups.keys()}
+    # Pass the segment_names map to the constructor
+    return SegmentationCalc(gdf, label_col, prediction_col, segment_names)
 
 
 class TestBaseSegmentationCalcImp(CheckBaseSegmentationCalc):

@@ -44,6 +44,7 @@ class CheckBaseSegmentationCalc(CheckProtocols):
         assert hasattr(instance_to_check, "gdf")
         assert hasattr(instance_to_check, "label_col")
         assert hasattr(instance_to_check, "prediction_col")
+        assert hasattr(instance_to_check, "segment_names")  # Check optional attribute exists
 
     def test_reduce_metric_results(self, instance_to_check: Any) -> None:
         """Test the metric reduction method of the instance."""

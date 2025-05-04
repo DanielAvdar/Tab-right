@@ -5,7 +5,7 @@ including interfaces for segmentation calculations and feature-based segmentatio
 """
 
 from dataclasses import dataclass
-from typing import Callable, List, Protocol, Union, runtime_checkable
+from typing import Any, Callable, Dict, List, Optional, Protocol, Union, runtime_checkable
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
@@ -28,12 +28,17 @@ class BaseSegmentationCalc(Protocol):
     prediction_col : Union[str, List[str]]
         Column names for the predicted values. Can be a single column or a list of columns.
         Can be probabilities (multiple columns) or classes or continuous values.
+    segment_names : Optional[Dict[int, Any]], default=None
+        Optional mapping from an integer segment ID to the original group name
+        (category, interval, or tuple). If provided, these IDs should match the
+        grouping keys if gdf is grouped by integer IDs.
 
     """
 
     gdf: DataFrameGroupBy
     label_col: str
     prediction_col: Union[str, List[str]]
+    segment_names: Optional[Dict[int, Any]] = None
 
     def _reduce_metric_results(
         self,
@@ -69,7 +74,7 @@ class BaseSegmentationCalc(Protocol):
         pd.DataFrame
             DataFrame containing the calculated error metrics for each segment.
             Expected columns:
-            - `segment_id`: The ID of the segment.
+            - `segment_id`: The ID of the segment (either the original group key or an assigned int).
             - `name`: The name of the segment (category or bin range string).
             - `score`: The avg error metric for each segment.
 
