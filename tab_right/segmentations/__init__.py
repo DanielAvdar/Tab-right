@@ -6,6 +6,8 @@ in data, including single and double segmentation approaches.
 
 from .calc_seg import SegmentationCalc
 from .double_seg import DoubleSegmentationImp
-from .find_seg import FindSegmentationImp
 
-__all__ = ["SegmentationCalc", "DoubleSegmentationImp", "FindSegmentationImp"]
+__all__ = [
+    "SegmentationCalc",
+    "DoubleSegmentationImp",
+]

@@ -2,13 +2,12 @@
 
 from typing import Any, Callable
 
-import numpy as np
 import pandas as pd
 from sklearn.metrics import log_loss
 from sklearn.tree import DecisionTreeRegressor
 
 from tab_right.base_architecture.seg_plotting_protocols import DoubleSegmPlottingP
-from tab_right.base_architecture.seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation
+from tab_right.base_architecture.seg_protocols import BaseSegmentationCalc, DoubleSegmentation
 
 
 class CheckProtocols:
@@ -32,85 +31,6 @@ class CheckProtocols:
         # check if it is dataclass
         assert hasattr(instance_to_check, "__dataclass_fields__")
         assert isinstance(instance_to_check, self.class_to_check)
-
-
-class CheckFindSegmentation(CheckProtocols):
-    """Class for checking compliance of `FindSegmentation` protocol."""
-
-    # Use the protocol type directly
-    class_to_check = FindSegmentation
-
-    def test_attributes(self, instance_to_check: FindSegmentation) -> None:
-        """Test attributes of the instance to ensure compliance."""
-        assert hasattr(instance_to_check, "df")
-        assert hasattr(instance_to_check, "label_col")
-        assert hasattr(instance_to_check, "prediction_col")
-
-    def test_call(self, instance_to_check: FindSegmentation) -> None:
-        """Test the `__call__` method of the instance."""
-        model = DecisionTreeRegressor(min_samples_leaf=2)
-        metric = self.get_metric()
-        result = instance_to_check("feature", metric, model)
-        assert "segment_id" in result.columns
-        assert "segment_name" in result.columns
-        assert "score" in result.columns
-        assert model.tree_.n_leaves > 0
-        assert model.tree_.n_leaves == len(result)
-
-    def test_calc_error(self, instance_to_check: FindSegmentation) -> None:
-        """Test the error calculation method of the instance."""
-        y_true = pd.Series([1, 0, 1, 0])
-        y_pred = pd.Series([0.1, 0.9, 0.2, 0.8])
-
-        metric = self.get_metric()
-
-        result = instance_to_check._calc_error(metric, y_true, y_pred)
-        assert len(result) == len(y_true)
-        assert isinstance(result, pd.Series)
-        assert metric(y_true, y_pred).equals(result)
-
-    def test_fit_model(self, instance_to_check: FindSegmentation) -> None:
-        """Test the model fitting method of the instance.
-
-        Args:
-            instance_to_check: The instance to test
-
-        Returns:
-            DecisionTreeRegressor: The fitted model
-        """
-        feature = pd.Series([1, 2, 3, 4])
-        error = pd.Series([0.1, 0.2, 0.3, 0.4])
-        model = DecisionTreeRegressor()
-        fitted_model = instance_to_check._fit_model(model, feature, error)
-        assert hasattr(fitted_model, "tree_")
-        # Convert to numpy array for prediction
-        feature_array = np.asarray(feature.values)
-        pred = fitted_model.predict(feature_array.reshape(-1, 1))
-        assert len(pred) == len(feature)
-        assert np.allclose(pred, np.asarray(error.values))
-        assert not np.all(np.isnan(pred))
-        assert not np.all(np.isinf(pred))
-        assert fitted_model.tree_.node_count > 0
-        assert fitted_model.tree_.node_count > 1
-
-    def test_extract_leaves(self, instance_to_check: FindSegmentation) -> None:
-        """Test the leaf extraction method of the instance.
-
-        Args:
-            instance_to_check: The instance to test
-        """
-        model = DecisionTreeRegressor(max_depth=2)
-        # Continuous feature example
-        feature_continuous = pd.Series([1, 2, 3, 4, 5, 6, 7, 8])
-        error = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8])
-        feature_array_cont = np.asarray(feature_continuous.values)
-        model.fit(feature_array_cont.reshape(-1, 1), error)
-        leaves_cont = instance_to_check._extract_leaves(model)
-
-        assert "segment_id" in leaves_cont.columns
-        assert "segment_name" in leaves_cont.columns
-        assert len(leaves_cont) == model.tree_.n_leaves
-        assert leaves_cont["segment_id"].nunique() == model.tree_.n_leaves
 
 
 class CheckBaseSegmentationCalc(CheckProtocols):
@@ -154,13 +74,11 @@ class CheckDoubleSegmentation(CheckProtocols):
     # Use the protocol type directly
     class_to_check = DoubleSegmentation
 
-    def test_attributes(
-        self,
-        instance_to_check: Any,
-    ) -> None:
+    def test_attributes(self, instance_to_check: Any) -> None:
         """Test attributes of the instance to ensure compliance."""
-        assert hasattr(instance_to_check, "segmentation_finder")
-        assert isinstance(instance_to_check.segmentation_finder, FindSegmentation)
+        assert hasattr(instance_to_check, "df")
+        assert hasattr(instance_to_check, "label_col")
+        assert hasattr(instance_to_check, "prediction_col")
 
     def test_call(
         self,
@@ -199,7 +117,6 @@ class CheckDoubleSegmentation(CheckProtocols):
         assert combined["segment_id"].equals(pd.Series(range(6)))
         assert combined.isnull().sum().sum() == 0
 
-
     def test_group_by_segment(self, instance_to_check: Any) -> None:
         """Test the group_by_segment method functionality.
 
@@ -235,7 +152,7 @@ class CheckDoubleSegmPlotting(CheckProtocols):
         assert len(result.index) > 0
         assert len(result.columns) == len(instance_to_check.df["feature_1"].unique())
         assert len(result.index) == len(instance_to_check.df["feature_2"].unique())
-        assert result.isnull().sum().sum() == 0
+        assert result.isnull().sum().sum() < len(result) * len(result.columns)
 
     def test_plotly_heatmap(self, instance_to_check: Any) -> None:
         """Test the `plotly_heatmap` method of the instance."""

@@ -1,17 +1,13 @@
-import pandas as pd
 import pytest
 
 from tab_right.segmentations.double_seg import DoubleSegmentationImp
-from tab_right.segmentations.find_seg import FindSegmentationImp
 
 from ..seg_protocols_check import CheckDoubleSegmentation
 
 
 def make_example(data: dict, label_col: str = "label", prediction_col: str = "prediction") -> DoubleSegmentationImp:
     """Create a sample DataFrame for testing."""
-    df = pd.DataFrame(data)
-    segmentation_finder = FindSegmentationImp(df, label_col, prediction_col)
-    return DoubleSegmentationImp(segmentation_finder)
+    # todo: create a DoubleSegmentationImp instance
 
 
 class TestDoubleSegmentationImp(CheckDoubleSegmentation):
