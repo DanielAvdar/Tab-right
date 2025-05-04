@@ -21,6 +21,7 @@ Basic Usage
     :hidden:
 
     import pandas as pd
+    import numpy as np
     from sklearn.metrics import mean_absolute_error
     from tab_right.segmentations.calc_seg import SegmentationCalc
 
@@ -32,30 +33,47 @@ Basic Usage
     }
     df = pd.DataFrame(data)
 
-    # Group your data by a segment column
-    grouped_df = df.groupby('segment')
+    # Create a numerical encoding of the segment column
+    segment_mapping = {segment: i for i, segment in enumerate(df['segment'].unique())}
+    df['segment_id'] = df['segment'].map(segment_mapping)
+
+    # Group your data by the numerical segment ID
+    grouped_df = df.groupby('segment_id')
+
+    # Create a reverse mapping for segment names (from ID to original name)
+    segment_names = {i: segment for segment, i in segment_mapping.items()}
 
     # Create a SegmentationCalc instance
     seg_calc = SegmentationCalc(
         gdf=grouped_df,
         label_col='target',
-        prediction_col='prediction'
+        prediction_col='prediction',
+        segment_names=segment_names
     )
 
 .. code-block:: python
 
-    # Group your data by a segment column
-    grouped_df = df.groupby('segment')
+    # Create a numerical encoding of the segment column
+    segment_mapping = {segment: i for i, segment in enumerate(df['segment'].unique())}
+    df['segment_id'] = df['segment'].map(segment_mapping)
+
+    # Group your data by the numerical segment ID
+    grouped_df = df.groupby('segment_id')
+
+    # Create a reverse mapping for segment names (from ID to original name)
+    segment_names = {i: segment for segment, i in segment_mapping.items()}
 
     # Create a SegmentationCalc instance
     seg_calc = SegmentationCalc(
         gdf=grouped_df,
         label_col='target',
-        prediction_col='prediction'
+        prediction_col='prediction',
+        segment_names=segment_names
     )
 
     # Calculate metrics for each segment
     results = seg_calc(mean_absolute_error)
+    print(results)
 
 Working with Custom Metrics
 --------------------------
@@ -66,10 +84,46 @@ You can use any compatible metric function with SegmentationCalc:
 
     from sklearn.metrics import mean_squared_error, r2_score
 
-    # Calculate different metrics for comparison
+    # Using the seg_calc instance created earlier
     mae_results = seg_calc(mean_absolute_error)
     mse_results = seg_calc(mean_squared_error)
     r2_results = seg_calc(r2_score)
+
+Understanding segment_names
+--------------------------
+
+The `segment_names` parameter is a dictionary that maps segment IDs (integers) to their original names:
+
+.. code-block:: python
+
+    # For categorical segments
+    df['category'] = ['X', 'X', 'Y', 'Y', 'Z', 'Z']
+
+    # Create a numerical encoding
+    cat_mapping = {cat: i for i, cat in enumerate(df['category'].unique())}
+    df['category_id'] = df['category'].map(cat_mapping)
+
+    # Group by the numerical ID column
+    cat_segments = df.groupby('category_id')
+
+    # Create the segment_names mapping (ID -> original name)
+    cat_names = {i: name for name, i in cat_mapping.items()}
+
+    # For numerical segments (using pd.cut)
+    df['age'] = [25, 35, 45, 55, 65, 75]
+    bins = [0, 30, 60, 90]
+    df['age_group'] = pd.cut(df['age'], bins)
+
+    # Convert intervals to numerical IDs
+    age_intervals = df['age_group'].unique()
+    age_mapping = {interval: i for i, interval in enumerate(age_intervals)}
+    df['age_group_id'] = df['age_group'].map(age_mapping)
+
+    # Group by numerical ID
+    num_segments = df.groupby('age_group_id')
+
+    # Create segment_names mapping (ID -> interval)
+    num_names = {i: interval for interval, i in age_mapping.items()}
 
 Key Applications
 --------------
