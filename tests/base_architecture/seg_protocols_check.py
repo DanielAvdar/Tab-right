@@ -3,6 +3,7 @@
 from typing import Any, Callable
 
 import pandas as pd
+from pandas.core.groupby import DataFrameGroupBy
 from sklearn.metrics import log_loss
 from sklearn.tree import DecisionTreeRegressor
 
@@ -80,6 +81,31 @@ class CheckDoubleSegmentation(CheckProtocols):
         assert hasattr(instance_to_check, "label_col")
         assert hasattr(instance_to_check, "prediction_col")
 
+    def test_group_2_features(self, instance_to_check: Any) -> None:
+        """Test the _group_2_features method functionality."""
+        # Define dummy feature names and bin counts based on typical test data
+        feature1_col = "feature1"  # Assumes 'feature1' exists in the test instance's df
+        feature2_col = "feature2"  # Assumes 'feature2' exists in the test instance's df
+        bins_1 = 4
+        bins_2 = 4
+
+        # Call the internal grouping method
+        calc_instance = instance_to_check._group_2_features(feature1_col, feature2_col, bins_1, bins_2)
+
+        # Check if the returned object conforms to the BaseSegmentationCalc protocol
+        assert isinstance(calc_instance, BaseSegmentationCalc)
+        assert hasattr(calc_instance, "gdf")
+        assert hasattr(calc_instance, "label_col")
+        assert hasattr(calc_instance, "prediction_col")
+        assert isinstance(calc_instance.gdf, DataFrameGroupBy)
+
+        # Check if the number of groups is reasonable (less than or equal to bins_1 * bins_2 or unique combos)
+        unique_f1 = instance_to_check.df[feature1_col].nunique()
+        unique_f2 = instance_to_check.df[feature2_col].nunique()
+        max_expected_groups = min(bins_1, unique_f1) * min(bins_2, unique_f2)  # Approximation
+        assert len(calc_instance.gdf.groups) <= max_expected_groups
+        assert len(calc_instance.gdf.groups) > 0  # Should have at least one group
+
     def test_call(
         self,
         instance_to_check: Any,
@@ -94,41 +120,6 @@ class CheckDoubleSegmentation(CheckProtocols):
         assert "feature_1" in result.columns
         assert "feature_2" in result.columns
         assert "score" in result.columns
-
-    def test_combine_2_features(self, instance_to_check: Any) -> None:
-        """Test the method that combines features from two dataframes.
-
-        Verifies that feature columns are properly combined and segment IDs are preserved.
-        """
-        segment_id1 = list(range(6))
-        segment_name1 = ["A", "B", "C", "D", "E", "F"]
-        score1 = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-        segment_id2 = list(range(6, 12))
-        segment_name2 = ["G", "H", "I", "J", "K", "L"]
-        score2 = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2]
-        df1 = pd.DataFrame({"segment_id": segment_id1, "feature_1": segment_name1, "score_1": score1})
-        df2 = pd.DataFrame({"segment_id": segment_id2, "feature_2": segment_name2, "score_2": score2})
-        combined = instance_to_check._combine_2_features(df1, df2)
-        assert "feature_1" in combined.columns
-        assert "feature_2" in combined.columns
-        assert len(combined) == len(df1)
-        assert len(combined) == len(df2)
-        assert "score" in combined.columns
-        assert combined["segment_id"].equals(pd.Series(range(6)))
-        assert combined.isnull().sum().sum() == 0
-
-    def test_group_by_segment(self, instance_to_check: Any) -> None:
-        """Test the group_by_segment method functionality.
-
-        Ensures the method correctly groups a DataFrame by segment ID and returns a DataFrameGroupBy object.
-        """
-        df = pd.DataFrame({"segment_id": [1, 1, 2, 2], "score": [0.1, 0.2, 0.3, 0.4]})
-        seg = df["segment_id"]
-        bsc = instance_to_check._group_by_segment(df, seg)
-        assert isinstance(bsc, BaseSegmentationCalc)
-        assert hasattr(bsc, "gdf")
-        total_len = len(bsc.gdf.groups)
-        assert total_len == 2
 
 
 class CheckDoubleSegmPlotting(CheckProtocols):
