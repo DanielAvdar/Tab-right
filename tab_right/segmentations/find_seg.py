@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 from sklearn.tree import BaseDecisionTree
 
+BASE_DECISION_TREE = BaseDecisionTree
+
 
 @dataclass
 class FindSegmentationImp:
@@ -48,7 +50,7 @@ class FindSegmentationImp:
         model: BaseDecisionTree,
         feature: pd.Series,
         error: pd.Series,
-    ) -> BaseDecisionTree:
+    ) -> BASE_DECISION_TREE:
         """Fit decision tree model on feature and error data.
 
         Args:
@@ -79,13 +81,17 @@ class FindSegmentationImp:
             pd.DataFrame: DataFrame with segment information
 
         """
-        # Extract leaf indices and map them to segment IDs
-        leaf_indices = model.apply(model.tree_.value.reshape(-1, 1))
-        unique_leaves = pd.unique(leaf_indices)
+        tree = model.tree_
+        # Find indices of leaf nodes (nodes where children_left is -1)
+        leaf_node_indices = np.where(tree.children_left == -1)[0]
+        n_leaves = len(leaf_node_indices)
+
+        # The 'segment_name' could be more descriptive, e.g., representing the path/conditions
+        # For now, using the leaf node index itself.
         return pd.DataFrame({
-            "segment_id": range(len(unique_leaves)),
-            "segment_name": unique_leaves,
-            "score": [0.0] * len(unique_leaves),
+            "segment_id": range(n_leaves),
+            "segment_name": leaf_node_indices,
+            "score": [0.0] * n_leaves,  # Score calculation might need adjustment depending on requirements
         })
 
     def __call__(

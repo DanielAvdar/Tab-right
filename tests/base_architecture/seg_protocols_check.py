@@ -100,16 +100,37 @@ class CheckFindSegmentation(CheckProtocols):
             instance_to_check: The instance to test
         """
         model = DecisionTreeRegressor(max_depth=2)
-        feature = pd.Series([1, 2, 3, 4])
-        error = pd.Series([0.1, 0.2, 0.3, 0.4])
-        # Convert to numpy array for fitting
-        feature_array = np.asarray(feature.values)
-        model.fit(feature_array.reshape(-1, 1), error)
-        leaves = instance_to_check._extract_leaves(model)
-        assert "segment_id" in leaves.columns
-        assert "segment_name" in leaves.columns
-        assert len(leaves) == model.tree_.n_leaves
-        assert leaves["segment_id"].nunique() == model.tree_.n_leaves
+        # Continuous feature example
+        feature_continuous = pd.Series([1, 2, 3, 4, 5, 6, 7, 8])
+        error = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8])
+        feature_array_cont = np.asarray(feature_continuous.values)
+        model.fit(feature_array_cont.reshape(-1, 1), error)
+        leaves_cont = instance_to_check._extract_leaves(model)
+
+        assert "segment_id" in leaves_cont.columns
+        assert "segment_name" in leaves_cont.columns
+        assert len(leaves_cont) == model.tree_.n_leaves
+        assert leaves_cont["segment_id"].nunique() == model.tree_.n_leaves
+
+        # Assert format for continuous features: segment_name should be like [a, b]
+        for name in leaves_cont["segment_name"]:
+            assert isinstance(name, list), f"Expected list for continuous feature segment name, got {type(name)}"
+            assert len(name) == 2, f"Expected list of length 2, got {len(name)}"
+            assert isinstance(name[0], (int, float)), f"Expected number for lower bound, got {type(name[0])}"
+            assert isinstance(name[1], (int, float)), f"Expected number for upper bound, got {type(name[1])}"
+            assert name[0] <= name[1], f"Lower bound {name[0]} should be <= upper bound {name[1]}"
+
+        # TODO: Add test case for categorical features
+        # model_cat = DecisionTreeRegressor(max_depth=2)
+        # feature_categorical = pd.Series(["A", "B", "A", "C", "B", "C", "A", "C"], dtype="category")
+        # error_cat = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8])
+        # # Need to handle categorical features appropriately for fitting the model
+        # # This might require encoding or specific model handling
+        # # model_cat.fit(feature_categorical_encoded, error_cat)
+        # # leaves_cat = instance_to_check._extract_leaves(model_cat, feature_type='categorical')
+        # # assert "segment_name" in leaves_cat.columns
+        # # for name in leaves_cat["segment_name"]:
+        # #     assert isinstance(name, str), f"Expected string for categorical feature segment name, got {type(name)}"
 
 
 class CheckBaseSegmentationCalc(CheckProtocols):
