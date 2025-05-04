@@ -57,6 +57,9 @@ class SegmentationCalc:
     def __call__(self, metric: Callable) -> pd.DataFrame:
         """Apply the metric to each group and return scores with segment names.
 
+        Ensures all segments defined in `segment_names` are included in the output,
+        assigning NaN to segments with no data.
+
         Parameters
         ----------
         metric : Callable
@@ -68,19 +71,19 @@ class SegmentationCalc:
             DataFrame with segment_id, name, and score.
 
         """
-        results = {}
+        # Initialize results with all segment IDs from segment_names, default score NaN
+        results = {segment_id: float("nan") for segment_id in self.segment_names}
+
+        # Calculate scores for segments present in the grouped data
         for name, group in self.gdf:
-            # Ensure name is treated as the segment_id (integer)
-            segment_id = int(name)
-            if not group.empty:
-                y_true = group[self.label_col]
-                y_pred = group[self.prediction_col]
-                # Calculate metric score for the group
-                score = metric(y_true, y_pred)
-                # Reduce score if necessary (e.g., if metric returns a Series)
-                results[segment_id] = self._reduce_metric_results(score)
-            else:
-                results[segment_id] = float("nan")  # Handle empty groups
+            segment_id = int(name)  # Ensure name is treated as the segment_id (integer)
+            if segment_id in results:  # Process only if the segment is expected
+                if not group.empty:
+                    y_true = group[self.label_col]
+                    y_pred = group[self.prediction_col]
+                    score = metric(y_true, y_pred)
+                    results[segment_id] = self._reduce_metric_results(score)
+                # If group is empty but segment_id is in results, it keeps the NaN score
 
         # Convert results dictionary to DataFrame
         scores_df = pd.DataFrame(list(results.items()), columns=["segment_id", "score"])
@@ -91,5 +94,6 @@ class SegmentationCalc:
         # Convert interval names to strings for consistent output
         scores_df["name"] = scores_df["name"].apply(lambda x: str(x) if isinstance(x, pd.Interval) else x)
 
-        # Reorder columns
+        # Reorder columns and ensure correct order even if some segments were empty
+        scores_df = scores_df.sort_values("segment_id").reset_index(drop=True)
         return scores_df[["segment_id", "name", "score"]]

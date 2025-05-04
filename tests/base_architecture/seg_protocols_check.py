@@ -39,14 +39,14 @@ class CheckBaseSegmentationCalc(CheckProtocols):
     # Use the protocol type directly
     class_to_check = BaseSegmentationCalc
 
-    def test_attributes(self, instance_to_check: Any) -> None:
+    def test_attributes(self, instance_to_check: BaseSegmentationCalc) -> None:
         """Test attributes of the instance to ensure compliance."""
         assert hasattr(instance_to_check, "gdf")
         assert hasattr(instance_to_check, "label_col")
         assert hasattr(instance_to_check, "prediction_col")
         assert hasattr(instance_to_check, "segment_names")  # Check optional attribute exists
 
-    def test_reduce_metric_results(self, instance_to_check: Any) -> None:
+    def test_reduce_metric_results(self, instance_to_check: BaseSegmentationCalc) -> None:
         """Test the metric reduction method of the instance."""
         series_results = pd.Series([0.1, 0.2, 0.3, 0.4])
         reduced_result = instance_to_check._reduce_metric_results(series_results)
@@ -57,7 +57,7 @@ class CheckBaseSegmentationCalc(CheckProtocols):
         assert isinstance(reduced_result, float)
         assert reduced_result == float_result
 
-    def test_call(self, instance_to_check: Any) -> None:
+    def test_call(self, instance_to_check: BaseSegmentationCalc) -> None:
         """Test the `__call__` method of the instance."""
         metric = self.get_metric() if isinstance(instance_to_check.prediction_col, str) else log_loss
         result = instance_to_check(metric)
@@ -76,13 +76,13 @@ class CheckDoubleSegmentation(CheckProtocols):
     # Use the protocol type directly
     class_to_check = DoubleSegmentation
 
-    def test_attributes(self, instance_to_check: Any) -> None:
+    def test_attributes(self, instance_to_check: DoubleSegmentation) -> None:
         """Test attributes of the instance to ensure compliance."""
         assert hasattr(instance_to_check, "df")
         assert hasattr(instance_to_check, "label_col")
         assert hasattr(instance_to_check, "prediction_col")
 
-    def test_group_2_features(self, instance_to_check: Any) -> None:
+    def test_group_2_features(self, instance_to_check: DoubleSegmentation) -> None:
         """Test the _group_2_features method functionality."""
         # Define dummy feature names and bin counts based on typical test data
         feature1_col = "feature1"  # Assumes 'feature1' exists in the test instance's df
@@ -109,7 +109,7 @@ class CheckDoubleSegmentation(CheckProtocols):
 
     def test_call(
         self,
-        instance_to_check: Any,
+        instance_to_check: DoubleSegmentation,
     ) -> None:
         """Test the `__call__` method of the instance."""
         # Use the aggregated metric function as required by the protocol's __call__ signature
@@ -151,13 +151,13 @@ class CheckDoubleSegmPlotting(CheckProtocols):
     # Use the protocol type directly
     class_to_check = DoubleSegmPlottingP
 
-    def test_attributes(self, instance_to_check: Any) -> None:
+    def test_attributes(self, instance_to_check: DoubleSegmPlottingP) -> None:
         """Test attributes of the instance to ensure compliance."""
         assert hasattr(instance_to_check, "df")
         assert hasattr(instance_to_check, "metric_name")
         assert isinstance(instance_to_check.df, pd.DataFrame)
 
-    def test_get_heatmap_df(self, instance_to_check: Any) -> None:
+    def test_get_heatmap_df(self, instance_to_check: DoubleSegmPlottingP) -> None:
         """Test the `get_heatmap_df` method of the instance."""
         result = instance_to_check.get_heatmap_df()
         assert isinstance(result, pd.DataFrame)
@@ -168,7 +168,7 @@ class CheckDoubleSegmPlotting(CheckProtocols):
         assert len(result.index) == len(instance_to_check.df["feature_2"].unique())
         assert result.isnull().sum().sum() < len(result) * len(result.columns)
 
-    def test_plotly_heatmap(self, instance_to_check: Any) -> None:
+    def test_plotly_heatmap(self, instance_to_check: DoubleSegmPlottingP) -> None:
         """Test the `plotly_heatmap` method of the instance."""
         from plotly.graph_objects import Figure, Heatmap
 

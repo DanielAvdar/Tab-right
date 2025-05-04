@@ -1,7 +1,7 @@
 """Module for double segmentation implementation."""
 
 from dataclasses import dataclass
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
@@ -138,7 +138,7 @@ class DoubleSegmentationImp:
         scores_df = calc_instance(score_metric)  # Calculate scores per segment_id
 
         # Extract feature_1 and feature_2 names from the 'name' column (which holds the tuple key)
-        def extract_feature_name(segment_name_tuple, index):
+        def extract_feature_name(segment_name_tuple: Any, index: int) -> Optional[Any]:
             # Ensure segment_name_tuple is always a tuple
             if not isinstance(segment_name_tuple, tuple):
                 segment_name_tuple = (segment_name_tuple,)
