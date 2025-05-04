@@ -6,7 +6,7 @@ from typing import Any, Callable, List, TypeVar, Union
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.metrics import log_loss, mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.tree import DecisionTreeRegressor
 
 from tab_right.base_architecture.seg_plotting_protocols import DoubleSegmPlottingP
@@ -24,17 +24,6 @@ class CheckProtocols:
 
     class_to_check: Any = None
 
-    @abc.abstractmethod
-    @pytest.fixture
-    def instance_to_check(self) -> Any:
-        """Fixture to create an instance of the class."""
-
-    def test_protocol_followed(self, instance_to_check: Any) -> None:
-        """Test if the protocol is followed correctly."""
-        # check if it is dataclass
-        assert hasattr(instance_to_check, "__dataclass_fields__")
-        assert isinstance(instance_to_check, self.class_to_check)
-
     def get_metric(self, prediction_col: Union[str, List[str]]) -> Callable:
         """Get scikit-learn metric function based on the prediction column.
 
@@ -43,7 +32,6 @@ class CheckProtocols:
 
         Returns:
             Callable metric function that handles both single and multiple predictions
-
         """
 
         # For non-aggregated metrics (return error per sample)
@@ -52,12 +40,30 @@ class CheckProtocols:
 
         return metric_single
 
+    @abc.abstractmethod
+    @pytest.fixture
+    def instance_to_check(self, request: pytest.FixtureRequest | None = None) -> Any:
+        """Fixture to create an instance of the class.
+
+        Args:
+            request: Optional fixture request for parameterized fixtures
+
+        Returns:
+            An instance of the class being tested
+        """
+
+    def test_protocol_followed(self, instance_to_check: Any) -> None:
+        """Test if the protocol is followed correctly."""
+        # check if it is dataclass
+        assert hasattr(instance_to_check, "__dataclass_fields__")
+        assert isinstance(instance_to_check, self.class_to_check)
+
 
 class CheckFindSegmentation(CheckProtocols):
     """Class for checking compliance of `FindSegmentation` protocol."""
 
-    # Use Any for protocol class references to avoid mypy complaints
-    class_to_check: FindSegmentation = FindSegmentation
+    # Use the protocol type directly
+    class_to_check = FindSegmentation
 
     def test_attributes(self, instance_to_check: FindSegmentation) -> None:
         """Test attributes of the instance to ensure compliance."""
@@ -90,7 +96,7 @@ class CheckFindSegmentation(CheckProtocols):
         assert isinstance(result, pd.Series)
         assert metric(y_true, y_pred).equals(result)
 
-    def test_fit_model(self, instance_to_check: FindSegmentation) -> DecisionTreeRegressor:
+    def test_fit_model(self, instance_to_check: FindSegmentation) -> None:
         """Test the model fitting method of the instance.
 
         Args:
@@ -98,16 +104,17 @@ class CheckFindSegmentation(CheckProtocols):
 
         Returns:
             DecisionTreeRegressor: The fitted model
-
         """
         feature = pd.Series([1, 2, 3, 4])
         error = pd.Series([0.1, 0.2, 0.3, 0.4])
         model = DecisionTreeRegressor()
         fitted_model = instance_to_check._fit_model(model, feature, error)
         assert hasattr(fitted_model, "tree_")
-        pred = fitted_model.predict(feature.values.reshape(-1, 1))
+        # Convert to numpy array for prediction
+        feature_array = np.asarray(feature.values)
+        pred = fitted_model.predict(feature_array.reshape(-1, 1))
         assert len(pred) == len(feature)
-        assert np.allclose(pred, error.values)
+        assert np.allclose(pred, np.asarray(error.values))
         assert not np.all(np.isnan(pred))
         assert not np.all(np.isinf(pred))
         assert fitted_model.tree_.node_count > 0
@@ -118,14 +125,13 @@ class CheckFindSegmentation(CheckProtocols):
 
         Args:
             instance_to_check: The instance to test
-
         """
         model = DecisionTreeRegressor(max_depth=2)
         feature = pd.Series([1, 2, 3, 4])
         error = pd.Series([0.1, 0.2, 0.3, 0.4])
-        # Use numpy array directly to avoid reshape issues with union types
-        feature_array = np.array(feature).reshape(-1, 1)
-        model.fit(feature_array, error)
+        # Convert to numpy array for fitting
+        feature_array = np.asarray(feature.values)
+        model.fit(feature_array.reshape(-1, 1), error)
         leaves = instance_to_check._extract_leaves(model)
         assert "segment_id" in leaves.columns
         assert "segment_name" in leaves.columns
@@ -136,25 +142,8 @@ class CheckFindSegmentation(CheckProtocols):
 class CheckBaseSegmentationCalc(CheckProtocols):
     """Class for checking compliance of `BaseSegmentationCalc` protocol."""
 
-    # Use Any for protocol class references to avoid mypy complaints
-    class_to_check: Any = BaseSegmentationCalc
-
-    def get_metric(self, prediction_col: Union[str, List[str]]) -> Callable:
-        """Get scikit-learn metric function based on the prediction column.
-
-        Args:
-            prediction_col: Column name(s) for predictions
-            agg: Whether to return an aggregated metric or per-sample errors
-
-        Returns:
-            Callable metric function that handles both single and multiple predictions
-
-        """
-        # For non-aggregated metrics (return error per sample)
-        if isinstance(prediction_col, list):
-            return log_loss
-
-        return super().get_metric(prediction_col)
+    # Use the protocol type directly
+    class_to_check = BaseSegmentationCalc
 
     def test_attributes(self, instance_to_check: Any) -> None:
         """Test attributes of the instance to ensure compliance."""
@@ -187,12 +176,11 @@ class CheckBaseSegmentationCalc(CheckProtocols):
 class CheckDoubleSegmentation(CheckProtocols):
     """Class for checking compliance of `DoubleSegmentation` protocol."""
 
-    # Use Any for protocol class references to avoid mypy complaints
-    class_to_check: Any = DoubleSegmentation
+    # Use the protocol type directly
+    class_to_check = DoubleSegmentation
 
     @pytest.fixture(
         params=[
-            log_loss,
             mean_absolute_error,
             mean_squared_error,
         ]
@@ -208,18 +196,18 @@ class CheckDoubleSegmentation(CheckProtocols):
         """
         return request.param
 
-    def test_attributes(self, instance_to_check: Any) -> None:
+    def test_attributes(self, instance_to_check: Any, skl_metric) -> None:
         """Test attributes of the instance to ensure compliance."""
         assert hasattr(instance_to_check, "segmentation_finder")
         assert isinstance(instance_to_check.segmentation_finder, FindSegmentation)
 
-    def test_call(self, instance_to_check: Any) -> None:
+    def test_call(self, instance_to_check: Any, skl_metric: Any) -> None:
         """Test the `__call__` method of the instance."""
         model = DecisionTreeRegressor()
         metric = self.get_metric(instance_to_check.segmentation_finder.prediction_col)
 
         def score_metric(y_true: pd.Series, y_pred: pd.Series) -> float:
-            return mean_absolute_error(y_true, y_pred)
+            return skl_metric(y_true, y_pred)
 
         result = instance_to_check("feature1", "feature2", metric, model, score_metric)
         assert "segment_id" in result.columns
@@ -265,8 +253,8 @@ class CheckDoubleSegmentation(CheckProtocols):
 class CheckDoubleSegmPlotting(CheckProtocols):
     """Class for checking compliance of `DoubleSegmPlotting` protocol."""
 
-    # Use Any for protocol class references to avoid mypy complaints
-    class_to_check: DoubleSegmPlottingP = DoubleSegmPlottingP
+    # Use the protocol type directly
+    class_to_check = DoubleSegmPlottingP
 
     def test_attributes(self, instance_to_check: Any) -> None:
         """Test attributes of the instance to ensure compliance."""

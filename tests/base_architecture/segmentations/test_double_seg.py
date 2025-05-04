@@ -7,7 +7,7 @@ from tab_right.segmentations.find_seg import FindSegmentationImp
 from ..seg_protocols_check import CheckDoubleSegmentation
 
 
-def make_example(data, label_col="label", prediction_col="prediction"):
+def make_example(data: dict, label_col: str = "label", prediction_col: str = "prediction") -> DoubleSegmentationImp:
     """Create a sample DataFrame for testing."""
     df = pd.DataFrame(data)
     segmentation_finder = FindSegmentationImp(df, label_col, prediction_col)
@@ -47,6 +47,6 @@ class TestDoubleSegmentationImp(CheckDoubleSegmentation):
             ),
         ]
     )
-    def instance_to_check(self, request):
+    def instance_to_check(self, request: pytest.FixtureRequest) -> DoubleSegmentationImp:
         """Fixture to create parameterized instances of the class."""
         return request.param

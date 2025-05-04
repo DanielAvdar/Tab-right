@@ -80,7 +80,7 @@ class DoubleSegmentationImp:
             feature2_col: Name of the second feature column
             error_func: Function to calculate error between true and predicted values for each datapoint
             model: Decision tree regressor model to use for segmentation
-            score_metric: Function to calculate overall score for datapoints, returns a float
+            score_metric: Function to calculate overall score for segments
 
         Returns:
             pd.DataFrame: Combined segmentation results with scores
@@ -89,8 +89,6 @@ class DoubleSegmentationImp:
         seg1 = self.segmentation_finder(feature1_col, error_func, model)
         seg2 = self.segmentation_finder(feature2_col, error_func, model)
         combined = self._combine_2_features(seg1, seg2)
-
-        # Calculate scores using the score_metric
         df = self.segmentation_finder.df
         seg_calc = self._group_by_segment(df, combined["segment_id"])
 

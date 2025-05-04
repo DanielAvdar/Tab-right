@@ -13,7 +13,7 @@ class TestDoubleSegmPlotting(CheckDoubleSegmPlotting):
     """Test class for double segmentation plotting."""
 
     @pytest.fixture
-    def double_segmentation_df(self):
+    def double_segmentation_df(self) -> pd.DataFrame:
         """Create a sample DataFrame for testing double segmentation plotting."""
         return pd.DataFrame({
             "segment_id": [1, 2, 3, 4, 5, 6],
@@ -23,6 +23,6 @@ class TestDoubleSegmPlotting(CheckDoubleSegmPlotting):
         })
 
     @pytest.fixture
-    def instance_to_check(self, double_segmentation_df):
+    def instance_to_check(self, double_segmentation_df: pd.DataFrame) -> DoubleSegmPlotting:
         """Create an instance of DoubleSegmPlotting for testing."""
         return DoubleSegmPlotting(df=double_segmentation_df)

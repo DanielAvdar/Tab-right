@@ -32,9 +32,12 @@ class SegmentationCalc:
             float: Reduced metric result
 
         """
-        if isinstance(results, pd.Series):
-            return results.mean()
-        return float(results)
+        # if isinstance(results, pd.Series):
+        #     return results.mean()
+        # return float(results)
+        if isinstance(results, float):
+            return results
+        return float(results.mean())
 
     # Define a helper method to handle both string and list cases
 

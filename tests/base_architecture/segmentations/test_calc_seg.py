@@ -6,7 +6,9 @@ from tab_right.segmentations.calc_seg import SegmentationCalc
 from ..seg_protocols_check import CheckBaseSegmentationCalc
 
 
-def make_example(data, label_col="label", prediction_col="prediction"):
+def make_example(
+    data: dict, label_col: str = "label", prediction_col: str | list[str] = "prediction"
+) -> SegmentationCalc:
     """Create a sample DataFrame for testing."""
     df = pd.DataFrame(data)
     gdf = df.groupby("segment_id")
@@ -52,6 +54,6 @@ class TestBaseSegmentationCalcImp(CheckBaseSegmentationCalc):
             ),
         ]
     )
-    def instance_to_check(self, request):
+    def instance_to_check(self, request: pytest.FixtureRequest) -> SegmentationCalc:
         """Fixture to create parameterized instances of the class."""
         return request.param

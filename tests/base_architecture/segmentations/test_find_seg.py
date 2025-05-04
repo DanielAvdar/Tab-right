@@ -6,7 +6,7 @@ from tab_right.segmentations.find_seg import FindSegmentationImp
 from ..seg_protocols_check import CheckFindSegmentation
 
 
-def make_example(data, prediction_col):
+def make_example(data: dict, prediction_col: str) -> FindSegmentationImp:
     """Create a sample DataFrame for testing."""
     df = pd.DataFrame(data)
     return FindSegmentationImp(df, "label", prediction_col)
@@ -39,5 +39,6 @@ class TestFindSegmentationImp(CheckFindSegmentation):
             ),
         ]
     )
-    def instance_to_check(self, request):
+    def instance_to_check(self, request: pytest.FixtureRequest) -> FindSegmentationImp:
+        """Fixture to create parameterized instances of the class."""
         return request.param
