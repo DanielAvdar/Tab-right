@@ -3,7 +3,6 @@
 from dataclasses import dataclass
 from typing import Callable
 
-import numpy as np
 import pandas as pd
 from sklearn.tree import BaseDecisionTree
 
@@ -39,10 +38,7 @@ class FindSegmentationImp:
 
         """
         error = metric(y_true, y_pred)
-        # Handle any NaN values by replacing with mean error
-        if error.isna().any():
-            mean_error = error.mean()
-            error = error.fillna(mean_error)
+
         return error
 
     @classmethod
@@ -63,17 +59,17 @@ class FindSegmentationImp:
             BaseDecisionTree: Fitted model
 
         """
-        # Handle edge case where all errors are the same
-        if error.nunique() <= 1:
-            error_bins = pd.Series(0, index=error.index)
-        else:
-            # Convert continuous error values to discrete bins for classification
-            # Add duplicates='drop' to handle duplicate bin edges
-            error_bins = pd.qcut(error, q=min(4, error.nunique()), labels=False, duplicates="drop")
-
-        # Use numpy array directly to avoid reshape issues with union types
-        feature_array = np.array(feature).reshape(-1, 1)
-        model.fit(feature_array, error_bins)
+        # # Handle edge case where all errors are the same
+        # if error.nunique() <= 1:
+        #     error_bins = pd.Series(0, index=error.index)
+        # else:
+        #     # Convert continuous error values to discrete bins for classification
+        #     # Add duplicates='drop' to handle duplicate bin edges
+        #     error_bins = pd.qcut(error, q=min(4, error.nunique()), labels=False, duplicates="drop")
+        #
+        # # Use numpy array directly to avoid reshape issues with union types
+        # feature_array = np.array(feature).reshape(-1, 1)
+        model.fit(feature.values.reshape(-1, 1), error)
         return model
 
     @classmethod

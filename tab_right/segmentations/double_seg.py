@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import List, Union
 
 import pandas as pd
-from pandas import Series
 from sklearn.tree import DecisionTreeRegressor
 
 from tab_right.base_architecture.seg_protocols import (
@@ -95,13 +94,7 @@ class DoubleSegmentationImp:
         df = self.segmentation_finder.df
         seg_calc = self._group_by_segment(df, combined["segment_id"])
 
-        # Create a wrapper that converts score_metric to return Series for compatibility
-        def metric_wrapper(y_true: Series, y_pred: Series) -> Series:
-            # Call the original score_metric and convert result to a Series
-            score = score_metric(y_true, y_pred)
-            return pd.Series([score] * len(y_true))
-
-        result_df = seg_calc(metric_wrapper)
+        result_df = seg_calc(score_metric)
 
         # Merge the scores back into the combined DataFrame
         combined = pd.merge(

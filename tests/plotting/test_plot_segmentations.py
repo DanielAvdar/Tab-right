@@ -5,9 +5,7 @@ import plotly.graph_objects as go
 import pytest
 from pytest import approx
 
-from tab_right.base_architecture.seg_protocols_check import CheckDoubleSegmPlotting
 from tab_right.plotting.plot_segmentations import (
-    DoubleSegmPlotting,
     plot_single_segmentation,
 )
 
@@ -47,12 +45,3 @@ def test_plot_single_segmentation(single_segmentation_df):
     # Check that the data was correctly passed to the plot
     assert len(fig.data[0].x) == len(single_segmentation_df)
     assert list(fig.data[0].y) == approx(list(single_segmentation_df["score"]))
-
-
-class TestDoubleSegmPlotting(CheckDoubleSegmPlotting):
-    """Test class for double segmentation plotting."""
-
-    @pytest.fixture
-    def instance_to_check(self, double_segmentation_df):
-        """Create an instance of DoubleSegmPlotting for testing."""
-        return DoubleSegmPlotting(df=double_segmentation_df)

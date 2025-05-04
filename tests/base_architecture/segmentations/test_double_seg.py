@@ -1,9 +1,10 @@
 import pandas as pd
 import pytest
 
-from tab_right.base_architecture.seg_protocols_check import CheckDoubleSegmentation
 from tab_right.segmentations.double_seg import DoubleSegmentationImp
 from tab_right.segmentations.find_seg import FindSegmentationImp
+
+from ..seg_protocols_check import CheckDoubleSegmentation
 
 
 def make_example(data, label_col="label", prediction_col="prediction"):

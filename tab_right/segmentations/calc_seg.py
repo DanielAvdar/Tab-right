@@ -1,10 +1,12 @@
 """Module for calculating segmentation metrics."""
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, TypeVar, Union
+from typing import Dict, List, TypeVar, Union
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
+
+from tab_right.base_architecture.seg_protocols import MetricType
 
 T = TypeVar("T")
 
@@ -35,21 +37,8 @@ class SegmentationCalc:
         return float(results)
 
     # Define a helper method to handle both string and list cases
-    def _get_prediction_data(self, group: pd.DataFrame) -> Any:
-        """Get prediction data from a group based on prediction_col.
 
-        This abstracts away the type complexity for mypy.
-
-        Args:
-            group: DataFrame group to extract prediction data from
-
-        Returns:
-            Any: The prediction data (either Series or DataFrame)
-
-        """
-        return group[self.prediction_col]
-
-    def __call__(self, metric: Callable[[pd.Series, Any], pd.Series]) -> pd.DataFrame:
+    def __call__(self, metric: MetricType) -> pd.DataFrame:
         """Perform the segmentation calculation using the provided metric.
 
         Args:
@@ -63,7 +52,7 @@ class SegmentationCalc:
         for segment_id, group in self.gdf:
             y_true = group[self.label_col]
             # Use helper method to abstract away type complexity
-            y_pred = self._get_prediction_data(group)
+            y_pred = group[self.prediction_col]
 
             # Apply the metric and convert result to a pd.Series if it's not already
             score = metric(y_true, y_pred)

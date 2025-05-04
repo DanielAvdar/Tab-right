@@ -1,8 +1,9 @@
 import pandas as pd
 import pytest
 
-from tab_right.base_architecture.seg_protocols_check import CheckBaseSegmentationCalc
 from tab_right.segmentations.calc_seg import SegmentationCalc
+
+from ..seg_protocols_check import CheckBaseSegmentationCalc
 
 
 def make_example(data, label_col="label", prediction_col="prediction"):
@@ -51,6 +52,6 @@ class TestBaseSegmentationCalcImp(CheckBaseSegmentationCalc):
             ),
         ]
     )
-    def instance_to_check(self, request) -> SegmentationCalc:
+    def instance_to_check(self, request):
         """Fixture to create parameterized instances of the class."""
         return request.param

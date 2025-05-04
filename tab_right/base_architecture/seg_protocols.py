@@ -56,7 +56,7 @@ class BaseSegmentationCalc(Protocol):
 
         """
 
-    def __call__(self, metric: Callable[[pd.Series, pd.Series], pd.Series]) -> pd.DataFrame:
+    def __call__(self, metric: ScoreMetricType) -> pd.DataFrame:
         """Call method to apply the metric to each group in the DataFrameGroupBy object.
 
         Parameters

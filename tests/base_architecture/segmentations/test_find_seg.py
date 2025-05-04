@@ -1,8 +1,9 @@
 import pandas as pd
 import pytest
 
-from tab_right.base_architecture.seg_protocols_check import CheckFindSegmentation
 from tab_right.segmentations.find_seg import FindSegmentationImp
+
+from ..seg_protocols_check import CheckFindSegmentation
 
 
 def make_example(data, prediction_col):

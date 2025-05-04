@@ -9,7 +9,7 @@ from plotly.graph_objects import Figure
 
 @runtime_checkable
 @dataclass
-class DoubleSegmPlotting(Protocol):
+class DoubleSegmPlottingP(Protocol):
     """Class schema for double segmentation plotting.
 
     This class is used to define the interface for plotting double segmentations.

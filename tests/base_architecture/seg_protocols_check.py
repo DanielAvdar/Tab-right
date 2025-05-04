@@ -9,14 +9,14 @@ import pytest
 from sklearn.metrics import log_loss, mean_absolute_error, mean_squared_error
 from sklearn.tree import DecisionTreeRegressor
 
-from .seg_plotting_protocols import DoubleSegmPlotting
-from .seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation
+from tab_right.base_architecture.seg_plotting_protocols import DoubleSegmPlottingP
+from tab_right.base_architecture.seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation
 
 # Define TypeVars for protocol types
 P = TypeVar("P", bound=FindSegmentation)
 B = TypeVar("B", bound=BaseSegmentationCalc)
 D = TypeVar("D", bound=DoubleSegmentation)
-DP = TypeVar("DP", bound=DoubleSegmPlotting)
+DP = TypeVar("DP", bound=DoubleSegmPlottingP)
 
 
 class CheckProtocols:
@@ -57,24 +57,26 @@ class CheckFindSegmentation(CheckProtocols):
     """Class for checking compliance of `FindSegmentation` protocol."""
 
     # Use Any for protocol class references to avoid mypy complaints
-    class_to_check: Any = FindSegmentation
+    class_to_check: FindSegmentation = FindSegmentation
 
-    def test_attributes(self, instance_to_check: Any) -> None:
+    def test_attributes(self, instance_to_check: FindSegmentation) -> None:
         """Test attributes of the instance to ensure compliance."""
         assert hasattr(instance_to_check, "df")
         assert hasattr(instance_to_check, "label_col")
         assert hasattr(instance_to_check, "prediction_col")
 
-    def test_call(self, instance_to_check: Any) -> None:
+    def test_call(self, instance_to_check: FindSegmentation) -> None:
         """Test the `__call__` method of the instance."""
-        model = DecisionTreeRegressor()
+        model = DecisionTreeRegressor(min_samples_leaf=2)
         metric = self.get_metric(instance_to_check.prediction_col)
         result = instance_to_check("feature", metric, model)
         assert "segment_id" in result.columns
         assert "segment_name" in result.columns
         assert "score" in result.columns
+        assert model.tree_.n_leaves > 0
+        assert model.tree_.n_leaves == len(result)
 
-    def test_calc_error(self, instance_to_check: Any) -> None:
+    def test_calc_error(self, instance_to_check: FindSegmentation) -> None:
         """Test the error calculation method of the instance."""
         y_true = pd.Series([1, 0, 1, 0])
         y_pred = pd.Series([0.1, 0.9, 0.2, 0.8])
@@ -88,7 +90,7 @@ class CheckFindSegmentation(CheckProtocols):
         assert isinstance(result, pd.Series)
         assert metric(y_true, y_pred).equals(result)
 
-    def test_fit_model(self, instance_to_check: Any) -> DecisionTreeRegressor:
+    def test_fit_model(self, instance_to_check: FindSegmentation) -> DecisionTreeRegressor:
         """Test the model fitting method of the instance.
 
         Args:
@@ -103,9 +105,15 @@ class CheckFindSegmentation(CheckProtocols):
         model = DecisionTreeRegressor()
         fitted_model = instance_to_check._fit_model(model, feature, error)
         assert hasattr(fitted_model, "tree_")
-        return fitted_model
+        pred = fitted_model.predict(feature.values.reshape(-1, 1))
+        assert len(pred) == len(feature)
+        assert np.allclose(pred, error.values)
+        assert not np.all(np.isnan(pred))
+        assert not np.all(np.isinf(pred))
+        assert fitted_model.tree_.node_count > 0
+        assert fitted_model.tree_.node_count > 1
 
-    def test_extract_leaves(self, instance_to_check: Any) -> None:
+    def test_extract_leaves(self, instance_to_check: FindSegmentation) -> None:
         """Test the leaf extraction method of the instance.
 
         Args:
@@ -121,6 +129,8 @@ class CheckFindSegmentation(CheckProtocols):
         leaves = instance_to_check._extract_leaves(model)
         assert "segment_id" in leaves.columns
         assert "segment_name" in leaves.columns
+        assert len(leaves) == model.tree_.n_leaves
+        assert leaves["segment_id"].nunique() == model.tree_.n_leaves
 
 
 class CheckBaseSegmentationCalc(CheckProtocols):
@@ -247,13 +257,16 @@ class CheckDoubleSegmentation(CheckProtocols):
         seg = df["segment_id"]
         bsc = instance_to_check._group_by_segment(df, seg)
         assert isinstance(bsc, BaseSegmentationCalc)
+        assert hasattr(bsc, "gdf")
+        total_len = len(bsc.gdf.groups)
+        assert total_len == 2
 
 
 class CheckDoubleSegmPlotting(CheckProtocols):
     """Class for checking compliance of `DoubleSegmPlotting` protocol."""
 
     # Use Any for protocol class references to avoid mypy complaints
-    class_to_check: Any = DoubleSegmPlotting
+    class_to_check: DoubleSegmPlottingP = DoubleSegmPlottingP
 
     def test_attributes(self, instance_to_check: Any) -> None:
         """Test attributes of the instance to ensure compliance."""
