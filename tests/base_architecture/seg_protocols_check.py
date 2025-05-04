@@ -1,7 +1,7 @@
 """Module for checking segmentation protocols."""
 
 import abc
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
@@ -11,12 +11,6 @@ from sklearn.tree import DecisionTreeRegressor
 
 from tab_right.base_architecture.seg_plotting_protocols import DoubleSegmPlottingP
 from tab_right.base_architecture.seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation
-
-# Define TypeVars for protocol types
-P = TypeVar("P", bound=FindSegmentation)
-B = TypeVar("B", bound=BaseSegmentationCalc)
-D = TypeVar("D", bound=DoubleSegmentation)
-DP = TypeVar("DP", bound=DoubleSegmPlottingP)
 
 
 class CheckProtocols:

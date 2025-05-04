@@ -17,12 +17,31 @@ class TestDoubleSegmPlotting(CheckDoubleSegmPlotting):
         """Create a sample DataFrame for testing double segmentation plotting."""
         return pd.DataFrame({
             "segment_id": [1, 2, 3, 4, 5, 6],
-            "feature_1": ["A <= 10", "A <= 10", "10 < A <= 20", "10 < A <= 20", "A > 20", "A > 20"],
-            "feature_2": ["B <= 5", "B > 5", "B <= 5", "B > 5", "B <= 5", "B > 5"],
+            "feature_1": ["[0,1]", "[1,2]", "[2,3]", "[3,4]", "[4,5]", "[5,6]"],
+            "feature_2": ["cat_A", "cat_B", "cat_A", "cat_B", "cat_A", "cat_B"],
             "score": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
         })
 
-    @pytest.fixture
-    def instance_to_check(self, double_segmentation_df: pd.DataFrame) -> DoubleSegmPlotting:
+    @pytest.fixture(
+        params=[
+            pd.DataFrame({
+                "segment_id": [1, 2, 3, 4, 5, 6],
+                "feature_1": ["[0,1]", "[1,2]", "[2,3]", "[3,4]", "[4,5]", "[5,6]"],
+                "feature_2": ["cat_A", "cat_B", "cat_A", "cat_B", "cat_A", "cat_B"],
+                "score": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+            }),
+            pd.DataFrame({
+                "segment_id": [1, 2, 3, 4, 5, 6],
+                "feature_1": ["[0.3,0.4]", "[0.4,0.5]", "[0.5,0.6]", "[0.6,0.7]", "[0.7,0.8]", "[0.8,0.9]"],
+                "feature_2": ["A", "B", "A", "B", "A", "B"],
+                "score": [0.0, 0.5, 0.6, 0.7, 0.1, 0.2],
+            }),
+        ]
+    )
+    def instance_to_check(
+        self,
+        request: pytest.FixtureRequest,
+    ) -> DoubleSegmPlotting:
         """Create an instance of DoubleSegmPlotting for testing."""
+        double_segmentation_df = request.param
         return DoubleSegmPlotting(df=double_segmentation_df)
