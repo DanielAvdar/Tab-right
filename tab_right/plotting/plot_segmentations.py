@@ -101,6 +101,74 @@ def plot_single_segmentation(df: pd.DataFrame, lower_is_better: bool = True) -> 
     return plot_single_segmentation_impl(df, lower_is_better)
 
 
+def plot_single_segmentation_mp(df: pd.DataFrame, lower_is_better: bool = True) -> MatplotlibFigure:
+    """Plot the single segmentation of a given DataFrame as a bar chart using matplotlib.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        A DataFrame containing the groups defined by the decision tree model.
+        columns:
+        - `segment_id`: The ID of the segment, for grouping.
+        - `segment_name`: (str) the range or category of the feature.
+        - `score`: (float) The calculated error metric for the segment.
+    lower_is_better : bool, default=True
+        Whether lower values of the metric indicate better performance.
+        Affects the color scale in visualizations (green for better, red for worse).
+
+    Returns
+    -------
+    MatplotlibFigure
+        A matplotlib bar chart showing each segment with its corresponding avg score.
+
+    """
+    # Sort by segment_id to ensure consistent ordering
+    df_sorted = df.sort_values(by="segment_id")
+
+    # Create matplotlib figure
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Choose colormap based on lower_is_better
+    if lower_is_better:
+        cmap_name = "RdYlGn_r"  # Red (high/bad) to Green (low/good)
+    else:
+        cmap_name = "RdYlGn"  # Red (low/bad) to Green (high/good)
+
+    # Normalize the scores for colormapping
+    if len(df_sorted) > 1:
+        norm = plt.Normalize(df_sorted["score"].min(), df_sorted["score"].max())
+    else:
+        norm = plt.Normalize(0, 1)
+
+    cmap = plt.get_cmap(cmap_name)
+    colors = cmap(norm(df_sorted["score"].values))
+
+    # Create bar chart
+    bars = ax.bar(df_sorted["segment_name"].astype(str), df_sorted["score"], color=colors)
+
+    # Add value labels on top of bars
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.0, height + 0.01, f"{height:.3f}", ha="center", va="bottom", fontsize=9
+        )
+
+    # Create colorbar
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=ax)
+    cbar.set_label("Score")
+
+    # Customize plot
+    ax.set_title("Segmentation Analysis by Feature")
+    ax.set_xlabel("Feature Segments")
+    ax.set_ylabel("Error Score")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+
+    return fig
+
+
 @dataclass
 class DoubleSegmPlotting:
     """Class for double segmentation plotting.
@@ -267,3 +335,110 @@ class DoubleSegmPlotting:
             return self._plot_heatmap_matplotlib()
         else:  # Default to plotly
             return self._plot_heatmap_plotly()
+
+
+@dataclass
+class DoubleSegmPlotting_mp:
+    """Class for double segmentation plotting using matplotlib.
+
+    This class implements the interface for plotting double segmentations with matplotlib.
+    It includes the DataFrames to be plotted and the visualization options.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        A DataFrame containing the groups defined by the decision tree model.
+        columns:
+        - `segment_id`: The ID of the segment, for grouping.
+        - `feature_1`: (str) the range or category of the first feature.
+        - `feature_2`: (str) the range or category of the second feature.
+        - `score`: (float) The calculated error metric for the segment.
+    metric_name : str, default="score"
+        The name of the metric column in the DataFrame.
+    lower_is_better : bool, default=True
+        Whether lower values of the metric indicate better performance.
+        Affects the color scale in visualizations (green for better, red for worse).
+
+    """
+
+    df: pd.DataFrame
+    metric_name: str = "score"
+    lower_is_better: bool = True
+
+    def get_heatmap_df(self) -> pd.DataFrame:
+        """Get the DataFrame for the heatmap from the double segmentation df.
+
+        Returns
+        -------
+        pd.DataFrame
+            A DataFrame containing the groups defined by the decision tree model.
+            columns: feature_1 ranges or categories
+            index: feature_2 ranges or categories
+            content: The calculated error metric for the segment.
+
+        """
+        # Pivot the dataframe to create a heatmap-ready format
+        pivot_df = self.df.pivot(index="feature_2", columns="feature_1", values=self.metric_name)
+        return pivot_df
+
+    def plot_heatmap(self) -> MatplotlibFigure:
+        """Plot the double segmentation as a heatmap using Matplotlib.
+
+        Returns
+        -------
+        MatplotlibFigure
+            A Matplotlib heatmap showing each segment with its corresponding avg score.
+
+        """
+        # Set non-interactive backend to avoid Tkinter issues
+        import matplotlib
+
+        matplotlib.use("Agg")
+
+        heatmap_df = self.get_heatmap_df()
+
+        # Create figure and axes
+        fig, ax = plt.subplots(figsize=(10, 8))
+
+        # Choose colormap based on lower_is_better
+        if self.lower_is_better:
+            cmap = "RdYlGn_r"  # Red (high/bad) to Green (low/good)
+        else:
+            cmap = "RdYlGn"  # Red (low/bad) to Green (high/good)
+
+        # Create heatmap using pcolormesh which creates a QuadMesh collection
+        # First create a meshgrid for the x and y coordinates
+        x = np.arange(len(heatmap_df.columns) + 1)
+        y = np.arange(len(heatmap_df.index) + 1)
+
+        # Create the heatmap using pcolormesh
+        mesh = ax.pcolormesh(x, y, heatmap_df.values, cmap=cmap)
+
+        # Set x and y labels
+        ax.set_xticks(np.arange(len(heatmap_df.columns)) + 0.5)
+        ax.set_yticks(np.arange(len(heatmap_df.index)) + 0.5)
+        ax.set_xticklabels(heatmap_df.columns)
+        ax.set_yticklabels(heatmap_df.index)
+        plt.setp(ax.get_xticklabels(), rotation=45, ha="right")
+
+        # Add colorbar
+        cbar = fig.colorbar(mesh, ax=ax)
+        cbar.set_label(self.metric_name)
+
+        # Add text annotations with the values
+        for i in range(len(heatmap_df.index)):
+            for j in range(len(heatmap_df.columns)):
+                value = heatmap_df.values[i, j]
+                if not pd.isna(value):
+                    text_color = "black" if 0.3 < value < 0.7 else "white"
+                    ax.text(j + 0.5, i + 0.5, f"{value:.3f}", ha="center", va="center", color=text_color)
+
+        # Set titles
+        ax.set_title("Double Segmentation Heatmap")
+        ax.set_xlabel("Feature 1")
+        ax.set_ylabel("Feature 2")
+
+        # Adjust layout
+        plt.tight_layout()
+
+        return fig
