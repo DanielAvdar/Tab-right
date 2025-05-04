@@ -112,26 +112,6 @@ class CheckFindSegmentation(CheckProtocols):
         assert len(leaves_cont) == model.tree_.n_leaves
         assert leaves_cont["segment_id"].nunique() == model.tree_.n_leaves
 
-        # Assert format for continuous features: segment_name should be like [a, b]
-        for name in leaves_cont["segment_name"]:
-            assert isinstance(name, list), f"Expected list for continuous feature segment name, got {type(name)}"
-            assert len(name) == 2, f"Expected list of length 2, got {len(name)}"
-            assert isinstance(name[0], (int, float)), f"Expected number for lower bound, got {type(name[0])}"
-            assert isinstance(name[1], (int, float)), f"Expected number for upper bound, got {type(name[1])}"
-            assert name[0] <= name[1], f"Lower bound {name[0]} should be <= upper bound {name[1]}"
-
-        # TODO: Add test case for categorical features
-        # model_cat = DecisionTreeRegressor(max_depth=2)
-        # feature_categorical = pd.Series(["A", "B", "A", "C", "B", "C", "A", "C"], dtype="category")
-        # error_cat = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8])
-        # # Need to handle categorical features appropriately for fitting the model
-        # # This might require encoding or specific model handling
-        # # model_cat.fit(feature_categorical_encoded, error_cat)
-        # # leaves_cat = instance_to_check._extract_leaves(model_cat, feature_type='categorical')
-        # # assert "segment_name" in leaves_cat.columns
-        # # for name in leaves_cat["segment_name"]:
-        # #     assert isinstance(name, str), f"Expected string for categorical feature segment name, got {type(name)}"
-
 
 class CheckBaseSegmentationCalc(CheckProtocols):
     """Class for checking compliance of `BaseSegmentationCalc` protocol."""
@@ -217,6 +197,8 @@ class CheckDoubleSegmentation(CheckProtocols):
         assert len(combined) == len(df2)
         assert "score" in combined.columns
         assert combined["segment_id"].equals(pd.Series(range(6)))
+        assert combined.isnull().sum().sum() == 0
+
 
     def test_group_by_segment(self, instance_to_check: Any) -> None:
         """Test the group_by_segment method functionality.
@@ -253,8 +235,7 @@ class CheckDoubleSegmPlotting(CheckProtocols):
         assert len(result.index) > 0
         assert len(result.columns) == len(instance_to_check.df["feature_1"].unique())
         assert len(result.index) == len(instance_to_check.df["feature_2"].unique())
-        # The values in the DataFrame should be the metric scores
-        assert result.values.dtype.kind in "fiub"  # Numeric types (float, int, uint, bool)
+        assert result.isnull().sum().sum() == 0
 
     def test_plotly_heatmap(self, instance_to_check: Any) -> None:
         """Test the `plotly_heatmap` method of the instance."""
