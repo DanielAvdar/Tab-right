@@ -29,15 +29,35 @@ class CheckDoubleSegmPlotting(CheckProtocols):
 
     def test_plot_heatmap(self, instance_to_check: DoubleSegmPlottingP) -> None:
         """Test the `plot_heatmap` method of the instance."""
-        from plotly.graph_objects import Figure, Heatmap
+        from matplotlib.figure import Figure as MatplotlibFigure
+        from plotly.graph_objects import Figure as PlotlyFigure, Heatmap
 
         result = instance_to_check.plot_heatmap()
-        assert isinstance(result, Figure)
 
-        # Verify the figure contains a heatmap trace
-        assert len(result.data) > 0
-        assert any(isinstance(trace, Heatmap) for trace in result.data)
+        # Check that the result is either a Plotly Figure or a Matplotlib Figure
+        assert isinstance(result, (PlotlyFigure, MatplotlibFigure)), (
+            "Result must be either a Plotly or Matplotlib figure"
+        )
 
-        # Check that the layout includes appropriate axis titles
-        assert result.layout.xaxis.title is not None
-        assert result.layout.yaxis.title is not None
+        if isinstance(result, PlotlyFigure):
+            # Verify the plotly figure contains a heatmap trace
+            assert len(result.data) > 0
+            assert any(isinstance(trace, Heatmap) for trace in result.data)
+
+            # Check that the layout includes appropriate axis titles
+            assert result.layout.xaxis.title is not None
+            assert result.layout.yaxis.title is not None
+
+        elif isinstance(result, MatplotlibFigure):
+            # For matplotlib, verify that the figure contains at least one axes
+            assert len(result.axes) > 0
+
+            # Verify that the axes has a title and axis labels
+            ax = result.axes[0]
+            assert ax.get_xlabel() != ""
+            assert ax.get_ylabel() != ""
+
+            # Verify there's a colorbar or a collection (like a heatmap)
+            assert any(collection.__class__.__name__ == "QuadMesh" for collection in ax.collections), (
+                "No heatmap found in the matplotlib figure"
+            )
