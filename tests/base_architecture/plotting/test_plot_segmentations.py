@@ -6,7 +6,7 @@ import pytest
 from tab_right.plotting.plot_segmentations import (
     DoubleSegmPlotting,
 )
-from tests.base_architecture.seg_protocols_check import CheckDoubleSegmPlotting
+from tests.base_architecture.plotting.seg_plot_check import CheckDoubleSegmPlotting
 
 
 class TestDoubleSegmPlotting(CheckDoubleSegmPlotting):

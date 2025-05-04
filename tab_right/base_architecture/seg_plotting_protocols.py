@@ -1,10 +1,13 @@
 """Module for defining plotting protocols."""
 
 from dataclasses import dataclass
-from typing import Protocol, runtime_checkable
+from typing import Protocol, Union, runtime_checkable
 
 import pandas as pd
-from plotly.graph_objects import Figure
+from matplotlib.figure import Figure as MatplotlibFigure
+from plotly.graph_objects import Figure as PlotlyFigure
+
+Figure = Union[PlotlyFigure, MatplotlibFigure]
 
 
 @runtime_checkable
@@ -61,33 +64,3 @@ class DoubleSegmPlottingP(Protocol):
             - If lower_is_better=False: Higher values are green (better), lower values are red (worse)
 
         """
-
-
-def plot_single_segmentation(
-    df: pd.DataFrame,
-    lower_is_better: bool = True,
-) -> Figure:
-    """Plot the single segmentation of a given DataFrame as a bar chart.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        A DataFrame containing the groups defined by the decision tree model.
-        columns:
-        - `segment_id`: The ID of the segment, for grouping.
-        - `segment_name`: (str) the range or category of the feature.
-        - `score`: (float) The calculated error metric for the segment.
-    lower_is_better : bool, default=True
-        Whether lower values of the metric indicate better performance.
-        Affects the color scale in visualizations (green for better, red for worse).
-
-    Returns
-    -------
-    Figure
-        A bar chart showing each segment with its corresponding avg score, x-axis represents
-        the feature segments (segment_name), and y-axis shows the score. Colors are determined
-        by the lower_is_better parameter:
-        - If lower_is_better=True: Lower values are green (better), higher values are red (worse)
-        - If lower_is_better=False: Higher values are green (better), lower values are red (worse)
-
-    """
