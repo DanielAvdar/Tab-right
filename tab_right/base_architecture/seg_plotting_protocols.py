@@ -49,7 +49,7 @@ class DoubleSegmPlottingP(Protocol):
 
         """
 
-    def plotly_heatmap(self) -> Figure:
+    def plot_heatmap(self) -> Figure:
         """Plot the double segmentation of a given DataFrame as a heatmap.
 
         Returns

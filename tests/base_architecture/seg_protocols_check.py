@@ -168,11 +168,11 @@ class CheckDoubleSegmPlotting(CheckProtocols):
         assert len(result.index) == len(instance_to_check.df["feature_2"].unique())
         assert result.isnull().sum().sum() < len(result) * len(result.columns)
 
-    def test_plotly_heatmap(self, instance_to_check: DoubleSegmPlottingP) -> None:
-        """Test the `plotly_heatmap` method of the instance."""
+    def test_plot_heatmap(self, instance_to_check: DoubleSegmPlottingP) -> None:
+        """Test the `plot_heatmap` method of the instance."""
         from plotly.graph_objects import Figure, Heatmap
 
-        result = instance_to_check.plotly_heatmap()
+        result = instance_to_check.plot_heatmap()
         assert isinstance(result, Figure)
 
         # Verify the figure contains a heatmap trace

@@ -3282,6 +3282,8 @@ dependencies = [
 
 [package.optional-dependencies]
 plotly = [
+    { name = "matplotlib", version = "3.9.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "matplotlib", version = "3.10.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "plotly" },
 ]
 
@@ -3316,6 +3318,7 @@ nbs = [
 
 [package.metadata]
 requires-dist = [
+    { name = "matplotlib", marker = "extra == 'plotly'", specifier = ">=3.0.0" },
     { name = "pandas" },
     { name = "plotly", marker = "extra == 'plotly'", specifier = ">=5.0.0" },
     { name = "scikit-learn", specifier = ">=1.6" },

@@ -50,7 +50,7 @@ for feature1, feature2 in feature_pairs:
     double_plotter = DoubleSegmPlotting(df=double_segments, metric_name="score")  # Use 'score' as metric_name
 
     # Plot the heatmap
-    heatmap_fig = double_plotter.plotly_heatmap()
+    heatmap_fig = double_plotter.plot_heatmap()
     heatmap_fig.update_layout(
         title=f"MSE Heatmap: {feature1} vs {feature2}", xaxis_title=feature1, yaxis_title=feature2
     )

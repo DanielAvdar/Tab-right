@@ -70,7 +70,7 @@ build-backend = "hatchling.build"
 source = "uv-dynamic-versioning"
 
 [project.optional-dependencies]
-plotly = ["plotly>=5.0.0"]
+plotly = ["plotly>=5.0.0","matplotlib>=3.0.0"]
 
 [tool.ruff]
 line-length = 120
