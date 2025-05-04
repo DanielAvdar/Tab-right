@@ -1,3 +1,6 @@
+
+Welcome
+
 .. image:: https://img.shields.io/pypi/v/tab-right.svg
    :target: https://pypi.org/project/tab-right/
    :alt: PyPI version
@@ -37,7 +40,6 @@
    :target: https://github.com/astral-sh/ruff
    :alt: Ruff
 
-.. include:: introduction.rst
 
 Tab-right
 =========

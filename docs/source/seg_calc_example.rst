@@ -1,6 +1,8 @@
 Segmentation Calculation
 =======================
 
+.. _seg_calc_example:
+
 This page explains how to use the segmentation calculation features in tab-right, which
 provide tools for analyzing model performance across different data segments.
 
