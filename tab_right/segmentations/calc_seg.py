@@ -1,14 +1,12 @@
 """Module for calculating segmentation metrics."""
 
 from dataclasses import dataclass
-from typing import Dict, List, TypeVar, Union
+from typing import Dict, List, TypeVar, Union, Callable
 
 import pandas as pd
 from pandas.api.typing import DataFrameGroupBy
 
-from tab_right.base_architecture.seg_protocols import MetricType
-
-T = TypeVar("T")
+from tab_right.base_architecture.seg_protocols import ScoreMetricType, ScoreMetricProbType
 
 
 @dataclass
@@ -41,7 +39,7 @@ class SegmentationCalc:
 
     # Define a helper method to handle both string and list cases
 
-    def __call__(self, metric: MetricType) -> pd.DataFrame:
+    def __call__(self, metric: Callable) -> pd.DataFrame:
         """Perform the segmentation calculation using the provided metric.
 
         Args:

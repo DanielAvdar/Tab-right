@@ -12,23 +12,13 @@ from sklearn.tree import DecisionTreeRegressor
 from tab_right.base_architecture.seg_plotting_protocols import DoubleSegmPlottingP
 from tab_right.base_architecture.seg_protocols import BaseSegmentationCalc, DoubleSegmentation, FindSegmentation
 
-
 class CheckProtocols:
     """Base class for checking protocol compliance."""
 
     class_to_check: Any = None
 
     def get_metric(self, agg: bool = False) -> Callable:
-        """Get scikit-learn metric function based on the prediction column.
 
-        Args:
-            prediction_col: Column name(s) for predictions
-
-        Returns:
-            Callable metric function that handles both single and multiple predictions
-        """
-
-        # For non-aggregated metrics (return error per sample)
         def metric_single(y: pd.Series, p: pd.Series) -> pd.Series:
             return abs(y - p)
 
@@ -41,7 +31,7 @@ class CheckProtocols:
 
     @abc.abstractmethod
     @pytest.fixture
-    def instance_to_check(self, request: pytest.FixtureRequest | None = None) -> Any:
+    def instance_to_check(self, request: pytest.FixtureRequest | None = None): # type: ignore
         """Fixture to create an instance of the class.
 
         Args:
