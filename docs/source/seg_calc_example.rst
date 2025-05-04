@@ -18,10 +18,31 @@ Basic Usage
 ----------
 
 .. code-block:: python
+    :hidden:
 
     import pandas as pd
     from sklearn.metrics import mean_absolute_error
     from tab_right.segmentations.calc_seg import SegmentationCalc
+
+    # Create a sample DataFrame for demonstration
+    data = {
+        'segment': ['A', 'A', 'B', 'B', 'C', 'C'],
+        'target': [10, 12, 20, 22, 30, 32],
+        'prediction': [11, 11, 21, 23, 29, 31]
+    }
+    df = pd.DataFrame(data)
+
+    # Group your data by a segment column
+    grouped_df = df.groupby('segment')
+
+    # Create a SegmentationCalc instance
+    seg_calc = SegmentationCalc(
+        gdf=grouped_df,
+        label_col='target',
+        prediction_col='prediction'
+    )
+
+.. code-block:: python
 
     # Group your data by a segment column
     grouped_df = df.groupby('segment')

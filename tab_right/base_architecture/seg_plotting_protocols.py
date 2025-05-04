@@ -85,7 +85,7 @@ def plot_single_segmentation(
     -------
     Figure
         A bar chart showing each segment with its corresponding avg score, x-axis represents
-        the feature segments (segment_name), and y-axis shows the score. Colors are determined 
+        the feature segments (segment_name), and y-axis shows the score. Colors are determined
         by the lower_is_better parameter:
         - If lower_is_better=True: Lower values are green (better), higher values are red (worse)
         - If lower_is_better=False: Higher values are green (better), lower values are red (worse)

@@ -15,11 +15,20 @@ Basic Usage
 ----------
 
 .. code-block:: python
-
+    import pandas as pd
     from sklearn.tree import DecisionTreeRegressor
     from sklearn.metrics import mean_absolute_error
     from tab_right.segmentations.find_seg import FindSegmentationImp
     from tab_right.segmentations.double_seg import DoubleSegmentationImp
+
+    # Ensure data does not contain NaN values
+    data = {
+        'feature1': [1, 1, 2, 2, 1, 2],
+        'feature2': [1, 2, 1, 2, 1, 2],
+        'target': [110, 12, 20, 22, 11, 21],
+        'prediction': [11, 11, 21, 23, 10, 20]
+    }
+    df = pd.DataFrame(data).dropna()
 
     # Define error and score functions
     def absolute_error(y_true, y_pred):
@@ -46,6 +55,11 @@ Basic Usage
         model=model,
         score_metric=mean_absolute_error
     )
+
+    # Ensure double_seg_results is defined before usage
+    if double_seg_results is not None:
+        best_segment = double_seg_results.loc[double_seg_results['score'].idxmin()]
+        worst_segment = double_seg_results.loc[double_seg_results['score'].idxmax()]
 
 Visualizing Feature Interactions
 -----------------------------
@@ -79,12 +93,14 @@ Double segmentation helps identify specific feature combinations that affect per
 
 .. code-block:: python
 
-    # Find best and worst performing segments
-    best_segment = double_seg_results.loc[double_seg_results['score'].idxmin()]
-    worst_segment = double_seg_results.loc[double_seg_results['score'].idxmax()]
+    # Ensure double_seg_results is defined before usage
+    if double_seg_results is not None:
+        # Find best and worst performing segments
+        best_segment = double_seg_results.loc[double_seg_results['score'].idxmin()]
+        worst_segment = double_seg_results.loc[double_seg_results['score'].idxmax()]
 
-    # Analyze performance disparity
-    disparity = double_seg_results['score'].max() - double_seg_results['score'].min()
+        # Analyze performance disparity
+        disparity = double_seg_results['score'].max() - double_seg_results['score'].min()
 
 Practical Applications
 --------------------

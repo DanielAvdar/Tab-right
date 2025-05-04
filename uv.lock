@@ -3309,7 +3309,9 @@ docs = [
 ]
 nbs = [
     { name = "catboost" },
+    { name = "ipykernel" },
     { name = "jupyterlab" },
+    { name = "nbconvert" },
 ]
 
 [package.metadata]
@@ -3342,7 +3344,9 @@ docs = [
 ]
 nbs = [
     { name = "catboost", specifier = ">=1.2.2" },
+    { name = "ipykernel", specifier = ">=6.0.0" },
     { name = "jupyterlab" },
+    { name = "nbconvert", specifier = ">=7.0.0" },
 ]
 
 [[package]]

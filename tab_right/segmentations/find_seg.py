@@ -1,7 +1,7 @@
 """Module for finding segmentations."""
 
 from dataclasses import dataclass
-from typing import Callable, Union
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -25,21 +25,55 @@ class FindSegmentationImp:
         cls,
         metric: Callable[[pd.Series, pd.Series], pd.Series],
         y_true: pd.Series,
-        y_pred: Union[pd.Series, pd.DataFrame],
+        y_pred: pd.Series,
     ) -> pd.Series:
-        return metric(y_true, y_pred)
+        """Calculate error using the provided metric.
+
+        Args:
+            metric: Function to calculate error between true and predicted values
+            y_true: True values
+            y_pred: Predicted values
+
+        Returns:
+            pd.Series: Error values for each data point
+
+        """
+        error = metric(y_true, y_pred)
+        # Handle any NaN values by replacing with mean error
+        if error.isna().any():
+            mean_error = error.mean()
+            error = error.fillna(mean_error)
+        return error
 
     @classmethod
     def _fit_model(
         cls,
         model: BaseDecisionTree,
         feature: pd.Series,
-        error: Union[pd.Series, np.ndarray],
+        error: pd.Series,
     ) -> BaseDecisionTree:
-        # Convert continuous error values to discrete bins for classification
-        # Add duplicates='drop' to handle duplicate bin edges
-        error_bins = pd.qcut(error, q=4, labels=False, duplicates="drop")
-        model.fit(feature.values.reshape(-1, 1), error_bins)
+        """Fit decision tree model on feature and error data.
+
+        Args:
+            model: Decision tree model to fit
+            feature: Feature values
+            error: Error values for each data point
+
+        Returns:
+            BaseDecisionTree: Fitted model
+
+        """
+        # Handle edge case where all errors are the same
+        if error.nunique() <= 1:
+            error_bins = pd.Series(0, index=error.index)
+        else:
+            # Convert continuous error values to discrete bins for classification
+            # Add duplicates='drop' to handle duplicate bin edges
+            error_bins = pd.qcut(error, q=min(4, error.nunique()), labels=False, duplicates="drop")
+
+        # Use numpy array directly to avoid reshape issues with union types
+        feature_array = np.array(feature).reshape(-1, 1)
+        model.fit(feature_array, error_bins)
         return model
 
     @classmethod

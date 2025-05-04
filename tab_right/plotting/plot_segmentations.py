@@ -35,12 +35,12 @@ def plot_single_segmentation_impl(df: pd.DataFrame, lower_is_better: bool = True
     """
     # Sort by segment_id to ensure consistent ordering
     df_sorted = df.sort_values(by="segment_id")
-    
+
     # Choose colorscale based on lower_is_better
     if lower_is_better:
-        colorscale = [[0, 'green'], [0.5, 'yellow'], [1, 'red']]  # Low (green) to high (red)
+        colorscale = [[0, "green"], [0.5, "yellow"], [1, "red"]]  # Low (green) to high (red)
     else:
-        colorscale = [[0, 'red'], [0.5, 'yellow'], [1, 'green']]  # Low (red) to high (green)
+        colorscale = [[0, "red"], [0.5, "yellow"], [1, "green"]]  # Low (red) to high (green)
 
     # Create a bar chart
     fig = go.Figure(
@@ -154,12 +154,12 @@ class DoubleSegmPlotting:
 
         """
         heatmap_df = self.get_heatmap_df()
-        
+
         # Choose colorscale based on lower_is_better
         if self.lower_is_better:
-            colorscale = [[0, 'green'], [0.5, 'yellow'], [1, 'red']]  # Low (green) to high (red)
+            colorscale = [[0, "green"], [0.5, "yellow"], [1, "red"]]  # Low (green) to high (red)
         else:
-            colorscale = [[0, 'red'], [0.5, 'yellow'], [1, 'green']]  # Low (red) to high (green)
+            colorscale = [[0, "red"], [0.5, "yellow"], [1, "green"]]  # Low (red) to high (green)
 
         # Create heatmap
         fig = go.Figure(

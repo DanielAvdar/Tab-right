@@ -49,7 +49,9 @@ docs = [
 ]
 nbs = [
     "catboost>=1.2.2",
-    "jupyterlab"
+    "jupyterlab",
+    "nbconvert>=7.0.0",
+    "ipykernel>=6.0.0"
 ]
 
 [tool.hatch.build.targets.sdist]

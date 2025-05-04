@@ -41,7 +41,8 @@ class BaseSegmentationCalc(Protocol):
         results: Union[float, pd.Series],
     ) -> float:
         """Reduce the metric results to a single value, the metric produce series of values.
-            if produce a single value, return it. it used for getting single value for each segment.
+
+        if produce a single value, return it. it used for getting single value for each segment.
 
         Parameters
         ----------

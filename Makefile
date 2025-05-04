@@ -33,3 +33,7 @@ mypy:
 
 doc:
 	uv run sphinx-build -M html docs/source docs/build/
+
+nb:
+	uv sync --group nbs --frozen
+	uv run python -c "import asyncio; asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())" && uv run jupyter nbconvert --execute --to notebook --inplace nbs/*.ipynb
