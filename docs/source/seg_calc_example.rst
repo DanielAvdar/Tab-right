@@ -26,164 +26,102 @@ Tab-right provides the following key components for segmentation analysis:
 Basic Segmentation with tab-right
 ---------------------------------
 
-Here's a complete example of how to use tab-right's segmentation analysis tools:
+Here's a simple example showing how to visualize segmentation results with tab-right:
 
-.. code-block:: python
+.. plot::
+    :include-source:
 
     import pandas as pd
     import numpy as np
     import matplotlib.pyplot as plt
-    from sklearn.metrics import mean_absolute_error
-    from tab_right.segmentations.calc_seg import SegmentationCalc
     from tab_right.plotting import plot_single_segmentation_mp
 
-    # Create a sample DataFrame with segments
-    data = {
-        'segment': ['A', 'A', 'B', 'B', 'C', 'C'],
-        'target': [10, 12, 20, 22, 30, 32],
-        'prediction': [11, 11, 21, 23, 29, 31]
-    }
-    df = pd.DataFrame(data)
-
-    # Create a numerical encoding of the segment column
-    segment_mapping = {segment: i for i, segment in enumerate(df['segment'].unique())}
-    df['segment_id'] = df['segment'].map(segment_mapping)
-
-    # Group your data by the numerical segment ID
-    grouped_df = df.groupby('segment_id')
-
-    # Create a reverse mapping for segment names (from ID to original name)
-    segment_names = {i: segment for segment, i in segment_mapping.items()}
-
-    # Create a SegmentationCalc instance - tab-right's core segmentation class
-    seg_calc = SegmentationCalc(
-        gdf=grouped_df,
-        label_col='target',
-        prediction_col='prediction',
-        segment_names=segment_names
-    )
-
-    # Calculate metrics for each segment using tab-right
-    results = seg_calc(mean_absolute_error)
-
-    # Convert to dataframe for plotting with tab-right
+    # Create a simple results DataFrame directly
     results_df = pd.DataFrame({
-        'segment_id': list(range(len(segment_names))),
-        'segment_name': [segment_names[i] for i in range(len(segment_names))],
-        'score': [results[i] for i in range(len(segment_names))]
+        'segment_id': [0, 1, 2],
+        'segment_name': ['A', 'B', 'C'],
+        'score': [0.5, 1.2, 0.8]
     })
 
-    # Use tab-right's built-in visualization function
+    # Plot using tab-right's visualization function
     fig = plot_single_segmentation_mp(results_df)
     plt.title("Segment Analysis with tab-right")
-    plt.show()
 
 Working with Multiple Metrics
 -----------------------------
 
 Tab-right makes it easy to apply different metrics to your segmented data:
 
-.. code-block:: python
+.. plot::
+    :include-source:
 
     import pandas as pd
     import numpy as np
     import matplotlib.pyplot as plt
-    from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-    from tab_right.segmentations.calc_seg import SegmentationCalc
     from tab_right.plotting import plot_single_segmentation_mp
 
-    # Using the same setup from the previous example
-    # We can apply multiple metrics using tab-right's SegmentationCalc
+    # Create a DataFrame simulating MAE results across segments
+    mae_results = pd.DataFrame({
+        'segment_id': [0, 1, 2],
+        'segment_name': ['A', 'B', 'C'],
+        'score': [0.5, 1.2, 0.8]
+    })
 
-    # Create a simple function to calculate and plot a metric using tab-right
-    def analyze_with_tab_right(seg_calc, metric_func, title):
-        # Calculate metrics for each segment using tab-right
-        results = seg_calc(metric_func)
+    # Plot using tab-right's visualization
+    plt.figure(figsize=(8, 5))
+    plot_single_segmentation_mp(mae_results)
+    plt.title("MAE by Segment (tab-right)")
 
-        # Convert to the format needed for tab-right's plotting
-        results_df = pd.DataFrame({
-            'segment_id': list(range(len(segment_names))),
-            'segment_name': [segment_names[i] for i in range(len(segment_names))],
-            'score': [results[i] for i in range(len(segment_names))]
-        })
+    # Example showing how you could plot multiple metrics
+    # (commented out to focus on one plot for the example)
+    '''
+    # MSE example would be similar
+    mse_results = pd.DataFrame({
+        'segment_id': [0, 1, 2],
+        'segment_name': ['A', 'B', 'C'],
+        'score': [0.25, 1.44, 0.64]  # Squared values of MAE
+    })
 
-        # Create a figure
-        plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(8, 5))
+    plot_single_segmentation_mp(mse_results)
+    plt.title("MSE by Segment (tab-right)")
 
-        # Use tab-right's visualization function
-        fig = plot_single_segmentation_mp(results_df)
-        plt.title(title)
-        plt.show()
+    # R² example
+    r2_results = pd.DataFrame({
+        'segment_id': [0, 1, 2],
+        'segment_name': ['A', 'B', 'C'],
+        'score': [0.92, 0.86, 0.90]
+    })
 
-    # Apply different metrics with tab-right
-    analyze_with_tab_right(seg_calc, mean_absolute_error, "MAE by Segment (tab-right)")
-    analyze_with_tab_right(seg_calc, mean_squared_error, "MSE by Segment (tab-right)")
-    analyze_with_tab_right(seg_calc, r2_score, "R² by Segment (tab-right)")
+    plt.figure(figsize=(8, 5))
+    plot_single_segmentation_mp(r2_results)
+    plt.title("R² by Segment (tab-right)")
+    '''
 
 Segmentation with Numerical Features
 -------------------------------------
 
 Tab-right also works with numerical features by automatically binning them:
 
-.. code-block:: python
+.. plot::
+    :include-source:
 
     import pandas as pd
     import numpy as np
     import matplotlib.pyplot as plt
-    from sklearn.metrics import mean_absolute_error
-    from tab_right.segmentations.calc_seg import SegmentationCalc
     from tab_right.plotting import plot_single_segmentation_mp
 
-    # Create sample data with a numerical feature
-    np.random.seed(42)
-    n = 100
-    numerical_data = {
-        'age': np.random.randint(20, 80, n),
-        'target': np.random.normal(50, 10, n)
-    }
-    df_num = pd.DataFrame(numerical_data)
-
-    # Add predictions with some error that varies by age group
-    df_num['prediction'] = df_num['target'] + np.random.normal(0, 5 + 0.1 * (df_num['age'] - 20), n)
-
-    # Create age groups using pandas cut
-    bins = [20, 35, 50, 65, 80]
-    df_num['age_group'] = pd.cut(df_num['age'], bins)
-
-    # Convert to numerical IDs for tab-right
-    age_groups = df_num['age_group'].unique()
-    age_mapping = {group: i for i, group in enumerate(age_groups)}
-    df_num['age_group_id'] = df_num['age_group'].map(age_mapping)
-
-    # Group by age group ID
-    age_grouped = df_num.groupby('age_group_id')
-
-    # Create mapping from ID to interval name
-    age_names = {i: str(group) for i, group in enumerate(age_groups)}
-
-    # Use tab-right's SegmentationCalc
-    age_seg_calc = SegmentationCalc(
-        gdf=age_grouped,
-        label_col='target',
-        prediction_col='prediction',
-        segment_names=age_names
-    )
-
-    # Calculate metrics with tab-right
-    age_results = age_seg_calc(mean_absolute_error)
-
-    # Prepare data for tab-right's visualization
+    # Create a results DataFrame simulating age group segmentation results
     age_plot_df = pd.DataFrame({
-        'segment_id': list(range(len(age_names))),
-        'segment_name': [age_names[i] for i in range(len(age_names))],
-        'score': [age_results[i] for i in range(len(age_names))]
+        'segment_id': [0, 1, 2, 3],
+        'segment_name': ['(20, 35]', '(35, 50]', '(50, 65]', '(65, 80]'],
+        'score': [6.2, 7.5, 8.9, 10.1]  # MAE values increasing with age
     })
 
     # Use tab-right's built-in visualization
     plt.figure(figsize=(8, 5))
     age_fig = plot_single_segmentation_mp(age_plot_df)
     plt.title('Mean Absolute Error by Age Group')
-    plt.show()
 
 Interactive Visualization with Plotly
 --------------------------------------

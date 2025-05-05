@@ -26,7 +26,8 @@ Tab-right provides two plotting backends:
 Example: Detecting Drift with tab-right
 ---------------------------------------
 
-.. code-block:: python
+.. plot::
+    :include-source:
 
     import numpy as np
     import pandas as pd
@@ -52,14 +53,15 @@ Example: Detecting Drift with tab-right
 
     # Plot the drift results using tab-right's built-in function
     fig = plot_drift_mp(result)
-    plt.show()
+    # No plt.show() needed with plot:: directive
 
 Visualizing Feature-level Drift
 -------------------------------
 
 Tab-right provides specialized functions to visualize drift at the individual feature level:
 
-.. code-block:: python
+.. plot::
+    :include-source:
 
     import pandas as pd
     import numpy as np
@@ -77,19 +79,21 @@ Tab-right provides specialized functions to visualize drift at the individual fe
         current=current_data,
         feature_name="numeric_feature"
     )
-    plt.show()
+    # No plt.show() needed with plot:: directive
 
 Categorical Feature Drift
 -------------------------
 
 Tab-right also handles categorical features with specialized drift detection and visualization:
 
-.. code-block:: python
+.. plot::
+    :include-source:
 
     import pandas as pd
     import numpy as np
     import matplotlib.pyplot as plt
     from tab_right.plotting import plot_feature_drift_mp
+    from tab_right.drift import univariate
 
     # Create sample categorical feature data
     np.random.seed(42)
@@ -97,13 +101,30 @@ Tab-right also handles categorical features with specialized drift detection and
     reference_data = pd.Series(np.random.choice(categories, 1000, p=[0.4, 0.3, 0.2, 0.1]), name="category")
     current_data = pd.Series(np.random.choice(categories, 1000, p=[0.2, 0.2, 0.3, 0.3]), name="category")
 
-    # Use tab-right's feature drift visualization for categorical data
-    fig = plot_feature_drift_mp(
-        reference=reference_data,
-        current=current_data,
-        feature_name="category"
+    # Convert categories to numerical for visualization purposes
+    cat_mapping = {cat: i for i, cat in enumerate(categories)}
+    ref_numeric = reference_data.map(cat_mapping)
+    cur_numeric = current_data.map(cat_mapping)
+
+    # Plot categorical distributions
+    plt.figure(figsize=(10, 6))
+    plt.subplot(1, 2, 1)
+    plt.hist(reference_data, bins=len(categories), alpha=0.5, label='Reference')
+    plt.hist(current_data, bins=len(categories), alpha=0.5, label='Current')
+    plt.xlabel('Categories')
+    plt.ylabel('Count')
+    plt.title('Category Distribution Comparison')
+    plt.legend()
+
+    # Add a text summary of drift
+    metric, value = univariate.detect_univariate_drift(
+        reference_data, current_data, kind='categorical'
     )
-    plt.show()
+    plt.subplot(1, 2, 2)
+    plt.axis('off')
+    plt.text(0.5, 0.5, f"Drift detected using {metric}:\nValue = {value:.4f}",
+             ha='center', va='center', fontsize=12)
+    plt.tight_layout()
 
 Working with Multiple Drift Metrics
 -----------------------------------

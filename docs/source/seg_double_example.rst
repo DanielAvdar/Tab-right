@@ -28,7 +28,8 @@ Basic Usage with tab-right
 
 Here's a complete example showing how to use tab-right's double segmentation capabilities:
 
-.. code-block:: python
+.. plot::
+    :include-source:
 
     import numpy as np
     import pandas as pd
@@ -79,7 +80,6 @@ Here's a complete example showing how to use tab-right's double segmentation cap
     double_plot = DoubleSegmPlottingMp(df=result_df)
     fig = double_plot.plot_heatmap()
     plt.title("Model MSE by Feature Segments (tab-right Double Segmentation)")
-    plt.show()
 
 Interactive Visualization with tab-right's Plotly Backend
 ---------------------------------------------------------
@@ -102,7 +102,8 @@ Customizing Double Segmentation with tab-right
 
 Tab-right offers flexibility in how you configure double segmentation:
 
-.. code-block:: python
+.. plot::
+    :include-source:
 
     import numpy as np
     import pandas as pd
@@ -111,7 +112,27 @@ Tab-right offers flexibility in how you configure double segmentation:
     from tab_right.segmentations.double_seg import DoubleSegmentationImp
     from tab_right.plotting.plot_segmentations import DoubleSegmPlottingMp
 
-    # Using the same data from before
+    # Create sample data
+    np.random.seed(42)
+    n_samples = 1000
+
+    # Generate features with correlations
+    feature1 = np.random.normal(0, 1, n_samples)
+    feature2 = 0.5 * feature1 + 0.5 * np.random.normal(0, 1, n_samples)
+
+    # Generate target with complex interaction
+    target = 2 + 3 * feature1 + 2 * feature2 + 4 * (feature1 * feature2) + np.random.normal(0, 1, n_samples)
+
+    # Generate prediction (biased in some regions)
+    prediction = 2 + 3 * feature1 + 2 * feature2 + np.random.normal(0, 2, n_samples)
+
+    # Create DataFrame
+    df = pd.DataFrame({
+        'feature1': feature1,
+        'feature2': feature2,
+        'target': target,
+        'prediction': prediction
+    })
 
     # Create a double segmentation instance with tab-right
     custom_double_seg = DoubleSegmentationImp(
@@ -140,7 +161,6 @@ Tab-right offers flexibility in how you configure double segmentation:
     # Generate the plot using tab-right's visualization
     fig = custom_plot.plot_heatmap()
     plt.title("Model MAE by Feature Segments (Custom Configuration)")
-    plt.show()
 
 Finding Performance Issues with Double Segmentation
 ---------------------------------------------------
@@ -194,7 +214,8 @@ Working with Categorical Features
 
 Tab-right's double segmentation also works with categorical features:
 
-.. code-block:: python
+.. plot::
+    :include-source:
 
     import numpy as np
     import pandas as pd
@@ -275,7 +296,6 @@ Tab-right's double segmentation also works with categorical features:
     # Create the visualization
     fig = cat_plot.plot_heatmap()
     plt.title("Model Accuracy by Education and Industry Segments")
-    plt.show()
 
 Key Features of tab-right's Double Segmentation
 ------------------------------------------------
