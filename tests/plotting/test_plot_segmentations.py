@@ -8,7 +8,7 @@ from matplotlib.figure import Figure as MatplotlibFigure
 from pytest import approx
 
 from tab_right.plotting.plot_segmentations import (
-    DoubleSegmPlotting_mp,
+    DoubleSegmPlottingMp,
     plot_single_segmentation,
     plot_single_segmentation_mp,
 )
@@ -86,8 +86,8 @@ def test_plot_single_segmentation_mp_lower_is_better_false(single_segmentation_d
 
 
 def test_double_segm_plotting_mp(double_segmentation_df):
-    """Test that DoubleSegmPlotting_mp creates a valid Matplotlib figure."""
-    double_plotter = DoubleSegmPlotting_mp(df=double_segmentation_df)
+    """Test that DoubleSegmPlottingMp creates a valid Matplotlib figure."""
+    double_plotter = DoubleSegmPlottingMp(df=double_segmentation_df)
     fig = double_plotter.plot_heatmap()
 
     # Check that we got a matplotlib figure
@@ -121,8 +121,8 @@ def test_double_segm_plotting_mp(double_segmentation_df):
 
 
 def test_double_segm_plotting_mp_lower_is_better_false(double_segmentation_df):
-    """Test DoubleSegmPlotting_mp with lower_is_better=False."""
-    double_plotter = DoubleSegmPlotting_mp(df=double_segmentation_df, lower_is_better=False)
+    """Test DoubleSegmPlottingMp with lower_is_better=False."""
+    double_plotter = DoubleSegmPlottingMp(df=double_segmentation_df, lower_is_better=False)
     fig = double_plotter.plot_heatmap()
 
     # Check that we got a matplotlib figure
@@ -133,11 +133,11 @@ def test_double_segm_plotting_mp_lower_is_better_false(double_segmentation_df):
 
 
 def test_double_segm_plotting_mp_custom_metric(double_segmentation_df):
-    """Test DoubleSegmPlotting_mp with a custom metric name."""
+    """Test DoubleSegmPlottingMp with a custom metric name."""
     # Create a copy with a renamed score column
     df_custom = double_segmentation_df.rename(columns={"score": "custom_metric"})
 
-    double_plotter = DoubleSegmPlotting_mp(df=df_custom, metric_name="custom_metric")
+    double_plotter = DoubleSegmPlottingMp(df=df_custom, metric_name="custom_metric")
     fig = double_plotter.plot_heatmap()
 
     # Check that we got a matplotlib figure

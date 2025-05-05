@@ -136,12 +136,12 @@ def plot_single_segmentation_mp(df: pd.DataFrame, lower_is_better: bool = True) 
 
     # Normalize the scores for colormapping
     if len(df_sorted) > 1:
-        norm = plt.Normalize(df_sorted["score"].min(), df_sorted["score"].max())
+        norm = plt.Normalize(float(df_sorted["score"].min()), float(df_sorted["score"].max()))
     else:
         norm = plt.Normalize(0, 1)
 
     cmap = plt.get_cmap(cmap_name)
-    colors = cmap(norm(df_sorted["score"].values))
+    colors = cmap(norm(df_sorted["score"].values.astype(np.float64)))
 
     # Create bar chart
     bars = ax.bar(df_sorted["segment_name"].astype(str), df_sorted["score"], color=colors)
@@ -338,7 +338,7 @@ class DoubleSegmPlotting:
 
 
 @dataclass
-class DoubleSegmPlotting_mp:
+class DoubleSegmPlottingMp:
     """Class for double segmentation plotting using matplotlib.
 
     This class implements the interface for plotting double segmentations with matplotlib.
