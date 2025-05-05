@@ -5,7 +5,7 @@ import pytest
 
 from tab_right.segmentations.calc_seg import SegmentationCalc
 
-from ..seg_protocols_check import CheckBaseSegmentationCalc
+from .calc_check import CheckBaseSegmentationCalc
 
 
 def make_example(

@@ -1,7 +1,8 @@
 import pandas as pd
 
 from tab_right.base_architecture.seg_plotting_protocols import DoubleSegmPlottingP
-from tests.base_architecture.seg_protocols_check import CheckProtocols
+
+from ..base_protocols_check import CheckProtocols
 
 
 class CheckDoubleSegmPlotting(CheckProtocols):

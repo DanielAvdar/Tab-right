@@ -3,7 +3,7 @@ import pytest
 
 from tab_right.segmentations.double_seg import DoubleSegmentationImp
 
-from ..seg_protocols_check import CheckDoubleSegmentation
+from .double_check import CheckDoubleSegmentation
 
 
 def make_example(data: dict, label_col: str = "label", prediction_col: str = "prediction") -> DoubleSegmentationImp:
