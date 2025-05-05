@@ -47,7 +47,7 @@ doc-ignore-warnings:
 
 # Run all checks in sequence: tests, code quality, type checking, and documentation
 check-all:
-	$(MAKE) test
 	$(MAKE) check
+	$(MAKE) test
 	$(MAKE) mypy
 	$(MAKE) doc
