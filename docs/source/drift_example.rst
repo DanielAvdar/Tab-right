@@ -8,23 +8,115 @@ This example demonstrates how to use tab-right for detecting and visualizing dat
 Drift Detection with tab-right
 ------------------------------
 
-Tab-right offers specialized functions for drift detection:
+Tab-right offers specialized components for drift detection:
 
-1. ``univariate.detect_univariate_drift_df`` - Detect drift across all features in a DataFrame
-2. ``univariate.detect_univariate_drift`` - Detect drift for a single feature
-3. ``plot_drift`` / ``plot_drift_mp`` - Visualize drift metrics across features
-4. ``plot_feature_drift`` / ``plot_feature_drift_mp`` - Compare distributions of a specific feature
+1. ``DriftCalculator`` - Core class for calculating drift between datasets
+2. ``DriftPlotter`` - Visualization class for creating matplotlib-based drift plots
+3. ``univariate`` module - Lower-level functions for specific drift calculations
+4. ``plot_drift`` / ``plot_feature_drift`` modules - Simplified plotting functions
 
-Visualization Options
----------------------
+Example: Using DriftCalculator and DriftPlotter
+-----------------------------------------------
 
-Tab-right provides two plotting backends:
+The most concise way to analyze and visualize drift with tab-right is to use the ``DriftCalculator`` and ``DriftPlotter`` classes:
 
-1. **Matplotlib** (default): Static plots using the ``_mp`` suffix functions (e.g., ``plot_drift_mp``)
-2. **Plotly**: Interactive plots using the standard function names (e.g., ``plot_drift``)
+.. plot::
+    :include-source:
 
-Example: Detecting Drift with tab-right
----------------------------------------
+    import numpy as np
+    import pandas as pd
+    from tab_right.drift.drift_calculator import DriftCalculator
+    from tab_right.plotting.drift_plotter import DriftPlotter
+
+    # Generate simple dataset for demo
+    np.random.seed(42)
+    df1 = pd.DataFrame({
+        'numeric': np.random.normal(0, 1, 100),
+        'category': np.random.choice(['A', 'B'], 100)
+    })
+
+    df2 = pd.DataFrame({
+        'numeric': np.random.normal(1, 1.2, 120),  # Shift in distribution
+        'category': np.random.choice(['B', 'C'], 120)  # Different categories
+    })
+
+    # Create the drift calculator
+    drift_calc = DriftCalculator(df1, df2)
+
+    # Create the plotter
+    plotter = DriftPlotter(drift_calc)
+
+    # Plot summary of drift across features
+    fig = plotter.plot_multiple()
+
+Feature-Level Distribution Comparison
+-------------------------------------
+
+You can also examine the distribution shifts for individual features:
+
+.. plot::
+    :include-source:
+
+    import numpy as np
+    import pandas as pd
+    from tab_right.drift.drift_calculator import DriftCalculator
+    from tab_right.plotting.drift_plotter import DriftPlotter
+
+    # Reuse previous dataset setup
+    np.random.seed(42)
+    df1 = pd.DataFrame({
+        'numeric': np.random.normal(0, 1, 100),
+        'category': np.random.choice(['A', 'B'], 100)
+    })
+
+    df2 = pd.DataFrame({
+        'numeric': np.random.normal(1, 1.2, 120),
+        'category': np.random.choice(['B', 'C'], 120)
+    })
+
+    # Create calculator and plotter
+    drift_calc = DriftCalculator(df1, df2)
+    plotter = DriftPlotter(drift_calc)
+
+    # Plot numerical feature distribution comparison
+    fig_numeric = plotter.plot_single('numeric')
+
+Quick Categorical Feature Visualization
+----------------------------------------
+
+Tab-right also makes it easy to visualize categorical feature drift:
+
+.. plot::
+    :include-source:
+
+    import numpy as np
+    import pandas as pd
+    from tab_right.drift.drift_calculator import DriftCalculator
+    from tab_right.plotting.drift_plotter import DriftPlotter
+
+    # Reuse previous dataset setup
+    np.random.seed(42)
+    df1 = pd.DataFrame({
+        'numeric': np.random.normal(0, 1, 100),
+        'category': np.random.choice(['A', 'B'], 100)
+    })
+
+    df2 = pd.DataFrame({
+        'numeric': np.random.normal(1, 1.2, 120),
+        'category': np.random.choice(['B', 'C'], 120)
+    })
+
+    # Create calculator and plotter
+    drift_calc = DriftCalculator(df1, df2)
+    plotter = DriftPlotter(drift_calc)
+
+    # Plot categorical feature distribution comparison
+    fig_cat = plotter.plot_single('category')
+
+Alternative API: Direct Functions
+----------------------------------
+
+For simpler use cases, tab-right also provides direct functions for drift analysis:
 
 .. plot::
     :include-source:
@@ -33,149 +125,73 @@ Example: Detecting Drift with tab-right
     import pandas as pd
     from tab_right.drift import univariate
     from tab_right.plotting import plot_drift_mp
-    import matplotlib.pyplot as plt
 
-    # Generate random data for reference and current datasets
+    # Generate datasets
     np.random.seed(42)
     df_ref = pd.DataFrame({
-        'num_feature': np.random.normal(0, 1, 1000),
-        'cat_feature': np.random.choice(['A', 'B', 'C'], 1000)
+        'num_feature': np.random.normal(0, 1, 500),
+        'cat_feature': np.random.choice(['A', 'B', 'C'], 500)
     })
 
-    # Create current dataset with slight distributional shift
     df_cur = pd.DataFrame({
-        'num_feature': np.random.normal(0.2, 1.2, 1000),  # Shifted mean and variance
-        'cat_feature': np.random.choice(['A', 'B', 'C'], 1000, p=[0.2, 0.5, 0.3])  # Different probabilities
+        'num_feature': np.random.normal(0.3, 1.2, 500),
+        'cat_feature': np.random.choice(['A', 'B', 'C'], 500, p=[0.2, 0.5, 0.3])
     })
 
-    # Run drift detection for all columns using tab-right's univariate module
+    # Calculate drift across all features
     result = univariate.detect_univariate_drift_df(df_ref, df_cur)
 
-    # Plot the drift results using tab-right's built-in function
+    # Plot the results
     fig = plot_drift_mp(result)
-    # No plt.show() needed with plot:: directive
-
-Visualizing Feature-level Drift
--------------------------------
-
-Tab-right provides specialized functions to visualize drift at the individual feature level:
-
-.. plot::
-    :include-source:
-
-    import pandas as pd
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from tab_right.plotting import plot_feature_drift_mp
-
-    # Create sample numeric feature data
-    np.random.seed(42)
-    reference_data = pd.Series(np.random.normal(0, 1, 1000), name="numeric_feature")
-    current_data = pd.Series(np.random.normal(0.5, 1.5, 1000), name="numeric_feature")
-
-    # Use tab-right's feature drift visualization
-    fig = plot_feature_drift_mp(
-        reference=reference_data,
-        current=current_data,
-        feature_name="numeric_feature"
-    )
-    # No plt.show() needed with plot:: directive
-
-Categorical Feature Drift
--------------------------
-
-Tab-right also handles categorical features with specialized drift detection and visualization:
-
-.. plot::
-    :include-source:
-
-    import pandas as pd
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from tab_right.plotting import plot_feature_drift_mp
-    from tab_right.drift import univariate
-
-    # Create sample categorical feature data
-    np.random.seed(42)
-    categories = ['A', 'B', 'C', 'D']
-    reference_data = pd.Series(np.random.choice(categories, 1000, p=[0.4, 0.3, 0.2, 0.1]), name="category")
-    current_data = pd.Series(np.random.choice(categories, 1000, p=[0.2, 0.2, 0.3, 0.3]), name="category")
-
-    # Convert categories to numerical for visualization purposes
-    cat_mapping = {cat: i for i, cat in enumerate(categories)}
-    ref_numeric = reference_data.map(cat_mapping)
-    cur_numeric = current_data.map(cat_mapping)
-
-    # Plot categorical distributions
-    plt.figure(figsize=(10, 6))
-    plt.subplot(1, 2, 1)
-    plt.hist(reference_data, bins=len(categories), alpha=0.5, label='Reference')
-    plt.hist(current_data, bins=len(categories), alpha=0.5, label='Current')
-    plt.xlabel('Categories')
-    plt.ylabel('Count')
-    plt.title('Category Distribution Comparison')
-    plt.legend()
-
-    # Add a text summary of drift
-    metric, value = univariate.detect_univariate_drift(
-        reference_data, current_data, kind='categorical'
-    )
-    plt.subplot(1, 2, 2)
-    plt.axis('off')
-    plt.text(0.5, 0.5, f"Drift detected using {metric}:\nValue = {value:.4f}",
-             ha='center', va='center', fontsize=12)
-    plt.tight_layout()
 
 Working with Multiple Drift Metrics
 -----------------------------------
 
-Tab-right makes it easy to analyze drift using different metrics:
+Tab-right supports various drift metrics that can be explicitly specified:
 
 .. code-block:: python
 
     import pandas as pd
     import numpy as np
     from tab_right.drift import univariate
+    from tab_right.drift.drift_calculator import DriftCalculator
 
-    # Generate data with multiple features
+    # Generate data
     np.random.seed(42)
     df_ref = pd.DataFrame({
-        'feat1': np.random.normal(0, 1, 1000),
-        'feat2': np.random.normal(5, 2, 1000),
-        'feat3': np.random.choice(['A', 'B', 'C'], 1000),
-        'feat4': np.random.choice(['X', 'Y', 'Z'], 1000),
+        'feat1': np.random.normal(0, 1, 500),
+        'feat2': np.random.choice(['A', 'B', 'C'], 500),
     })
 
-    # Create current dataset with various kinds of drift
     df_cur = pd.DataFrame({
-        'feat1': np.random.normal(0.5, 1.5, 1000),  # Mean and variance shift
-        'feat2': np.random.normal(5, 2, 1000),      # No significant drift
-        'feat3': np.random.choice(['A', 'B', 'C'], 1000, p=[0.5, 0.3, 0.2]),  # Distribution shift
-        'feat4': np.random.choice(['X', 'Y', 'Z'], 1000)  # No significant drift
+        'feat1': np.random.normal(0.5, 1.5, 500),
+        'feat2': np.random.choice(['A', 'B', 'C'], 500, p=[0.5, 0.3, 0.2]),
     })
 
-    # Run drift detection (tab-right automatically selects appropriate metrics)
-    result = univariate.detect_univariate_drift_df(df_ref, df_cur)
+    # Using DriftCalculator with specific metrics
+    calc = DriftCalculator(df_ref, df_cur, numeric_metric='wasserstein', categorical_metric='cramer_v')
+    results = calc()
+    print(results)
 
-    # You can also check individual features with specific metrics:
-    wasserstein_metric, wasserstein_value = univariate.detect_univariate_drift(
+    # Or using direct functions with specific metrics
+    ks_metric, ks_value = univariate.detect_univariate_drift(
         df_ref['feat1'], df_cur['feat1'],
         kind='continuous',
-        metric='wasserstein'  # Explicitly request Wasserstein distance
+        metric='ks'  # Use Kolmogorov-Smirnov test
     )
 
-    print(f"Wasserstein distance for feat1: {wasserstein_value:.4f}")
+    print(f"KS test statistic for feat1: {ks_value:.4f}")
 
-Key Drift Detection Features in tab-right
------------------------------------------
+Key Features of tab-right's Drift Detection
+-------------------------------------------
 
 Tab-right offers comprehensive drift detection capabilities:
 
-- **Automatic feature type detection**: tab-right selects appropriate metrics based on feature type
-- **Multiple drift metrics**: Wasserstein distance, KS test, PSI, Cramer's V
-- **Visualization tools**: Compare distributions visually with histogram overlays and statistical metrics
-- **Seamless integration**: Works with pandas DataFrames and Series for easy integration with data workflows
-- **Multi-feature analysis**: Analyze drift across all features in a dataset at once
-- **Interactive and static plots**: Choose between Plotly (interactive) or Matplotlib (static) visualizations
+- **Flexible API**: Choose between object-oriented (DriftCalculator/DriftPlotter) or functional approaches
+- **Automatic feature type detection**: Appropriate metrics are selected based on the data type
+- **Multiple drift metrics**: Including Wasserstein distance, KS test, PSI, and Cramer's V
+- **Matplotlib integration**: Create publication-ready plots with built-in matplotlib figures
+- **Multi-feature analysis**: Analyze drift across all features at once
+- **Probability density comparison**: Examine detailed distribution changes
 
 These tools make it easy to track and analyze distribution shifts in your data, helping you maintain model performance over time.
