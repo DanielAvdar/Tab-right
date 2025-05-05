@@ -43,15 +43,27 @@ Welcome
 Tab-right
 =========
 
+Tab-right is a Python package for easy analysis of tabular data for inference models (ML and non-ML), focusing on model-agnostic diagnostics using predictions.
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Getting Started
 
    introduction
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Guides & Examples
+
    drift_example
    code_validation_example
    seg_calc_example
    seg_double_example
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
+
    api
 
 Quickstart
