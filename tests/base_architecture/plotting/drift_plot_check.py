@@ -1,7 +1,11 @@
+import matplotlib
+
+matplotlib.use("Agg")  # Use non-interactive backend for tests
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 from tab_right.base_architecture.drift_plot_protocols import DriftPlotP
+from tab_right.base_architecture.drift_protocols import DriftCalcP
 
 from ..base_protocols_check import CheckProtocols
 
@@ -15,7 +19,8 @@ class CheckDriftPlot(CheckProtocols):
     def test_attributes(self, instance_to_check: DriftPlotP) -> None:
         """Test attributes of the instance to ensure compliance."""
         assert hasattr(instance_to_check, "drift_calc")
-        assert isinstance(instance_to_check.drift_calc, self.class_to_check)
+        # Check if the drift_calc attribute implements the DriftCalcP protocol
+        assert isinstance(instance_to_check.drift_calc, DriftCalcP)
 
     def test_plot_multiple(self, instance_to_check: DriftPlotP) -> None:
         """Test the plot_multiple method of the instance."""
