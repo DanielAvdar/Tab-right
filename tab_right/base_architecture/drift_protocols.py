@@ -6,7 +6,7 @@ establish a consistent interface for all drift detection implementations.
 """
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, Optional, Protocol, Union, runtime_checkable
+from typing import Dict, Iterable, Mapping, Optional, Protocol, Union, runtime_checkable
 
 import pandas as pd
 
@@ -46,7 +46,7 @@ class DriftCalcP(Protocol):
     df2: pd.DataFrame
     kind: Union[str, Iterable[bool], Dict[str, str]] = "auto"
 
-    def __call__(self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs) -> pd.DataFrame:
+    def __call__(self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs: Mapping) -> pd.DataFrame:
         """Calculate drift between two DataFrames.
 
         Parameters
@@ -55,7 +55,7 @@ class DriftCalcP(Protocol):
             Specific columns to analyze. If None, analyzes all common columns.
         bins : int, default 10
             Number of bins for histograms when analyzing continuous features.
-        **kwargs : dict
+        **kwargs : Mapping
             Additional parameters specific to the drift calculation implementation.
 
         Returns

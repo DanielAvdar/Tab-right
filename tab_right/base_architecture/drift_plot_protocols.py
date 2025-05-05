@@ -5,7 +5,7 @@ interfaces for creating both single-feature and multi-feature drift visualizatio
 """
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, Optional, Protocol, Tuple, Union, runtime_checkable
+from typing import Any, Dict, Iterable, Optional, Protocol, Tuple, Union, runtime_checkable
 
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
@@ -39,7 +39,7 @@ class DriftPlotP(Protocol):
         ascending: bool = False,
         top_n: Optional[int] = None,
         threshold: Optional[float] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[go.Figure, plt.Figure]:
         """Create a visualization of drift across multiple features.
 
@@ -59,7 +59,7 @@ class DriftPlotP(Protocol):
             If provided, only shows the top N features with highest drift.
         threshold : Optional[float], default None
             If provided, highlights features with drift above this threshold.
-        **kwargs : dict
+        **kwargs : Any
             Additional parameters for the plotting implementation.
 
         Returns
@@ -71,7 +71,7 @@ class DriftPlotP(Protocol):
         ...
 
     def plot_single(
-        self, column: str, bins: int = 10, figsize: Tuple[int, int] = (10, 6), show_metrics: bool = True, **kwargs
+        self, column: str, bins: int = 10, figsize: Tuple[int, int] = (10, 6), show_metrics: bool = True, **kwargs: Any
     ) -> Union[go.Figure, plt.Figure]:
         """Create a detailed visualization of drift for a single feature.
 
@@ -85,7 +85,7 @@ class DriftPlotP(Protocol):
             Figure size as (width, height) in inches.
         show_metrics : bool, default True
             Whether to display drift metrics on the plot.
-        **kwargs : dict
+        **kwargs : Any
             Additional parameters for the plotting implementation.
 
         Returns
@@ -97,7 +97,7 @@ class DriftPlotP(Protocol):
         ...
 
     def get_distribution_plots(
-        self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs
+        self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs: Any
     ) -> Dict[str, Union[go.Figure, plt.Figure]]:
         """Generate individual distribution comparison plots for multiple features.
 
@@ -107,7 +107,7 @@ class DriftPlotP(Protocol):
             Specific columns to visualize. If None, visualizes all common columns.
         bins : int, default 10
             Number of bins for histograms when visualizing continuous features.
-        **kwargs : dict
+        **kwargs : Any
             Additional parameters for the plotting implementation.
 
         Returns
