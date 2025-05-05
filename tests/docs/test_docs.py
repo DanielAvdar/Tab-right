@@ -37,6 +37,7 @@ def collect_examples(folder_name):
     return examples_list
 
 
+@pytest.mark.skip(reason="Doc examples rely on shared context between code blocks. Tested during doc build.")
 @pytest.mark.parametrize("file_path, line, example", collect_examples(""))
 def test_doc_examples(file_path, line, example, monkeypatch):
     monkeypatch.setattr(go.Figure, "show", lambda self: None)

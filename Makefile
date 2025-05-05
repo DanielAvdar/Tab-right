@@ -1,5 +1,6 @@
 .PHONY: help
 .PHONY: default
+.PHONY: check-all
 default: install
 
 
@@ -43,3 +44,10 @@ doc:
 # Optional target that builds docs but ignores warnings
 doc-ignore-warnings:
 	uv run sphinx-build -M html docs/source docs/build/
+
+# Run all checks in sequence: tests, code quality, type checking, and documentation
+check-all:
+	$(MAKE) test
+	$(MAKE) check
+	$(MAKE) mypy
+	$(MAKE) doc

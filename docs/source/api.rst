@@ -3,20 +3,17 @@
 API Reference
 =============
 
-.. autoclass:: tab_right.segmentations.base.SegmentationStats
+.. autoclass:: tab_right.segmentations.calc_seg.SegmentationCalc
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Plotting Functions
------------------
+------------------
 
 Segmentation Plotting
-~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: tab_right.plotting.plot_segmentations.plot_dt_segmentation
-
-.. autofunction:: tab_right.plotting.plot_segmentations.plot_dt_segmentation_with_stats
+~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: tab_right.plotting.plot_segmentations.plot_single_segmentation_impl
 
@@ -29,13 +26,13 @@ Segmentation Plotting
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: tab_right.plotting.plot_segmentations.DoubleSegmPlotting_mp
+.. autoclass:: tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp
    :members:
    :undoc-members:
    :show-inheritance:
 
 Drift Plotting
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 .. autofunction:: tab_right.plotting.plot_drift.plot_drift
 
@@ -45,9 +42,10 @@ Drift Plotting
 
 .. autofunction:: tab_right.plotting.plot_feature_drift.plot_feature_drift_mp
 
-Segmentation Plotting Protocols
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Protocols
+~~~~~~~~~
 
-.. autofunction:: tab_right.base_architecture.seg_plotting_protocols.plot_single_segmentation
-
-.. autofunction:: tab_right.base_architecture.seg_plotting_protocols.plot_double_segmentation
+.. automodule:: tab_right.base_architecture.seg_plotting_protocols
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,4 +1,3 @@
-
 Welcome
 
 .. image:: https://img.shields.io/pypi/v/tab-right.svg
@@ -49,14 +48,10 @@ Tab-right
    :caption: Contents:
 
    introduction
-   examples
    drift_example
-
-   Segmentation:
-      seg_calc_example
-      seg_find_example
-      seg_double_example
-
+   code_validation_example
+   seg_calc_example
+   seg_double_example
    api
 
 Quickstart
