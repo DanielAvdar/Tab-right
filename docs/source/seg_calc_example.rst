@@ -1,34 +1,34 @@
 Segmentation Calculation
-=======================
+========================
 
 .. _seg_calc_example:
 
-This page explains how to use the segmentation calculation features in tab-right, which
-provide tools for analyzing model performance across different data segments.
+This page demonstrates how to use tab-right's segmentation calculation features to analyze model performance across different data segments.
 
-Introduction to Segmentation Calculation
----------------------------------------
+What is Segmentation Analysis?
+------------------------------
 
-Segmentation calculation allows you to measure how your model performs in different
-segments of your data. This is useful for:
+Segmentation analysis is a powerful technique for understanding how your model performs across different subsets of your data. Tab-right provides comprehensive tools to:
 
-- Identifying underperforming segments where your model needs improvement
-- Understanding how different segments contribute to overall model error
-- Validating the model's performance across various data distributions
+1. Calculate metrics for each segment of your data
+2. Visualize segment performance with built-in plotting functions
+3. Compare multiple segments to identify potential model weaknesses
 
-Visualization Options
---------------------
+Using tab-right for Segmentation Analysis
+-----------------------------------------
 
-Tab-right provides two plotting backends for segmentation visualizations:
+Tab-right provides the following key components for segmentation analysis:
 
-1. **Matplotlib**: Static plots using the ``_mp`` suffix functions (e.g., ``plot_single_segmentation_mp``)
-2. **Plotly**: Interactive plots using the standard function names (e.g., ``plot_single_segmentation``)
+1. ``SegmentationCalc`` - Core class for calculating metrics across segments
+2. ``plot_single_segmentation`` / ``plot_single_segmentation_mp`` - Visualize segment metrics
+3. ``DoubleSegmPlotting`` / ``DoubleSegmPlottingMp`` - Visualize interactions between two segment features
 
-Basic Usage with Matplotlib
---------------------------
+Basic Segmentation with tab-right
+---------------------------------
 
-.. plot::
-    :context: close-figs
+Here's a complete example of how to use tab-right's segmentation analysis tools:
+
+.. code-block:: python
 
     import pandas as pd
     import numpy as np
@@ -37,7 +37,7 @@ Basic Usage with Matplotlib
     from tab_right.segmentations.calc_seg import SegmentationCalc
     from tab_right.plotting import plot_single_segmentation_mp
 
-    # Create a sample DataFrame for demonstration
+    # Create a sample DataFrame with segments
     data = {
         'segment': ['A', 'A', 'B', 'B', 'C', 'C'],
         'target': [10, 12, 20, 22, 30, 32],
@@ -55,7 +55,7 @@ Basic Usage with Matplotlib
     # Create a reverse mapping for segment names (from ID to original name)
     segment_names = {i: segment for segment, i in segment_mapping.items()}
 
-    # Create a SegmentationCalc instance
+    # Create a SegmentationCalc instance - tab-right's core segmentation class
     seg_calc = SegmentationCalc(
         gdf=grouped_df,
         label_col='target',
@@ -63,123 +63,152 @@ Basic Usage with Matplotlib
         segment_names=segment_names
     )
 
-    # Calculate metrics for each segment
+    # Calculate metrics for each segment using tab-right
     results = seg_calc(mean_absolute_error)
 
-    # Convert results to DataFrame for plotting
+    # Convert to dataframe for plotting with tab-right
     results_df = pd.DataFrame({
-        'segment_id': range(len(segment_names)),
+        'segment_id': list(range(len(segment_names))),
         'segment_name': [segment_names[i] for i in range(len(segment_names))],
         'score': [results[i] for i in range(len(segment_names))]
     })
 
-    # Plot the results using tab_right's built-in function
+    # Use tab-right's built-in visualization function
     fig = plot_single_segmentation_mp(results_df)
+    plt.title("Segment Analysis with tab-right")
     plt.show()
 
-Basic Usage with Plotly (Interactive)
------------------------------------
+Working with Multiple Metrics
+-----------------------------
 
-You can also create interactive visualizations using Plotly:
+Tab-right makes it easy to apply different metrics to your segmented data:
+
+.. code-block:: python
+
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+    from tab_right.segmentations.calc_seg import SegmentationCalc
+    from tab_right.plotting import plot_single_segmentation_mp
+
+    # Using the same setup from the previous example
+    # We can apply multiple metrics using tab-right's SegmentationCalc
+
+    # Create a simple function to calculate and plot a metric using tab-right
+    def analyze_with_tab_right(seg_calc, metric_func, title):
+        # Calculate metrics for each segment using tab-right
+        results = seg_calc(metric_func)
+
+        # Convert to the format needed for tab-right's plotting
+        results_df = pd.DataFrame({
+            'segment_id': list(range(len(segment_names))),
+            'segment_name': [segment_names[i] for i in range(len(segment_names))],
+            'score': [results[i] for i in range(len(segment_names))]
+        })
+
+        # Create a figure
+        plt.figure(figsize=(8, 5))
+
+        # Use tab-right's visualization function
+        fig = plot_single_segmentation_mp(results_df)
+        plt.title(title)
+        plt.show()
+
+    # Apply different metrics with tab-right
+    analyze_with_tab_right(seg_calc, mean_absolute_error, "MAE by Segment (tab-right)")
+    analyze_with_tab_right(seg_calc, mean_squared_error, "MSE by Segment (tab-right)")
+    analyze_with_tab_right(seg_calc, r2_score, "R² by Segment (tab-right)")
+
+Segmentation with Numerical Features
+-------------------------------------
+
+Tab-right also works with numerical features by automatically binning them:
+
+.. code-block:: python
+
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from sklearn.metrics import mean_absolute_error
+    from tab_right.segmentations.calc_seg import SegmentationCalc
+    from tab_right.plotting import plot_single_segmentation_mp
+
+    # Create sample data with a numerical feature
+    np.random.seed(42)
+    n = 100
+    numerical_data = {
+        'age': np.random.randint(20, 80, n),
+        'target': np.random.normal(50, 10, n)
+    }
+    df_num = pd.DataFrame(numerical_data)
+
+    # Add predictions with some error that varies by age group
+    df_num['prediction'] = df_num['target'] + np.random.normal(0, 5 + 0.1 * (df_num['age'] - 20), n)
+
+    # Create age groups using pandas cut
+    bins = [20, 35, 50, 65, 80]
+    df_num['age_group'] = pd.cut(df_num['age'], bins)
+
+    # Convert to numerical IDs for tab-right
+    age_groups = df_num['age_group'].unique()
+    age_mapping = {group: i for i, group in enumerate(age_groups)}
+    df_num['age_group_id'] = df_num['age_group'].map(age_mapping)
+
+    # Group by age group ID
+    age_grouped = df_num.groupby('age_group_id')
+
+    # Create mapping from ID to interval name
+    age_names = {i: str(group) for i, group in enumerate(age_groups)}
+
+    # Use tab-right's SegmentationCalc
+    age_seg_calc = SegmentationCalc(
+        gdf=age_grouped,
+        label_col='target',
+        prediction_col='prediction',
+        segment_names=age_names
+    )
+
+    # Calculate metrics with tab-right
+    age_results = age_seg_calc(mean_absolute_error)
+
+    # Prepare data for tab-right's visualization
+    age_plot_df = pd.DataFrame({
+        'segment_id': list(range(len(age_names))),
+        'segment_name': [age_names[i] for i in range(len(age_names))],
+        'score': [age_results[i] for i in range(len(age_names))]
+    })
+
+    # Use tab-right's built-in visualization
+    plt.figure(figsize=(8, 5))
+    age_fig = plot_single_segmentation_mp(age_plot_df)
+    plt.title('Mean Absolute Error by Age Group')
+    plt.show()
+
+Interactive Visualization with Plotly
+--------------------------------------
+
+Tab-right also provides Plotly-based interactive visualizations:
 
 .. code-block:: python
 
     from tab_right.plotting import plot_single_segmentation
 
-    # Using the same results_df from above
-    fig = plot_single_segmentation(results_df)
-    fig.show()
+    # Using the data prepared in the previous examples
+    interactive_fig = plot_single_segmentation(age_plot_df)
+    interactive_fig.show()
 
-Working with Custom Metrics
---------------------------
+    # For the original segmentation example
+    interactive_seg_fig = plot_single_segmentation(results_df)
+    interactive_seg_fig.show()
 
-You can use any compatible metric function with SegmentationCalc:
+Key Benefits of Using tab-right for Segmentation
+------------------------------------------------
 
-.. plot::
-    :context: close-figs
+- **Standardized API**: Consistent interface for all segmentation analyses
+- **Automatic handling of missing values**: Robust processing of incomplete data
+- **Support for multiple metrics**: Easy comparison across various evaluation metrics
+- **Flexible visualization options**: Both static and interactive plotting
+- **Compatible with scikit-learn**: Works with any scikit-learn compatible metric function
 
-    from sklearn.metrics import mean_squared_error, r2_score
-
-    # Using the seg_calc instance created earlier
-    metrics_funcs = [mean_absolute_error, mean_squared_error, r2_score]
-    metric_names = ['MAE', 'MSE', 'R²']
-
-    results_dict = {}
-    for metric_func in metrics_funcs:
-        results_dict[metric_func.__name__] = seg_calc(metric_func)
-
-    # Create a plot comparing metrics across segments
-    fig, axs = plt.subplots(1, 3, figsize=(15, 5))
-
-    for i, (metric_name, func_name) in enumerate(zip(metric_names, [func.__name__ for func in metrics_funcs])):
-        metric_values = [results_dict[func_name][j] for j in range(len(segments))]
-        axs[i].bar(segments, metric_values, color='lightgreen')
-        axs[i].set_title(f'{metric_name} by Segment')
-        axs[i].set_xlabel('Segment')
-        axs[i].set_ylabel(metric_name)
-        axs[i].grid(axis='y', linestyle='--', alpha=0.7)
-
-    plt.tight_layout()
-    plt.show()
-
-Understanding segment_names
---------------------------
-
-The `segment_names` parameter is a dictionary that maps segment IDs (integers) to their original names:
-
-.. plot::
-    :context: close-figs
-
-    # For categorical segments
-    df['category'] = ['X', 'X', 'Y', 'Y', 'Z', 'Z']
-
-    # Create a numerical encoding
-    cat_mapping = {cat: i for i, cat in enumerate(df['category'].unique())}
-    df['category_id'] = df['category'].map(cat_mapping)
-
-    # Group by the numerical ID column
-    cat_segments = df.groupby('category_id')
-
-    # Create the segment_names mapping (ID -> original name)
-    cat_names = {i: name for name, i in cat_mapping.items()}
-
-    # Visualize the mapping
-    plt.figure(figsize=(8, 5))
-    categories = list(cat_names.values())
-    cat_ids = list(cat_names.keys())
-
-    plt.scatter(cat_ids, [1]*len(cat_ids), s=100, c=cat_ids, cmap='viridis')
-    for i, cat in enumerate(categories):
-        plt.annotate(cat, (cat_ids[i], 1), ha='center', va='bottom', fontsize=12)
-
-    plt.yticks([])
-    plt.xlabel('Category ID')
-    plt.title('Mapping of Category IDs to Original Names')
-    plt.tight_layout()
-    plt.show()
-
-    # For numerical segments (using pd.cut)
-    df['age'] = [25, 35, 45, 55, 65, 75]
-    bins = [0, 30, 60, 90]
-    df['age_group'] = pd.cut(df['age'], bins)
-
-    # Visualize the binning
-    plt.figure(figsize=(10, 6))
-    plt.scatter(df['age'], [1]*len(df['age']), s=100, c='blue', label='Age values')
-
-    for b in bins:
-        plt.axvline(x=b, color='red', linestyle='--')
-
-    plt.yticks([])
-    plt.xlabel('Age')
-    plt.title('Age Binning with pd.cut')
-    plt.grid(axis='x', linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.show()
-
-Key Applications
---------------
-
-- **Model Debugging**: Identify segments where your model underperforms
-- **Fairness Assessment**: Evaluate model performance across different demographic groups
-- **Data Quality Analysis**: Discover data issues in specific segments
+Tab-right's segmentation functionality helps you understand where your model performs well and where it needs improvement, enabling targeted model enhancements and better decision-making.
