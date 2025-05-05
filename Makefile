@@ -31,5 +31,15 @@ cov:
 mypy:
 	uv run mypy tab_right tests/base_architecture --config-file pyproject.toml
 
+# Add doctests target to specifically run doctest validation
+doctest:
+	uv run sphinx-build -M doctest docs/source docs/build/ -W --keep-going
+
+# Update doc target to run doctests as part of documentation build
 doc:
+	uv run sphinx-build -M doctest docs/source docs/build/ -W --keep-going
+	uv run sphinx-build -M html docs/source docs/build/ -W --keep-going
+
+# Optional target that builds docs but ignores warnings
+doc-ignore-warnings:
 	uv run sphinx-build -M html docs/source docs/build/
