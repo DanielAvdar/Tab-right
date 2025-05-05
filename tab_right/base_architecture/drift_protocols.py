@@ -6,11 +6,12 @@ establish a consistent interface for all drift detection implementations.
 """
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, Optional, Protocol, Union
+from typing import Dict, Iterable, Optional, Protocol, Union, runtime_checkable
 
 import pandas as pd
 
 
+@runtime_checkable
 @dataclass
 class DriftCalcP(Protocol):
     """Protocol for drift calculation implementations.

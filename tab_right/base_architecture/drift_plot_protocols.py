@@ -5,7 +5,7 @@ interfaces for creating both single-feature and multi-feature drift visualizatio
 """
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, Optional, Protocol, Tuple, Union
+from typing import Dict, Iterable, Optional, Protocol, Tuple, Union, runtime_checkable
 
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
@@ -13,6 +13,7 @@ import plotly.graph_objects as go
 from .drift_protocols import DriftCalcP
 
 
+@runtime_checkable
 @dataclass
 class DriftPlotP(Protocol):
     """Protocol for drift visualization implementations.
