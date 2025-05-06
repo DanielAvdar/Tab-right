@@ -13,13 +13,35 @@ class DriftCalculator(DriftCalcP):
     """Implementation of DriftCalcP using Cramér's V and Wasserstein distance."""
 
     def __init__(self, df1: pd.DataFrame, df2: pd.DataFrame, kind: Union[str, Iterable[bool], Dict[str, str]] = "auto"):
+        """Initialize the DriftCalculator with reference and current datasets.
+
+        Args:
+            df1: Reference DataFrame.
+            df2: Current DataFrame for comparison.
+            kind: Specification of feature types. Can be:
+                - "auto": Automatically determine types
+                - "categorical" or "continuous": Use this type for all features
+                - Dict mapping column names to types
+                - Iterable of booleans indicating if each column is continuous
+
+        """
         self.df1 = df1
         self.df2 = df2
         self.kind = kind
         self._feature_types = self._determine_feature_types()
 
     def _determine_feature_types(self) -> Dict[str, str]:
-        """Determine if features are categorical or continuous based on `kind`."""
+        """Determine if features are categorical or continuous based on `kind`.
+
+        Returns:
+            Dictionary mapping column names to their types ("categorical" or "continuous").
+
+        Raises:
+            ValueError: If an invalid string value is provided for `kind` or if the
+                length of the iterable doesn't match the number of columns.
+            TypeError: If `kind` is not a string, dict, or iterable.
+
+        """
         common_cols = list(set(self.df1.columns) & set(self.df2.columns))
         feature_types = {}
 
@@ -57,6 +79,24 @@ class DriftCalculator(DriftCalcP):
         return feature_types
 
     def __call__(self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs: Any) -> pd.DataFrame:
+        """Calculate drift metrics between the reference and current datasets.
+
+        Args:
+            columns: Specific columns to calculate drift for. If None, all common columns are used.
+            bins: Number of bins to use for continuous features.
+            **kwargs: Additional arguments passed to specific drift calculation methods.
+
+        Returns:
+            DataFrame with drift metrics for each feature, containing:
+                - feature: Name of the feature
+                - type: Type of metric used (cramer_v, wasserstein, or N/A)
+                - score: Normalized drift score (for Wasserstein, this is the raw score)
+                - raw_score: Unnormalized drift metric value
+
+        Raises:
+            ValueError: If an unknown column type is encountered.
+
+        """
         if columns is None:
             columns = list(self._feature_types.keys())
         else:
@@ -99,6 +139,20 @@ class DriftCalculator(DriftCalcP):
         columns: Optional[Iterable[str]] = None,
         bins: int = 10,
     ) -> pd.DataFrame:
+        """Get probability densities for reference and current datasets for comparison.
+
+        Args:
+            columns: Specific columns to get densities for. If None, all common columns are used.
+            bins: Number of bins to use for continuous features.
+
+        Returns:
+            DataFrame with density information for each feature and bin, containing:
+                - feature: Name of the feature
+                - bin: Bin label (category name or numerical range)
+                - ref_density: Density in the reference dataset
+                - cur_density: Density in the current dataset
+
+        """
         if columns is None:
             columns = list(self._feature_types.keys())
         else:
@@ -145,7 +199,16 @@ class DriftCalculator(DriftCalcP):
 
     @classmethod
     def _categorical_drift_calc(cls, s1: pd.Series, s2: pd.Series) -> float:
-        """Calculate Cramér's V statistic."""
+        """Calculate Cramér's V statistic.
+
+        Args:
+            s1: Reference series.
+            s2: Current series.
+
+        Returns:
+            Cramér's V statistic as a float between 0 (no association) and 1 (perfect association).
+
+        """
         s1_counts = s1.value_counts()
         s2_counts = s2.value_counts()
         all_categories = s1_counts.index.union(s2_counts.index)
@@ -204,7 +267,18 @@ class DriftCalculator(DriftCalcP):
 
     @classmethod
     def _continuous_drift_calc(cls, s1: pd.Series, s2: pd.Series, bins: int = 10) -> float:
-        """Calculate Wasserstein distance (Earth Mover's Distance)."""
+        """Calculate Wasserstein distance (Earth Mover's Distance).
+
+        Args:
+            s1: Reference series.
+            s2: Current series.
+            bins: Number of bins. Not directly used in this implementation but kept for
+                 protocol compliance.
+
+        Returns:
+            Wasserstein distance between the empirical distributions of s1 and s2.
+
+        """
         # Note: `wasserstein_distance` expects 1D arrays of values, not distributions.
         # It calculates the distance between the empirical distributions.
         # No binning is strictly required by the function itself, but the protocol mentions bins.

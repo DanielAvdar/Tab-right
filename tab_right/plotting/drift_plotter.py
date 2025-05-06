@@ -14,6 +14,16 @@ class DriftPlotter(DriftPlotP):
     """Implementation of DriftPlotP using Matplotlib."""
 
     def __init__(self, drift_calc: DriftCalcP):
+        """Initialize the DriftPlotter with a drift calculator.
+
+        Args:
+            drift_calc: An instance of DriftCalcP that will provide drift metrics and
+                probability densities for plotting.
+
+        Raises:
+            TypeError: If drift_calc is not an instance of DriftCalcP.
+
+        """
         if not isinstance(drift_calc, DriftCalcP):
             raise TypeError("drift_calc must be an instance of DriftCalcP")
         self.drift_calc = drift_calc
@@ -31,7 +41,22 @@ class DriftPlotter(DriftPlotP):
         threshold: Optional[float] = None,
         **kwargs: Any,
     ) -> plt.Figure:
-        """Create a bar chart visualization of drift across multiple features."""
+        """Create a bar chart visualization of drift across multiple features.
+
+        Args:
+            columns: Specific columns to plot drift for. If None, all available columns are used.
+            bins: Number of bins to use for continuous features.
+            figsize: Figure size as (width, height) in inches.
+            sort_by: Column to sort results by (usually "score").
+            ascending: Whether to sort in ascending order.
+            top_n: If specified, only show the top N features.
+            threshold: If specified, mark features above this threshold in a different color.
+            **kwargs: Additional arguments passed to the drift calculator.
+
+        Returns:
+            A matplotlib Figure object containing the generated plot.
+
+        """
         drift_results = self.drift_calc(columns=columns, bins=bins, **kwargs)
 
         if drift_results.empty:
@@ -70,7 +95,22 @@ class DriftPlotter(DriftPlotP):
     def plot_single(
         self, column: str, bins: int = 10, figsize: Tuple[int, int] = (10, 6), show_metrics: bool = True, **kwargs: Any
     ) -> plt.Figure:
-        """Create a detailed visualization of drift for a single feature."""
+        """Create a detailed visualization of drift for a single feature.
+
+        Args:
+            column: The column/feature to visualize.
+            bins: Number of bins to use for continuous features.
+            figsize: Figure size as (width, height) in inches.
+            show_metrics: Whether to show drift metrics in the plot.
+            **kwargs: Additional arguments passed to the drift calculator.
+
+        Returns:
+            A matplotlib Figure object containing the generated plot.
+
+        Raises:
+            ValueError: If the column is not found or its type is not determined.
+
+        """
         if column not in self._feature_types:
             raise ValueError(f"Column '{column}' not found or type not determined.")
 
@@ -113,7 +153,7 @@ class DriftPlotter(DriftPlotP):
                 cur_values = cast(np.ndarray, cur_density).tolist()
                 ax.bar(centers, ref_values, width=widths, label="Reference", alpha=0.7, align="center")
                 ax.bar(centers, cur_values, width=widths, label="Current", alpha=0.7, align="center")
-            except:
+            except Exception:  # Catch specific exceptions when possible
                 # Fallback if bin parsing fails (e.g., unexpected format)
                 x = np.arange(len(bins_or_cats))
                 # Cast numpy arrays to avoid type issues with plot function
@@ -148,7 +188,17 @@ class DriftPlotter(DriftPlotP):
     def get_distribution_plots(
         self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs: Any
     ) -> Dict[str, plt.Figure]:
-        """Generate individual distribution comparison plots for multiple features."""
+        """Generate individual distribution comparison plots for multiple features.
+
+        Args:
+            columns: Specific columns to generate plots for. If None, all available columns are used.
+            bins: Number of bins to use for continuous features.
+            **kwargs: Additional arguments passed to plot_single.
+
+        Returns:
+            A dictionary mapping column names to their respective matplotlib Figure objects.
+
+        """
         if columns is None:
             columns = list(self._feature_types.keys())
         else:
