@@ -1,4 +1,4 @@
-Welcome
+Welcome to Tab-right Documentation
 
 .. image:: https://img.shields.io/pypi/v/tab-right.svg
    :target: https://pypi.org/project/tab-right/
@@ -15,10 +15,10 @@ Welcome
 .. image:: https://img.shields.io/badge/ubuntu-blue?logo=ubuntu
    :alt: Ubuntu
 
-.. image:: https://img.shields.io/badge/ubuntu-blue?logo=windows
+.. image:: https://img.shields.io/badge/win-blue?logo=windows
    :alt: Windows
 
-.. image:: https://img.shields.io/badge/ubuntu-blue?logo=apple
+.. image:: https://img.shields.io/badge/mac-blue?logo=apple
    :alt: MacOS
 
 .. image:: https://codecov.io/gh/DanielAvdar/tab-right/branch/main/graph/badge.svg
@@ -40,21 +40,40 @@ Welcome
    :alt: Ruff
 
 
-Tab-right
-=========
+Tab-right: Model-Agnostic Analysis for Tabular Data
+===================================================
 
 Tab-right is a Python package for easy analysis of tabular data for inference models (ML and non-ML), focusing on model-agnostic diagnostics using predictions.
 
+**Key Features:**
+
+* **Segmentation Analysis**: Analyze prediction strength across different data segments
+* **Feature Analysis**: Assess feature predictive power and value to inference
+* **Drift Detection**: Perform drift analysis and monitor changes in data distributions
+* **Rich Visualizations**: Generate comprehensive visualization reports
+* **Model-Agnostic**: Works with any model that can output predictions
+
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Getting Started
 
    introduction
+   installation
+   quickstart
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Guides & Examples
+   :maxdepth: 2
+   :caption: User Guides
 
+   concepts/index
+   tutorials/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Examples
+
+   examples/drift_analysis
+   examples/segmentation
    drift_example
    seg_calc_example
    seg_double_example
@@ -63,7 +82,16 @@ Tab-right is a Python package for easy analysis of tabular data for inference mo
    :maxdepth: 2
    :caption: API Reference
 
+   api/index
    api
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Development
+
+   contributing
+   changelog
+   roadmap
 
 Quickstart
 ----------
@@ -71,6 +99,31 @@ Quickstart
 .. code-block:: bash
 
    pip install tab-right
+
+Basic example:
+
+.. code-block:: python
+
+   import pandas as pd
+   import numpy as np
+   from tab_right.segmentations import calc_seg
+
+   # Load your data
+   data = pd.DataFrame({
+       'feature_1': np.random.normal(0, 1, 1000),
+       'feature_2': np.random.normal(0, 1, 1000),
+       'predictions': np.random.uniform(0, 1, 1000)
+   })
+
+   # Perform segmentation analysis
+   segments = calc_seg(
+       df=data,
+       target_col='predictions',
+       max_depth=3
+   )
+
+   # Print segmentation results
+   print(segments)
 
 Advanced Usage
 --------------
@@ -81,7 +134,7 @@ Advanced Usage
 
 Contributing
 ------------
-See the CONTRIBUTING.md file for guidelines.
+See the :doc:`contributing` page for guidelines.
 
 License
 -------
