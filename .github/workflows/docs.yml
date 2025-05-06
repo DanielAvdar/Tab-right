@@ -1,6 +1,6 @@
 name: Publish docs GH Pages
 on:
-  pull_request: # todo: remove this after testing
+  pull_request:
   release:
     types: [ published ]
   workflow_dispatch:
@@ -22,9 +22,9 @@ jobs:
           enable-cache: true
       - run: uv python install 3.11
       - run: make doctest
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/build
-          keep_files: true
+#      - name: Deploy
+#        uses: peaceiris/actions-gh-pages@v4
+#        with:
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          publish_dir: ./docs/build
+#          keep_files: true
