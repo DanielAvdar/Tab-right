@@ -3,30 +3,30 @@
 Double Segmentation
 ===================
 
-This example demonstrates how to use tab-right's double segmentation functionality to analyze model performance across combinations of two features in tabular data.
+This page demonstrates how to use tab-right's double segmentation functionality to analyze model performance across combinations of two features.
 
 What is Double Segmentation?
 ----------------------------
 
-Double segmentation is a powerful tab-right feature that allows you to analyze how your model performs across different combinations of two features. This is especially useful for:
+Double segmentation allows you to analyze how your model performs across different combinations of two features. This is useful for:
 
-- Identifying feature interactions that affect model performance
-- Finding specific combinations of feature values where your model underperforms
-- Understanding complex patterns in your data that single-feature analysis might miss
+- Identifying feature interactions affecting model performance
+- Finding specific feature value combinations where your model underperforms
+- Understanding complex patterns single-feature analysis might miss
 
 Tab-right's Double Segmentation Tools
 -------------------------------------
 
-Tab-right provides comprehensive tools for double segmentation analysis:
+Tab-right provides these tools for double segmentation analysis:
 
-1. ``DoubleSegmentationImp`` - Main implementation class for performing double segmentation
-2. ``DoubleSegmPlotting`` - Interactive Plotly-based visualization of double segmentation results
-3. ``DoubleSegmPlottingMp`` - Matplotlib-based visualization of double segmentation results
+1. ``DoubleSegmentationImp`` - Main class for performing double segmentation
+2. ``DoubleSegmPlotting`` - Interactive Plotly-based visualization
+3. ``DoubleSegmPlottingMp`` - Matplotlib-based visualization
 
-Basic Usage with tab-right
---------------------------
+Basic Usage
+-----------
 
-Here's a complete example showing how to use tab-right's double segmentation capabilities:
+Here's a simple example of double segmentation with tab-right:
 
 .. plot::
     :include-source:
@@ -35,22 +35,22 @@ Here's a complete example showing how to use tab-right's double segmentation cap
     import pandas as pd
     import matplotlib.pyplot as plt
     from sklearn.metrics import mean_squared_error
-    from tab_right.segmentations.double_seg import DoubleSegmentationImp
-    from tab_right.plotting.plot_segmentations import DoubleSegmPlottingMp
+    from tab_right.segmentations import DoubleSegmentationImp
+    from tab_right.plotting import DoubleSegmPlottingMp
 
     # Create sample data
     np.random.seed(42)
-    n_samples = 1000
+    n_samples = 200
 
-    # Generate features with correlations
+    # Generate features and target
     feature1 = np.random.normal(0, 1, n_samples)
-    feature2 = 0.5 * feature1 + 0.5 * np.random.normal(0, 1, n_samples)
+    feature2 = np.random.normal(0, 1, n_samples)
 
-    # Generate target with complex interaction
-    target = 2 + 3 * feature1 + 2 * feature2 + 4 * (feature1 * feature2) + np.random.normal(0, 1, n_samples)
+    # Target with interaction effect
+    target = 2 + feature1 + feature2 + 2 * (feature1 * feature2) + np.random.normal(0, 1, n_samples)
 
-    # Generate prediction (biased in some regions)
-    prediction = 2 + 3 * feature1 + 2 * feature2 + np.random.normal(0, 2, n_samples)
+    # Prediction missing the interaction term
+    prediction = 2 + feature1 + feature2 + np.random.normal(0, 1, n_samples)
 
     # Create DataFrame
     df = pd.DataFrame({
@@ -60,134 +60,15 @@ Here's a complete example showing how to use tab-right's double segmentation cap
         'prediction': prediction
     })
 
-    # Use tab-right's DoubleSegmentationImp to perform double segmentation
+    # Perform double segmentation
     double_seg = DoubleSegmentationImp(
         df=df,
         label_col='target',
         prediction_col='prediction'
     )
 
-    # Apply double segmentation using tab-right
+    # Apply segmentation with 3 bins for each feature
     result_df = double_seg(
-        feature1_col='feature1',
-        feature2_col='feature2',
-        score_metric=mean_squared_error,
-        bins_1=4,
-        bins_2=4
-    )
-
-    # Visualize results using tab-right's DoubleSegmPlottingMp class
-    double_plot = DoubleSegmPlottingMp(df=result_df)
-    fig = double_plot.plot_heatmap()
-    plt.title("Model MSE by Feature Segments (tab-right Double Segmentation)")
-
-Interactive Visualization with tab-right's Plotly Backend
----------------------------------------------------------
-
-Tab-right provides interactive visualizations using Plotly for better exploration of segment interactions:
-
-.. code-block:: python
-
-    from tab_right.plotting.plot_segmentations import DoubleSegmPlotting
-
-    # Using the result_df from the double segmentation
-    # Create an interactive visualization with tab-right's Plotly backend
-    interactive_plot = DoubleSegmPlotting(df=result_df)
-    fig = interactive_plot.plot_heatmap()
-    fig.update_layout(title="Interactive Double Segmentation Heatmap")
-    fig.show()
-
-Customizing Double Segmentation with tab-right
------------------------------------------------
-
-Tab-right offers flexibility in how you configure double segmentation:
-
-.. plot::
-    :include-source:
-
-    import numpy as np
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    from sklearn.metrics import mean_squared_error, mean_absolute_error
-    from tab_right.segmentations.double_seg import DoubleSegmentationImp
-    from tab_right.plotting.plot_segmentations import DoubleSegmPlottingMp
-
-    # Create sample data
-    np.random.seed(42)
-    n_samples = 1000
-
-    # Generate features with correlations
-    feature1 = np.random.normal(0, 1, n_samples)
-    feature2 = 0.5 * feature1 + 0.5 * np.random.normal(0, 1, n_samples)
-
-    # Generate target with complex interaction
-    target = 2 + 3 * feature1 + 2 * feature2 + 4 * (feature1 * feature2) + np.random.normal(0, 1, n_samples)
-
-    # Generate prediction (biased in some regions)
-    prediction = 2 + 3 * feature1 + 2 * feature2 + np.random.normal(0, 2, n_samples)
-
-    # Create DataFrame
-    df = pd.DataFrame({
-        'feature1': feature1,
-        'feature2': feature2,
-        'target': target,
-        'prediction': prediction
-    })
-
-    # Create a double segmentation instance with tab-right
-    custom_double_seg = DoubleSegmentationImp(
-        df=df,
-        label_col='target',
-        prediction_col='prediction'
-    )
-
-    # Apply custom double segmentation with different binning and metric
-    custom_result = custom_double_seg(
-        feature1_col='feature1',
-        feature2_col='feature2',
-        score_metric=mean_absolute_error,  # Using MAE instead of MSE
-        bins_1=5,  # More bins for feature1
-        bins_2=3   # Fewer bins for feature2
-    )
-
-    # Visualize with tab-right's built-in plotting class
-    # Note: The column name in the result dataframe is 'score' by default
-    custom_plot = DoubleSegmPlottingMp(
-        df=custom_result,
-        metric_name="score",  # Use the default column name
-        lower_is_better=True  # Indicate that lower values are better
-    )
-
-    # Generate the plot using tab-right's visualization
-    fig = custom_plot.plot_heatmap()
-    plt.title("Model MAE by Feature Segments (Custom Configuration)")
-
-Finding Performance Issues with Double Segmentation
----------------------------------------------------
-
-Tab-right's double segmentation is particularly useful for identifying problem areas in your model:
-
-.. code-block:: python
-
-    import numpy as np
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    from sklearn.metrics import mean_squared_error
-    from tab_right.segmentations.double_seg import DoubleSegmentationImp
-
-    # Using the original data
-    # Calculate overall model performance
-    overall_mse = mean_squared_error(df['target'], df['prediction'])
-
-    # Run double segmentation with tab-right
-    problem_double_seg = DoubleSegmentationImp(
-        df=df,
-        label_col='target',
-        prediction_col='prediction'
-    )
-
-    # Apply double segmentation
-    problem_result_df = problem_double_seg(
         feature1_col='feature1',
         feature2_col='feature2',
         score_metric=mean_squared_error,
@@ -195,24 +76,62 @@ Tab-right's double segmentation is particularly useful for identifying problem a
         bins_2=3
     )
 
-    # Find segments with MSE > 1.5x overall MSE (potential problem areas)
-    threshold = 1.5 * overall_mse
-    problem_segments = problem_result_df[problem_result_df['score'] > threshold]
+    # Visualize results with a heatmap
+    plotter = DoubleSegmPlottingMp(df=result_df)
+    fig = plotter.plot_heatmap()
+    plt.title("MSE by Feature1 and Feature2 Segments")
 
-    # Print information about problem segments
-    print(f"Overall MSE: {overall_mse:.4f}")
-    print(f"Found {len(problem_segments)} problematic segments out of {len(problem_result_df)}")
+Interactive Visualization with Plotly
+-------------------------------------
 
-    # Print details about problem segments
-    for _, row in problem_segments.iterrows():
-        print(f"Problem area: feature1={row['feature_1']}, feature2={row['feature_2']}, MSE={row['score']:.4f}")
+Tab-right also offers interactive Plotly visualization:
 
-    # You can then investigate these specific segments further or target them for model improvements
+.. code-block:: python
+
+    from tab_right.plotting import DoubleSegmPlotting
+
+    # Create interactive visualization from the results
+    interactive_plot = DoubleSegmPlotting(df=result_df)
+    fig = interactive_plot.plot_heatmap()
+    fig.update_layout(title="Interactive Double Segmentation Heatmap")
+    fig.show()
+
+Using Different Metrics
+-----------------------
+
+You can use any metric compatible with scikit-learn:
+
+.. code-block:: python
+
+    from sklearn.metrics import mean_absolute_error, r2_score
+
+    # Using MAE instead of MSE
+    mae_results = double_seg(
+        feature1_col='feature1',
+        feature2_col='feature2',
+        score_metric=mean_absolute_error,
+        bins_1=3,
+        bins_2=3
+    )
+
+    # For metrics where higher is better (like R²)
+    r2_results = double_seg(
+        feature1_col='feature1',
+        feature2_col='feature2',
+        score_metric=r2_score,
+        bins_1=3,
+        bins_2=3
+    )
+
+    # Visualize with appropriate settings
+    r2_plotter = DoubleSegmPlottingMp(df=r2_results, lower_is_better=False)
+    r2_plotter.plot_heatmap()
+    plt.title("R² Score by Feature Segments")
 
 Working with Categorical Features
 ---------------------------------
 
-Tab-right's double segmentation also works with categorical features:
+Double segmentation works with categorical features without needing to specify bins:
 
 .. plot::
     :include-source:
@@ -221,89 +140,67 @@ Tab-right's double segmentation also works with categorical features:
     import pandas as pd
     import matplotlib.pyplot as plt
     from sklearn.metrics import accuracy_score
-    from tab_right.segmentations.double_seg import DoubleSegmentationImp
-    from tab_right.plotting.plot_segmentations import DoubleSegmPlottingMp
+    from tab_right.segmentations import DoubleSegmentationImp
+    from tab_right.plotting import DoubleSegmPlottingMp
 
-    # Create sample data with categorical features
+    # Create sample categorical data
     np.random.seed(42)
-    n = 1000
+    n = 300
 
-    # Create categorical features
-    education = np.random.choice(['High School', 'Bachelor', 'Master', 'PhD'], n)
-    industry = np.random.choice(['Tech', 'Healthcare', 'Finance', 'Retail'], n)
+    # Generate categorical features
+    category1 = np.random.choice(['A', 'B', 'C'], n)
+    category2 = np.random.choice(['X', 'Y', 'Z'], n)
 
-    # Create binary target with interaction effect
-    # People with higher education in Tech and Finance have higher success rates
-    base_prob = np.ones(n) * 0.5
+    # Generate target with different patterns for combinations
+    target = np.zeros(n, dtype=int)
 
-    # Education effect
-    edu_effect = np.zeros(n)
-    edu_effect[education == 'High School'] = -0.1
-    edu_effect[education == 'Bachelor'] = 0
-    edu_effect[education == 'Master'] = 0.1
-    edu_effect[education == 'PhD'] = 0.2
+    # Add different effects for different combinations
+    target[(category1 == 'A') & (category2 == 'X')] = 1
+    target[(category1 == 'B') & (category2 == 'Y')] = 1
+    target[(category1 == 'C') & (category2 == 'Z')] = 1
 
-    # Industry effect
-    ind_effect = np.zeros(n)
-    ind_effect[industry == 'Tech'] = 0.15
-    ind_effect[industry == 'Finance'] = 0.10
-    ind_effect[industry == 'Healthcare'] = 0.05
-    ind_effect[industry == 'Retail'] = -0.05
-
-    # Interaction effect (extra boost for PhD in Tech)
-    interaction = np.zeros(n)
-    interaction[(education == 'PhD') & (industry == 'Tech')] = 0.1
-
-    # Calculate probability and generate target
-    probability = base_prob + edu_effect + ind_effect + interaction
-    probability = np.clip(probability, 0.1, 0.9)  # Ensure probabilities are between 0.1 and 0.9
-    target = np.random.binomial(1, probability)
-
-    # Create simple prediction (without capturing the interaction effect)
-    simple_prob = base_prob + edu_effect + ind_effect
-    simple_prob = np.clip(simple_prob, 0.1, 0.9)
-    prediction = np.random.binomial(1, simple_prob)
+    # Simple prediction without capturing all patterns
+    prediction = np.zeros(n, dtype=int)
+    prediction[category1 == 'A'] = 1
+    prediction[category2 == 'Z'] = 1
 
     # Create DataFrame
     cat_df = pd.DataFrame({
-        'education': education,
-        'industry': industry,
+        'category1': category1,
+        'category2': category2,
         'target': target,
         'prediction': prediction
     })
 
-    # Use tab-right's DoubleSegmentationImp
-    cat_double_seg = DoubleSegmentationImp(
+    # Perform double segmentation
+    cat_seg = DoubleSegmentationImp(
         df=cat_df,
         label_col='target',
         prediction_col='prediction'
     )
 
-    # Apply double segmentation (no need to specify bins for categorical features)
-    cat_result_df = cat_double_seg(
-        feature1_col='education',
-        feature2_col='industry',
-        score_metric=accuracy_score,  # Use accuracy for binary classification
+    # Apply segmentation (no bins needed for categorical features)
+    cat_results = cat_seg(
+        feature1_col='category1',
+        feature2_col='category2',
+        score_metric=accuracy_score
     )
 
-    # Visualize with tab-right's plotting
+    # Plot with higher is better for accuracy
     cat_plot = DoubleSegmPlottingMp(
-        df=cat_result_df,
-        metric_name="score",
-        lower_is_better=False  # For accuracy, higher is better
+        df=cat_results,
+        lower_is_better=False
     )
-
-    # Create the visualization
     fig = cat_plot.plot_heatmap()
-    plt.title("Model Accuracy by Education and Industry Segments")
+    plt.title("Accuracy by Category Segments")
 
-Key Features of tab-right's Double Segmentation
-------------------------------------------------
+Key Features of Double Segmentation
+-----------------------------------
 
-- **Feature interaction analysis**: Discover how combinations of features affect model performance
-- **Automatic binning**: Handles both categorical and numerical features appropriately
-- **Flexible metric support**: Works with any scikit-learn compatible metric function
-- **Interactive visualizations**: Explore results with both Matplotlib and Plotly backends
-- **Comprehensive API**: Consistent interface with the rest of the tab-right toolkit
+- **Discover interactions**: Find how combinations of features affect performance
+- **Automatic handling**: Works with both numerical and categorical features
+- **Flexible metrics**: Compatible with any scikit-learn metric
+- **Visual insights**: Interactive and static visualization options
+- **Performance diagnosis**: Quickly identify problem areas in your model
 
-Double segmentation is one of tab-right's most powerful features for identifying specific areas where your model needs improvement.
+Double segmentation provides deeper insights than single-feature analysis, helping you better understand your model's behavior across different data segments.
