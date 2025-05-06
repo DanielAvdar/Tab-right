@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tab_right.drift.univariate &mdash; tab-right 0.0.0.post1.dev0+6d2449c documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=acd9db7e"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            tab-right
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides &amp; Examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../drift_example.html">Drift Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../seg_calc_example.html">Segmentation Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../seg_double_example.html">Double Segmentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">tab-right</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tab_right.drift.univariate</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tab_right.drift.univariate</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Univariate drift detection utilities for tab-right drift subpackage.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.stats</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.drift.cramer_v</span><span class="w"> </span><span class="kn">import</span> <span class="n">cramer_v</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_wasserstein</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">current</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">wasserstein_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;range&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize Wasserstein distance to make it more comparable across features with different scales.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reference : pd.Series</span>
+<span class="sd">        Reference distribution.</span>
+<span class="sd">    current : pd.Series</span>
+<span class="sd">        Current distribution.</span>
+<span class="sd">    wasserstein_value : float</span>
+<span class="sd">        Raw Wasserstein distance value to normalize.</span>
+<span class="sd">    method : str, default &quot;range&quot;</span>
+<span class="sd">        Normalization method:</span>
+<span class="sd">        - &quot;range&quot;: Divide by the combined range of both distributions</span>
+<span class="sd">        - &quot;std&quot;: Divide by the pooled standard deviation</span>
+<span class="sd">        - &quot;iqr&quot;: Divide by the pooled interquartile range</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Normalized drift score between 0 and 1 in most practical cases.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If an unknown normalization method is provided.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">wasserstein_value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">wasserstein_value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="c1"># Combine data for normalization calculations</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">reference</span><span class="p">,</span> <span class="n">current</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;range&quot;</span><span class="p">:</span>
+        <span class="c1"># Normalize by the combined range (max - min)</span>
+        <span class="n">normalization_factor</span> <span class="o">=</span> <span class="n">combined</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">combined</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">normalization_factor</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># All values are the same</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span>
+        <span class="c1"># Normalize by the pooled standard deviation</span>
+        <span class="n">normalization_factor</span> <span class="o">=</span> <span class="n">combined</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">normalization_factor</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">normalization_factor</span><span class="p">):</span>  <span class="c1"># No variance or insufficient data</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;iqr&quot;</span><span class="p">:</span>
+        <span class="c1"># Normalize by the interquartile range</span>
+        <span class="n">q75</span><span class="p">,</span> <span class="n">q25</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="p">[</span><span class="mi">75</span><span class="p">,</span> <span class="mi">25</span><span class="p">])</span>
+        <span class="n">normalization_factor</span> <span class="o">=</span> <span class="n">q75</span> <span class="o">-</span> <span class="n">q25</span>
+        <span class="k">if</span> <span class="n">normalization_factor</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">normalization_factor</span><span class="p">):</span>  <span class="c1"># No variance or insufficient data</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown normalization method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wasserstein_value</span> <span class="o">/</span> <span class="n">normalization_factor</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UnivariateDriftCalculator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate univariate drift between two DataFrames.</span>
+
+<span class="sd">    This class implements the DriftCalc protocol and provides methods for</span>
+<span class="sd">    detecting drift between two DataFrames using column-by-column analysis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df1 : pd.DataFrame</span>
+<span class="sd">        The reference DataFrame</span>
+<span class="sd">    df2 : pd.DataFrame</span>
+<span class="sd">        The current DataFrame to compare against the reference</span>
+<span class="sd">    kind : Union[str, Iterable[bool]], default &quot;auto&quot;</span>
+<span class="sd">        How to treat columns:</span>
+<span class="sd">        - &quot;auto&quot;: Infer from data types</span>
+<span class="sd">        - &quot;categorical&quot;: Treat all columns as categorical</span>
+<span class="sd">        - &quot;continuous&quot;: Treat all columns as continuous</span>
+<span class="sd">        - Iterable[bool]: Specification for each column (True for continuous, False for categorical)</span>
+<span class="sd">    normalize : bool, default True</span>
+<span class="sd">        Whether to normalize continuous drift scores</span>
+<span class="sd">    normalization_method : str, default &quot;range&quot;</span>
+<span class="sd">        Method to use for normalization, see normalize_wasserstein for options</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">df1</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">df2</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span>
+    <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">normalization_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;range&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate drift between two DataFrames.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            A DataFrame containing the drift metrics for each column with columns:</span>
+<span class="sd">            - &quot;feature&quot;: The name of the feature</span>
+<span class="sd">            - &quot;type&quot;: The type of metric used (wasserstein or cramer_v)</span>
+<span class="sd">            - &quot;score&quot;: The calculated drift score</span>
+<span class="sd">            - &quot;raw_score&quot;: The unnormalized drift score (only for continuous features)</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the length of kind parameter doesn&#39;t match the number of common columns.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">common_cols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df1</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df2</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+        <span class="c1"># Convert kind to per-column specification if it&#39;s a string</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">kind_per_col</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">common_cols</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+                    <span class="c1"># Infer from data type</span>
+                    <span class="n">kind_per_col</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;continuous&quot;</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_numeric_dtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df1</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="k">else</span> <span class="s2">&quot;categorical&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">kind_per_col</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If kind is an iterable of booleans, map to column names</span>
+            <span class="n">kind_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>  <span class="c1"># Convert to list for len() operation</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kind_list</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">common_cols</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Length of kind (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">kind_list</span><span class="p">)</span><span class="si">}</span><span class="s2">) must match number of common columns (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">common_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
+            <span class="n">kind_per_col</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">common_cols</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;continuous&quot;</span> <span class="k">if</span> <span class="n">k</span> <span class="k">else</span> <span class="s2">&quot;categorical&quot;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kind_list</span><span class="p">]))</span>
+
+        <span class="c1"># Calculate drift for each column</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">common_cols</span><span class="p">:</span>
+            <span class="n">result_dict</span> <span class="o">=</span> <span class="n">detect_univariate_drift_with_options</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df1</span><span class="p">[</span><span class="n">col</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df2</span><span class="p">[</span><span class="n">col</span><span class="p">],</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">kind_per_col</span><span class="p">[</span><span class="n">col</span><span class="p">],</span>
+                <span class="n">normalize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">,</span>
+                <span class="n">normalization_method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalization_method</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">result_dict</span><span class="p">[</span><span class="s2">&quot;feature&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_univariate_drift_with_options</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">current</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">normalization_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;range&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect drift between two 1D distributions with normalization options.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reference : pd.Series</span>
+<span class="sd">        Reference distribution.</span>
+<span class="sd">    current : pd.Series</span>
+<span class="sd">        Current distribution.</span>
+<span class="sd">    kind : str, default &quot;auto&quot;</span>
+<span class="sd">        &quot;auto&quot;, &quot;categorical&quot;, or &quot;continuous&quot;. If &quot;auto&quot;, infers from dtype.</span>
+<span class="sd">    normalize : bool, default True</span>
+<span class="sd">        Whether to normalize continuous drift scores</span>
+<span class="sd">    normalization_method : str, default &quot;range&quot;</span>
+<span class="sd">        Method to use for normalization, see normalize_wasserstein for options</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dict[str, Any]</span>
+<span class="sd">        Dictionary with keys:</span>
+<span class="sd">        - &quot;type&quot;: Metric name (wasserstein or cramer_v)</span>
+<span class="sd">        - &quot;score&quot;: Drift score (normalized for continuous if normalize=True)</span>
+<span class="sd">        - &quot;raw_score&quot;: Unnormalized drift score (only for continuous)</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If kind is not recognized.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">reference</span><span class="p">):</span>
+            <span class="n">kind</span> <span class="o">=</span> <span class="s2">&quot;continuous&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kind</span> <span class="o">=</span> <span class="s2">&quot;categorical&quot;</span>
+
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;continuous&quot;</span><span class="p">:</span>
+        <span class="c1"># Calculate raw Wasserstein distance</span>
+        <span class="n">raw_score</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">wasserstein_distance</span><span class="p">(</span><span class="n">reference</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">current</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;wasserstein&quot;</span><span class="p">,</span> <span class="s2">&quot;raw_score&quot;</span><span class="p">:</span> <span class="n">raw_score</span><span class="p">}</span>
+
+        <span class="c1"># Apply normalization if requested</span>
+        <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize_wasserstein</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">raw_score</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">normalization_method</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># LINE 144: This is where we assign the raw score when normalization is turned off</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_score</span>  <span class="c1"># Ensure this line (144) is covered</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;categorical&quot;</span><span class="p">:</span>
+        <span class="c1"># Cramer&#39;s V is already normalized between 0 and 1</span>
+        <span class="n">cv_score</span> <span class="o">=</span> <span class="n">cramer_v</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;cramer_v&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">cv_score</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># LINE 136: This is where we raise ValueError for unknown kind</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown kind&quot;</span><span class="p">)</span>  <span class="c1"># Ensure this line (136) is covered</span>
+
+
+<div class="viewcode-block" id="detect_univariate_drift">
+<a class="viewcode-back" href="../../../api.html#tab_right.drift.univariate.detect_univariate_drift">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_univariate_drift</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">current</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">normalization_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;range&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect drift between two 1D distributions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reference : pd.Series</span>
+<span class="sd">        Reference distribution.</span>
+<span class="sd">    current : pd.Series</span>
+<span class="sd">        Current distribution.</span>
+<span class="sd">    kind : str, default &quot;auto&quot;</span>
+<span class="sd">        &quot;auto&quot;, &quot;categorical&quot;, or &quot;continuous&quot;. If &quot;auto&quot;, infers from dtype.</span>
+<span class="sd">    normalize : bool, default True</span>
+<span class="sd">        Whether to normalize continuous drift scores</span>
+<span class="sd">    normalization_method : str, default &quot;range&quot;</span>
+<span class="sd">        Method to use for normalization, see normalize_wasserstein for options</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        (metric name, value)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function calls detect_univariate_drift_with_options internally and may</span>
+<span class="sd">    raise ValueError if kind is not recognized or if an invalid normalization</span>
+<span class="sd">    method is specified.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">detect_univariate_drift_with_options</span><span class="p">(</span>
+        <span class="n">reference</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">,</span> <span class="n">normalization_method</span><span class="o">=</span><span class="n">normalization_method</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="detect_univariate_drift_df">
+<a class="viewcode-back" href="../../../api.html#tab_right.drift.univariate.detect_univariate_drift_df">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_univariate_drift_df</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">current</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">normalization_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;range&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect drift for each column in two DataFrames.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reference : pd.DataFrame</span>
+<span class="sd">        Reference DataFrame.</span>
+<span class="sd">    current : pd.DataFrame.</span>
+<span class="sd">        Current DataFrame.</span>
+<span class="sd">    kind : str, default &quot;auto&quot;</span>
+<span class="sd">        &quot;auto&quot;, &quot;categorical&quot;, or &quot;continuous&quot;. If &quot;auto&quot;, infers from dtype.</span>
+<span class="sd">    normalize : bool, default True</span>
+<span class="sd">        Whether to normalize continuous drift scores</span>
+<span class="sd">    normalization_method : str, default &quot;range&quot;</span>
+<span class="sd">        Method to use for normalization, see normalize_wasserstein for options</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        DataFrame with columns: feature, metric, value, raw_value (for continuous features).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function is provided for backward compatibility.</span>
+<span class="sd">    For new code, use the UnivariateDriftCalculator class instead.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Use the protocol-compliant class for implementation</span>
+    <span class="n">drift_calc</span> <span class="o">=</span> <span class="n">UnivariateDriftCalculator</span><span class="p">(</span>
+        <span class="n">df1</span><span class="o">=</span><span class="n">reference</span><span class="p">,</span> <span class="n">df2</span><span class="o">=</span><span class="n">current</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">,</span> <span class="n">normalization_method</span><span class="o">=</span><span class="n">normalization_method</span>
+    <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">drift_calc</span><span class="p">()</span>
+
+    <span class="c1"># Rename columns to match old API for backward compatibility</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;metric&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s2">&quot;raw_score&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;raw_score&quot;</span><span class="p">:</span> <span class="s2">&quot;raw_value&quot;</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, DanielAvdar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

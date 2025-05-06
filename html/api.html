@@ -6,20 +6,21 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>API Reference &mdash; tab-right 0.0.0.post1.dev0+cd0d928 documentation</title>
+  <title>API Reference &mdash; tab-right 0.0.0.post1.dev0+6d2449c documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a838841f"></script>
+      <script src="_static/documentation_options.js?v=acd9db7e"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Segmentation Example" href="segmentation_example.html" /> 
+    <link rel="prev" title="Double Segmentation" href="seg_double_example.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,22 +42,99 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides &amp; Examples</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="drift_example.html">Drift Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="segmentation_example.html">Segmentation Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seg_calc_example.html">Segmentation Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seg_double_example.html">Double Segmentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#tab_right.segmentations.base.SegmentationStats"><code class="docutils literal notranslate"><span class="pre">SegmentationStats</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tab_right.segmentations.base.SegmentationStats.check"><code class="docutils literal notranslate"><span class="pre">SegmentationStats.check()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tab_right.segmentations.base.SegmentationStats.df"><code class="docutils literal notranslate"><span class="pre">SegmentationStats.df</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tab_right.segmentations.base.SegmentationStats.feature"><code class="docutils literal notranslate"><span class="pre">SegmentationStats.feature</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tab_right.segmentations.base.SegmentationStats.is_categorical"><code class="docutils literal notranslate"><span class="pre">SegmentationStats.is_categorical</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tab_right.segmentations.base.SegmentationStats.label_col"><code class="docutils literal notranslate"><span class="pre">SegmentationStats.label_col</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tab_right.segmentations.base.SegmentationStats.metric"><code class="docutils literal notranslate"><span class="pre">SegmentationStats.metric</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tab_right.segmentations.base.SegmentationStats.pred_col"><code class="docutils literal notranslate"><span class="pre">SegmentationStats.pred_col</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tab_right.segmentations.base.SegmentationStats.run"><code class="docutils literal notranslate"><span class="pre">SegmentationStats.run()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#segmentation">Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#drift-detection">Drift Detection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tab_right.drift.drift_calculator.DriftCalculator"><code class="docutils literal notranslate"><span class="pre">DriftCalculator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.drift.drift_calculator.DriftCalculator.get_prob_density"><code class="docutils literal notranslate"><span class="pre">DriftCalculator.get_prob_density()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#drift-metrics">Drift Metrics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.drift.univariate.detect_univariate_drift_df"><code class="docutils literal notranslate"><span class="pre">detect_univariate_drift_df()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.drift.univariate.detect_univariate_drift"><code class="docutils literal notranslate"><span class="pre">detect_univariate_drift()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.drift.psi.psi"><code class="docutils literal notranslate"><span class="pre">psi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.drift.cramer_v.cramer_v"><code class="docutils literal notranslate"><span class="pre">cramer_v()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#plotting-functions">Plotting Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#segmentation-plotting">Segmentation Plotting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.plotting.plot_segmentations.plot_single_segmentation_impl"><code class="docutils literal notranslate"><span class="pre">plot_single_segmentation_impl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.plotting.plot_segmentations.plot_single_segmentation"><code class="docutils literal notranslate"><span class="pre">plot_single_segmentation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.plotting.plot_segmentations.plot_single_segmentation_mp"><code class="docutils literal notranslate"><span class="pre">plot_single_segmentation_mp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlotting"><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlotting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp"><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlottingMp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#drift-plotting">Drift Plotting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.plotting.drift_plotter.DriftPlotter"><code class="docutils literal notranslate"><span class="pre">DriftPlotter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.plotting.plot_drift.plot_drift"><code class="docutils literal notranslate"><span class="pre">plot_drift()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.plotting.plot_drift.plot_drift_mp"><code class="docutils literal notranslate"><span class="pre">plot_drift_mp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.plotting.plot_feature_drift.plot_feature_drift"><code class="docutils literal notranslate"><span class="pre">plot_feature_drift()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.plotting.plot_feature_drift.plot_feature_drift_mp"><code class="docutils literal notranslate"><span class="pre">plot_feature_drift_mp()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-tab_right.base_architecture.seg_protocols">Base Architecture &amp; Protocols</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tab_right.base_architecture.seg_protocols.BaseSegmentationCalc"><code class="docutils literal notranslate"><span class="pre">BaseSegmentationCalc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.gdf"><code class="docutils literal notranslate"><span class="pre">BaseSegmentationCalc.gdf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.label_col"><code class="docutils literal notranslate"><span class="pre">BaseSegmentationCalc.label_col</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.prediction_col"><code class="docutils literal notranslate"><span class="pre">BaseSegmentationCalc.prediction_col</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.segment_names"><code class="docutils literal notranslate"><span class="pre">BaseSegmentationCalc.segment_names</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tab_right.base_architecture.seg_protocols.DoubleSegmentation"><code class="docutils literal notranslate"><span class="pre">DoubleSegmentation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_protocols.DoubleSegmentation.df"><code class="docutils literal notranslate"><span class="pre">DoubleSegmentation.df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_protocols.DoubleSegmentation.label_col"><code class="docutils literal notranslate"><span class="pre">DoubleSegmentation.label_col</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_protocols.DoubleSegmentation.prediction_col"><code class="docutils literal notranslate"><span class="pre">DoubleSegmentation.prediction_col</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP"><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlottingP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.df"><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlottingP.df</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.get_heatmap_df"><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlottingP.get_heatmap_df()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.lower_is_better"><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlottingP.lower_is_better</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.metric_name"><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlottingP.metric_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.plot_heatmap"><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlottingP.plot_heatmap()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tab_right.base_architecture.drift_protocols.DriftCalcP"><code class="docutils literal notranslate"><span class="pre">DriftCalcP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.drift_protocols.DriftCalcP.df1"><code class="docutils literal notranslate"><span class="pre">DriftCalcP.df1</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.drift_protocols.DriftCalcP.df2"><code class="docutils literal notranslate"><span class="pre">DriftCalcP.df2</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.drift_protocols.DriftCalcP.get_prob_density"><code class="docutils literal notranslate"><span class="pre">DriftCalcP.get_prob_density()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.drift_protocols.DriftCalcP.kind"><code class="docutils literal notranslate"><span class="pre">DriftCalcP.kind</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP"><code class="docutils literal notranslate"><span class="pre">DriftPlotP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP.drift_calc"><code class="docutils literal notranslate"><span class="pre">DriftPlotP.drift_calc</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP.get_distribution_plots"><code class="docutils literal notranslate"><span class="pre">DriftPlotP.get_distribution_plots()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP.plot_multiple"><code class="docutils literal notranslate"><span class="pre">DriftPlotP.plot_multiple()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP.plot_single"><code class="docutils literal notranslate"><span class="pre">DriftPlotP.plot_single()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-tab_right.task_detection">Task Detection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tab_right.task_detection.TaskType"><code class="docutils literal notranslate"><span class="pre">TaskType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.task_detection.TaskType.BINARY"><code class="docutils literal notranslate"><span class="pre">TaskType.BINARY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.task_detection.TaskType.CLASS"><code class="docutils literal notranslate"><span class="pre">TaskType.CLASS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tab_right.task_detection.TaskType.REG"><code class="docutils literal notranslate"><span class="pre">TaskType.REG</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tab_right.task_detection.detect_task"><code class="docutils literal notranslate"><span class="pre">detect_task()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -88,78 +166,495 @@
            <div itemprop="articleBody">
              
   <section id="api-reference">
-<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
+<span id="api"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
+<section id="segmentation">
+<h2>Segmentation<a class="headerlink" href="#segmentation" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="tab_right.segmentations.base.SegmentationStats">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.segmentations.base.</span></span><span class="sig-name descname"><span class="pre">SegmentationStats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_categorical</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/segmentations/base.html#SegmentationStats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.segmentations.base.SegmentationStats" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.segmentations.calc_seg.</span></span><span class="sig-name descname"><span class="pre">SegmentationCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrameGroupBy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/segmentations/calc_seg.html#SegmentationCalc"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>SegmentationStats provides vectorized segmentation and scoring for tabular data.</p>
+<p>Implementation of BaseSegmentationCalc protocol.</p>
+<p>Calculates scores for pre-defined segments.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">gdf</span></span></dt>
+<dd><p>Grouped DataFrame, each group represents a segment (grouped by segment_id).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The input DataFrame.</p></li>
-<li><p><strong>label_col</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em>) – The label column(s) to use for scoring.</p></li>
-<li><p><strong>pred_col</strong> (<em>str</em>) – The prediction column to use for scoring.</p></li>
-<li><p><strong>feature</strong> (<em>str</em>) – The feature column to segment by.</p></li>
-<li><p><strong>metric</strong> (<em>Callable</em>) – The metric function to use for scoring.</p></li>
-<li><p><strong>is_categorical</strong> (<em>bool</em><em>, </em><em>default False</em>) – Whether to treat the feature as categorical (True) or continuous (False).</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="tab_right.segmentations.base.SegmentationStats.check">
-<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/tab_right/segmentations/base.html#SegmentationStats.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.segmentations.base.SegmentationStats.check" title="Link to this definition"></a></dt>
-<dd><p>Check for NaN and probability sum errors in the label columns.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – If NaN or invalid probability sums are found.</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrameGroupBy</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tab_right.segmentations.base.SegmentationStats.df">
-<span class="sig-name descname"><span class="pre">df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tab_right.segmentations.base.SegmentationStats.df" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">label_col</span></span></dt>
+<dd><p>Column name for the true target values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">prediction_col</span></span></dt>
+<dd><p>Column names for the predicted values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[str, List[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">segment_names</span></span></dt>
+<dd><p>Mapping from segment_id to the original group name (category or interval).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[int, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">gdf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrameGroupBy</span></em></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tab_right.segmentations.base.SegmentationStats.feature">
-<span class="sig-name descname"><span class="pre">feature</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#tab_right.segmentations.base.SegmentationStats.feature" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">label_col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tab_right.segmentations.base.SegmentationStats.is_categorical">
-<span class="sig-name descname"><span class="pre">is_categorical</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#tab_right.segmentations.base.SegmentationStats.is_categorical" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">prediction_col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tab_right.segmentations.base.SegmentationStats.label_col">
-<span class="sig-name descname"><span class="pre">label_col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tab_right.segmentations.base.SegmentationStats.label_col" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">segment_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.segmentations.double_seg.</span></span><span class="sig-name descname"><span class="pre">DoubleSegmentationImp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prediction_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/segmentations/double_seg.html#DoubleSegmentationImp"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implementation of double segmentation logic based on two features.</p>
+<p>Conforms to the DoubleSegmentation protocol.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">df</span></span></dt>
+<dd><p>The input DataFrame containing the data to segment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">label_col</span></span></dt>
+<dd><p>The name of the column containing the true target values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">prediction_col</span></span></dt>
+<dd><p>The name(s) of the column(s) containing the predicted values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[str, List[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tab_right.segmentations.base.SegmentationStats.metric">
-<span class="sig-name descname"><span class="pre">metric</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span></em><a class="headerlink" href="#tab_right.segmentations.base.SegmentationStats.metric" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">label_col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="tab_right.segmentations.base.SegmentationStats.pred_col">
-<span class="sig-name descname"><span class="pre">pred_col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#tab_right.segmentations.base.SegmentationStats.pred_col" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">prediction_col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+</section>
+<section id="drift-detection">
+<h2>Drift Detection<a class="headerlink" href="#drift-detection" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tab_right.drift.drift_calculator.DriftCalculator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.drift.drift_calculator.</span></span><span class="sig-name descname"><span class="pre">DriftCalculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/drift/drift_calculator.html#DriftCalculator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.drift.drift_calculator.DriftCalculator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tab_right.base_architecture.drift_protocols.DriftCalcP" title="tab_right.base_architecture.drift_protocols.DriftCalcP"><code class="xref py py-class docutils literal notranslate"><span class="pre">DriftCalcP</span></code></a></p>
+<p>Implementation of DriftCalcP using Cramér’s V and Wasserstein distance.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="tab_right.segmentations.base.SegmentationStats.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/tab_right/segmentations/base.html#SegmentationStats.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.segmentations.base.SegmentationStats.run" title="Link to this definition"></a></dt>
-<dd><p>Segment the data and compute scores for each segment.</p>
+<dt class="sig sig-object py" id="tab_right.drift.drift_calculator.DriftCalculator.get_prob_density">
+<span class="sig-name descname"><span class="pre">get_prob_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/tab_right/drift/drift_calculator.html#DriftCalculator.get_prob_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.drift.drift_calculator.DriftCalculator.get_prob_density" title="Link to this definition"></a></dt>
+<dd><p>Get probability densities for reference and current datasets for comparison.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>bins</strong> (<em>int</em><em>, </em><em>default 10</em>) – Number of bins for continuous segmentation.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> – Specific columns to get densities for. If None, all common columns are used.</p></li>
+<li><p><strong>bins</strong> – Number of bins to use for continuous features.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>DataFrame with segment and score columns.</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p>feature: Name of the feature</p></li>
+<li><p>bin: Bin label (category name or numerical range)</p></li>
+<li><p>ref_density: Density in the reference dataset</p></li>
+<li><p>cur_density: Density in the current dataset</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame with density information for each feature and bin, containing</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<section id="drift-metrics">
+<h3>Drift Metrics<a class="headerlink" href="#drift-metrics" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.drift.univariate.detect_univariate_drift_df">
+<span class="sig-prename descclassname"><span class="pre">tab_right.drift.univariate.</span></span><span class="sig-name descname"><span class="pre">detect_univariate_drift_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'range'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/tab_right/drift/univariate.html#detect_univariate_drift_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.drift.univariate.detect_univariate_drift_df" title="Link to this definition"></a></dt>
+<dd><p>Detect drift for each column in two DataFrames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<em>pd.DataFrame</em>) – Reference DataFrame.</p></li>
+<li><p><strong>current</strong> (<em>pd.DataFrame.</em>) – Current DataFrame.</p></li>
+<li><p><strong>kind</strong> (<em>str</em><em>, </em><em>default &quot;auto&quot;</em>) – “auto”, “categorical”, or “continuous”. If “auto”, infers from dtype.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default True</em>) – Whether to normalize continuous drift scores</p></li>
+<li><p><strong>normalization_method</strong> (<em>str</em><em>, </em><em>default &quot;range&quot;</em>) – Method to use for normalization, see normalize_wasserstein for options</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame with columns: feature, metric, value, raw_value (for continuous features).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function is provided for backward compatibility.
+For new code, use the UnivariateDriftCalculator class instead.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.drift.univariate.detect_univariate_drift">
+<span class="sig-prename descclassname"><span class="pre">tab_right.drift.univariate.</span></span><span class="sig-name descname"><span class="pre">detect_univariate_drift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'range'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/tab_right/drift/univariate.html#detect_univariate_drift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.drift.univariate.detect_univariate_drift" title="Link to this definition"></a></dt>
+<dd><p>Detect drift between two 1D distributions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<em>pd.Series</em>) – Reference distribution.</p></li>
+<li><p><strong>current</strong> (<em>pd.Series</em>) – Current distribution.</p></li>
+<li><p><strong>kind</strong> (<em>str</em><em>, </em><em>default &quot;auto&quot;</em>) – “auto”, “categorical”, or “continuous”. If “auto”, infers from dtype.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default True</em>) – Whether to normalize continuous drift scores</p></li>
+<li><p><strong>normalization_method</strong> (<em>str</em><em>, </em><em>default &quot;range&quot;</em>) – Method to use for normalization, see normalize_wasserstein for options</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(metric name, value)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function calls detect_univariate_drift_with_options internally and may
+raise ValueError if kind is not recognized or if an invalid normalization
+method is specified.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.drift.psi.psi">
+<span class="sig-prename descclassname"><span class="pre">tab_right.drift.psi.</span></span><span class="sig-name descname"><span class="pre">psi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actual</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/tab_right/drift/psi.html#psi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.drift.psi.psi" title="Link to this definition"></a></dt>
+<dd><p>Compute Population Stability Index (PSI) for categorical or binned continuous data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expected</strong> (<em>pd.Series</em>) – Reference distribution.</p></li>
+<li><p><strong>actual</strong> (<em>pd.Series</em>) – Current distribution.</p></li>
+<li><p><strong>bins</strong> (<em>int</em><em>, </em><em>default 10</em>) – Number of bins for continuous data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PSI value (&gt;= 0).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.drift.cramer_v.cramer_v">
+<span class="sig-prename descclassname"><span class="pre">tab_right.drift.cramer_v.</span></span><span class="sig-name descname"><span class="pre">cramer_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/tab_right/drift/cramer_v.html#cramer_v"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.drift.cramer_v.cramer_v" title="Link to this definition"></a></dt>
+<dd><p>Compute Cramér’s V statistic for categorical-categorical association.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>pd.Series</em>) – First categorical variable.</p></li>
+<li><p><strong>y</strong> (<em>pd.Series</em>) – Second categorical variable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cramér’s V value in [0, 1].</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="plotting-functions">
+<h2>Plotting Functions<a class="headerlink" href="#plotting-functions" title="Link to this heading"></a></h2>
+<section id="segmentation-plotting">
+<h3>Segmentation Plotting<a class="headerlink" href="#segmentation-plotting" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.plot_single_segmentation_impl">
+<span class="sig-prename descclassname"><span class="pre">tab_right.plotting.plot_segmentations.</span></span><span class="sig-name descname"><span class="pre">plot_single_segmentation_impl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_is_better</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_segmentations.html#plot_single_segmentation_impl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_segmentations.plot_single_segmentation_impl" title="Link to this definition"></a></dt>
+<dd><p>Implement the single segmentation plot as a bar chart.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the groups defined by the decision tree model.
+columns:
+- <cite>segment_id</cite>: The ID of the segment, for grouping.
+- <cite>segment_name</cite>: (str) the range or category of the feature.
+- <cite>score</cite>: (float) The calculated error metric for the segment.</p></li>
+<li><p><strong>lower_is_better</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Whether lower values of the metric indicate better performance.
+Affects the color scale in visualizations (green for better, red for worse).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A bar chart showing each segment with its corresponding avg score, x-axis represents
+the feature segments (segment_name), and y-axis shows the score.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PlotlyFigure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.plot_single_segmentation">
+<span class="sig-prename descclassname"><span class="pre">tab_right.plotting.plot_segmentations.</span></span><span class="sig-name descname"><span class="pre">plot_single_segmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_is_better</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_segmentations.html#plot_single_segmentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_segmentations.plot_single_segmentation" title="Link to this definition"></a></dt>
+<dd><p>Plot the single segmentation of a given DataFrame as a bar chart.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the groups defined by the decision tree model.
+columns:
+- <cite>segment_id</cite>: The ID of the segment, for grouping.
+- <cite>segment_name</cite>: (str) the range or category of the feature.
+- <cite>score</cite>: (float) The calculated error metric for the segment.</p></li>
+<li><p><strong>lower_is_better</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Whether lower values of the metric indicate better performance.
+Affects the color scale in visualizations (green for better, red for worse).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A bar chart showing each segment with its corresponding avg score, x-axis represents
+the feature segments (segment_name), and y-axis shows the score.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PlotlyFigure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.plot_single_segmentation_mp">
+<span class="sig-prename descclassname"><span class="pre">tab_right.plotting.plot_segmentations.</span></span><span class="sig-name descname"><span class="pre">plot_single_segmentation_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_is_better</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_segmentations.html#plot_single_segmentation_mp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_segmentations.plot_single_segmentation_mp" title="Link to this definition"></a></dt>
+<dd><p>Plot the single segmentation of a given DataFrame as a bar chart using matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the groups defined by the decision tree model.
+columns:
+- <cite>segment_id</cite>: The ID of the segment, for grouping.
+- <cite>segment_name</cite>: (str) the range or category of the feature.
+- <cite>score</cite>: (float) The calculated error metric for the segment.</p></li>
+<li><p><strong>lower_is_better</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Whether lower values of the metric indicate better performance.
+Affects the color scale in visualizations (green for better, red for worse).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A matplotlib bar chart showing each segment with its corresponding avg score.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>MatplotlibFigure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlotting">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.plotting.plot_segmentations.</span></span><span class="sig-name descname"><span class="pre">DoubleSegmPlotting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'score'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_is_better</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'plotly'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/plotting/plot_segmentations.html#DoubleSegmPlotting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlotting" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for double segmentation plotting.</p>
+<p>This class implements the interface for plotting double segmentations.
+It includes the DataFrames to be plotted and the kind of plot to be created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the groups defined by the decision tree model.
+columns:
+- <cite>segment_id</cite>: The ID of the segment, for grouping.
+- <cite>feature_1</cite>: (str) the range or category of the first feature.
+- <cite>feature_2</cite>: (str) the range or category of the second feature.
+- <cite>score</cite>: (float) The calculated error metric for the segment.</p></li>
+<li><p><strong>metric_name</strong> (<em>str</em><em>, </em><em>default=&quot;score&quot;</em>) – The name of the metric column in the DataFrame.</p></li>
+<li><p><strong>lower_is_better</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Whether lower values of the metric indicate better performance.
+Affects the color scale in visualizations (green for better, red for worse).</p></li>
+<li><p><strong>backend</strong> (<em>str</em><em>, </em><em>default=&quot;plotly&quot;</em>) – The plotting backend to use. Either “plotly” or “matplotlib”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlotting.backend">
+<span class="sig-name descname"><span class="pre">backend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'plotly'</span></em><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlotting.backend" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlotting.df">
+<span class="sig-name descname"><span class="pre">df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlotting.df" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlotting.get_heatmap_df">
+<span class="sig-name descname"><span class="pre">get_heatmap_df</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_segmentations.html#DoubleSegmPlotting.get_heatmap_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlotting.get_heatmap_df" title="Link to this definition"></a></dt>
+<dd><p>Get the DataFrame for the heatmap from the double segmentation df.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A DataFrame containing the groups defined by the decision tree model.
+columns: feature_1 ranges or categories
+index: feature_2 ranges or categories
+content: The calculated error metric for the segment.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlotting.lower_is_better">
+<span class="sig-name descname"><span class="pre">lower_is_better</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlotting.lower_is_better" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlotting.metric_name">
+<span class="sig-name descname"><span class="pre">metric_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'score'</span></em><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlotting.metric_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlotting.plot_heatmap">
+<span class="sig-name descname"><span class="pre">plot_heatmap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_segmentations.html#DoubleSegmPlotting.plot_heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlotting.plot_heatmap" title="Link to this definition"></a></dt>
+<dd><p>Plot the double segmentation of a given DataFrame as a heatmap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A heatmap showing each segment with its corresponding avg score,
+from get_heatmap_df() method. Colors are determined by the lower_is_better parameter:
+- If lower_is_better=True: Lower values are green (better), higher values are red (worse)
+- If lower_is_better=False: Higher values are green (better), lower values are red (worse)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.plotting.plot_segmentations.</span></span><span class="sig-name descname"><span class="pre">DoubleSegmPlottingMp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'score'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_is_better</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/plotting/plot_segmentations.html#DoubleSegmPlottingMp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for double segmentation plotting using matplotlib.</p>
+<p>This class implements the interface for plotting double segmentations with matplotlib.
+It includes the DataFrames to be plotted and the visualization options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the groups defined by the decision tree model.
+columns:
+- <cite>segment_id</cite>: The ID of the segment, for grouping.
+- <cite>feature_1</cite>: (str) the range or category of the first feature.
+- <cite>feature_2</cite>: (str) the range or category of the second feature.
+- <cite>score</cite>: (float) The calculated error metric for the segment.</p></li>
+<li><p><strong>metric_name</strong> (<em>str</em><em>, </em><em>default=&quot;score&quot;</em>) – The name of the metric column in the DataFrame.</p></li>
+<li><p><strong>lower_is_better</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Whether lower values of the metric indicate better performance.
+Affects the color scale in visualizations (green for better, red for worse).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp.df">
+<span class="sig-name descname"><span class="pre">df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp.df" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp.get_heatmap_df">
+<span class="sig-name descname"><span class="pre">get_heatmap_df</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_segmentations.html#DoubleSegmPlottingMp.get_heatmap_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp.get_heatmap_df" title="Link to this definition"></a></dt>
+<dd><p>Get the DataFrame for the heatmap from the double segmentation df.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A DataFrame containing the groups defined by the decision tree model.
+columns: feature_1 ranges or categories
+index: feature_2 ranges or categories
+content: The calculated error metric for the segment.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp.lower_is_better">
+<span class="sig-name descname"><span class="pre">lower_is_better</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp.lower_is_better" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp.metric_name">
+<span class="sig-name descname"><span class="pre">metric_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'score'</span></em><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp.metric_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp.plot_heatmap">
+<span class="sig-name descname"><span class="pre">plot_heatmap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_segmentations.html#DoubleSegmPlottingMp.plot_heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp.plot_heatmap" title="Link to this definition"></a></dt>
+<dd><p>Plot the double segmentation as a heatmap using Matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A Matplotlib heatmap showing each segment with its corresponding avg score.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>MatplotlibFigure</p>
 </dd>
 </dl>
 </dd></dl>
@@ -167,12 +662,546 @@
 </dd></dl>
 
 </section>
+<section id="drift-plotting">
+<h3>Drift Plotting<a class="headerlink" href="#drift-plotting" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="tab_right.plotting.drift_plotter.DriftPlotter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.plotting.drift_plotter.</span></span><span class="sig-name descname"><span class="pre">DriftPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drift_calc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tab_right.base_architecture.drift_protocols.DriftCalcP" title="tab_right.base_architecture.drift_protocols.DriftCalcP"><span class="pre">DriftCalcP</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/plotting/drift_plotter.html#DriftPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.drift_plotter.DriftPlotter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP" title="tab_right.base_architecture.drift_plot_protocols.DriftPlotP"><code class="xref py py-class docutils literal notranslate"><span class="pre">DriftPlotP</span></code></a></p>
+<p>Implementation of DriftPlotP using Matplotlib.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.plotting.drift_plotter.DriftPlotter.get_distribution_plots">
+<span class="sig-name descname"><span class="pre">get_distribution_plots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Figure</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/tab_right/plotting/drift_plotter.html#DriftPlotter.get_distribution_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.drift_plotter.DriftPlotter.get_distribution_plots" title="Link to this definition"></a></dt>
+<dd><p>Generate individual distribution comparison plots for multiple features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> – Specific columns to generate plots for. If None, all available columns are used.</p></li>
+<li><p><strong>bins</strong> – Number of bins to use for continuous features.</p></li>
+<li><p><strong>**kwargs</strong> – Additional arguments passed to plot_single.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary mapping column names to their respective matplotlib Figure objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.plotting.drift_plotter.DriftPlotter.plot_multiple">
+<span class="sig-name descname"><span class="pre">plot_multiple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(12,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'score'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/drift_plotter.html#DriftPlotter.plot_multiple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.drift_plotter.DriftPlotter.plot_multiple" title="Link to this definition"></a></dt>
+<dd><p>Create a bar chart visualization of drift across multiple features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> – Specific columns to plot drift for. If None, all available columns are used.</p></li>
+<li><p><strong>bins</strong> – Number of bins to use for continuous features.</p></li>
+<li><p><strong>figsize</strong> – Figure size as (width, height) in inches.</p></li>
+<li><p><strong>sort_by</strong> – Column to sort results by (usually “score”).</p></li>
+<li><p><strong>ascending</strong> – Whether to sort in ascending order.</p></li>
+<li><p><strong>top_n</strong> – If specified, only show the top N features.</p></li>
+<li><p><strong>threshold</strong> – If specified, mark features above this threshold in a different color.</p></li>
+<li><p><strong>**kwargs</strong> – Additional arguments passed to the drift calculator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A matplotlib Figure object containing the generated plot.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.plotting.drift_plotter.DriftPlotter.plot_single">
+<span class="sig-name descname"><span class="pre">plot_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/drift_plotter.html#DriftPlotter.plot_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.drift_plotter.DriftPlotter.plot_single" title="Link to this definition"></a></dt>
+<dd><p>Create a detailed visualization of drift for a single feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column</strong> – The column/feature to visualize.</p></li>
+<li><p><strong>bins</strong> – Number of bins to use for continuous features.</p></li>
+<li><p><strong>figsize</strong> – Figure size as (width, height) in inches.</p></li>
+<li><p><strong>show_metrics</strong> – Whether to show drift metrics in the plot.</p></li>
+<li><p><strong>**kwargs</strong> – Additional arguments passed to the drift calculator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A matplotlib Figure object containing the generated plot.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the column is not found or its type is not determined.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_drift.plot_drift">
+<span class="sig-prename descclassname"><span class="pre">tab_right.plotting.plot_drift.</span></span><span class="sig-name descname"><span class="pre">plot_drift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drift_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'value'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'feature'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_drift.html#plot_drift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_drift.plot_drift" title="Link to this definition"></a></dt>
+<dd><p>Plot drift values for each feature as a bar chart.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>drift_df</strong> (<em>pd.DataFrame</em>) – DataFrame with drift results. Should contain columns for feature names and drift values.</p></li>
+<li><p><strong>value_col</strong> (<em>str</em><em>, </em><em>default &quot;value&quot;</em>) – Name of the column containing drift values.</p></li>
+<li><p><strong>feature_col</strong> (<em>str</em><em>, </em><em>default &quot;feature&quot;</em>) – Name of the column containing feature names.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plotly bar chart of drift values by feature.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>go.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_drift.plot_drift_mp">
+<span class="sig-prename descclassname"><span class="pre">tab_right.plotting.plot_drift.</span></span><span class="sig-name descname"><span class="pre">plot_drift_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drift_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'value'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'feature'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_drift.html#plot_drift_mp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_drift.plot_drift_mp" title="Link to this definition"></a></dt>
+<dd><p>Plot drift values for each feature as a bar chart using matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>drift_df</strong> (<em>pd.DataFrame</em>) – DataFrame with drift results. Should contain columns for feature names and drift values.</p></li>
+<li><p><strong>value_col</strong> (<em>str</em><em>, </em><em>default &quot;value&quot;</em>) – Name of the column containing drift values.</p></li>
+<li><p><strong>feature_col</strong> (<em>str</em><em>, </em><em>default &quot;feature&quot;</em>) – Name of the column containing feature names.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matplotlib figure with bar chart of drift values by feature.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_feature_drift.plot_feature_drift">
+<span class="sig-prename descclassname"><span class="pre">tab_right.plotting.plot_feature_drift.</span></span><span class="sig-name descname"><span class="pre">plot_feature_drift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Train</span> <span class="pre">Dataset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cur_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Test</span> <span class="pre">Dataset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'range'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_raw_score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_feature_drift.html#plot_feature_drift"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_feature_drift.plot_feature_drift" title="Link to this definition"></a></dt>
+<dd><p>Plot distribution drift for a single feature, with means, medians, and drift score (Earth Mover’s Distance).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<em>pd.Series</em>) – Reference (train) data for the feature.</p></li>
+<li><p><strong>current</strong> (<em>pd.Series</em>) – Current (test) data for the feature.</p></li>
+<li><p><strong>feature_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the feature (for labeling plots).</p></li>
+<li><p><strong>show_score</strong> (<em>bool</em><em>, </em><em>default True</em>) – Whether to display the drift score annotation.</p></li>
+<li><p><strong>ref_label</strong> (<em>str</em><em>, </em><em>default &quot;Train Dataset&quot;</em>) – Label for the reference data.</p></li>
+<li><p><strong>cur_label</strong> (<em>str</em><em>, </em><em>default &quot;Test Dataset&quot;</em>) – Label for the current data.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default True</em>) – Whether to normalize the Wasserstein distance.</p></li>
+<li><p><strong>normalization_method</strong> (<em>str</em><em>, </em><em>default &quot;range&quot;</em>) – Method to use for normalization: “range”, “std”, or “iqr”.</p></li>
+<li><p><strong>show_raw_score</strong> (<em>bool</em><em>, </em><em>default False</em>) – Whether to show both normalized and raw scores.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plotly figure with overlaid histograms, means, medians, and drift score annotation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>go.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.plotting.plot_feature_drift.plot_feature_drift_mp">
+<span class="sig-prename descclassname"><span class="pre">tab_right.plotting.plot_feature_drift.</span></span><span class="sig-name descname"><span class="pre">plot_feature_drift_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Train</span> <span class="pre">Dataset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cur_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Test</span> <span class="pre">Dataset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'range'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_raw_score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/plotting/plot_feature_drift.html#plot_feature_drift_mp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.plotting.plot_feature_drift.plot_feature_drift_mp" title="Link to this definition"></a></dt>
+<dd><p>Plot distribution drift for a single feature using matplotlib.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<em>pd.Series</em>) – Reference (train) data for the feature.</p></li>
+<li><p><strong>current</strong> (<em>pd.Series</em>) – Current (test) data for the feature.</p></li>
+<li><p><strong>feature_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the feature (for labeling plots).</p></li>
+<li><p><strong>show_score</strong> (<em>bool</em><em>, </em><em>default True</em>) – Whether to display the drift score annotation.</p></li>
+<li><p><strong>ref_label</strong> (<em>str</em><em>, </em><em>default &quot;Train Dataset&quot;</em>) – Label for the reference data.</p></li>
+<li><p><strong>cur_label</strong> (<em>str</em><em>, </em><em>default &quot;Test Dataset&quot;</em>) – Label for the current data.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em><em>, </em><em>default True</em>) – Whether to normalize the Wasserstein distance.</p></li>
+<li><p><strong>normalization_method</strong> (<em>str</em><em>, </em><em>default &quot;range&quot;</em>) – Method to use for normalization: “range”, “std”, or “iqr”.</p></li>
+<li><p><strong>show_raw_score</strong> (<em>bool</em><em>, </em><em>default False</em>) – Whether to show both normalized and raw scores.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matplotlib figure with overlaid distributions, means, and drift score.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="module-tab_right.base_architecture.seg_protocols">
+<span id="base-architecture-protocols"></span><h2>Base Architecture &amp; Protocols<a class="headerlink" href="#module-tab_right.base_architecture.seg_protocols" title="Link to this heading"></a></h2>
+<p>Protocol definitions for data segmentation analysis in tab-right.</p>
+<p>This module defines protocol classes and type aliases for segmentation analysis,
+including interfaces for segmentation calculations and feature-based segmentation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_protocols.BaseSegmentationCalc">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.base_architecture.seg_protocols.</span></span><span class="sig-name descname"><span class="pre">BaseSegmentationCalc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/base_architecture/seg_protocols.html#BaseSegmentationCalc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.seg_protocols.BaseSegmentationCalc" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Base protocol for segmentation performance calculations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gdf</strong> (<em>DataFrameGroupBy</em>) – Grouped DataFrame, each group represents a segment.</p></li>
+<li><p><strong>label_col</strong> (<em>str</em>) – Column name for the true target values.</p></li>
+<li><p><strong>prediction_col</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Column names for the predicted values. Can be a single column or a list of columns.
+Can be probabilities (multiple columns) or classes or continuous values.</p></li>
+<li><p><strong>segment_names</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>int</em><em>, </em><em>Any</em><em>]</em><em>]</em><em>, </em><em>default=None</em>) – Optional mapping from an integer segment ID to the original group name
+(category, interval, or tuple). If provided, these IDs should match the
+grouping keys if gdf is grouped by integer IDs.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.gdf">
+<span class="sig-name descname"><span class="pre">gdf</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrameGroupBy</span></em><a class="headerlink" href="#tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.gdf" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.label_col">
+<span class="sig-name descname"><span class="pre">label_col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.label_col" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.prediction_col">
+<span class="sig-name descname"><span class="pre">prediction_col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.prediction_col" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.segment_names">
+<span class="sig-name descname"><span class="pre">segment_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#tab_right.base_architecture.seg_protocols.BaseSegmentationCalc.segment_names" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_protocols.DoubleSegmentation">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.base_architecture.seg_protocols.</span></span><span class="sig-name descname"><span class="pre">DoubleSegmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/base_architecture/seg_protocols.html#DoubleSegmentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.seg_protocols.DoubleSegmentation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Class schema for calculating double segmentation, segmentation based on two features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing to analyze.</p></li>
+<li><p><strong>label_col</strong> (<em>str</em>) – The name of the column containing the true target values.</p></li>
+<li><p><strong>prediction_col</strong> (<em>str</em>) – The name of the column containing the predicted values.
+Can be probabilities (multiple columns) or classes or continuous values.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_protocols.DoubleSegmentation.df">
+<span class="sig-name descname"><span class="pre">df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tab_right.base_architecture.seg_protocols.DoubleSegmentation.df" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_protocols.DoubleSegmentation.label_col">
+<span class="sig-name descname"><span class="pre">label_col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#tab_right.base_architecture.seg_protocols.DoubleSegmentation.label_col" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_protocols.DoubleSegmentation.prediction_col">
+<span class="sig-name descname"><span class="pre">prediction_col</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#tab_right.base_architecture.seg_protocols.DoubleSegmentation.prediction_col" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-tab_right.base_architecture.seg_plotting_protocols">Module for defining plotting protocols.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.base_architecture.seg_plotting_protocols.</span></span><span class="sig-name descname"><span class="pre">DoubleSegmPlottingP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/base_architecture/seg_plotting_protocols.html#DoubleSegmPlottingP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Class schema for double segmentation plotting.</p>
+<p>This class is used to define the interface for plotting double segmentations.
+It includes the DataFrames to be plotted and the kind of plot to be created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – A DataFrame containing the groups defined by the decision tree model.
+columns:
+- <cite>segment_id</cite>: The ID of the segment, for grouping.
+- <cite>feature_1</cite>: (str) the range or category of the first feature.
+- <cite>feature_2</cite>: (str) the range or category of the second feature.
+- <cite>score</cite>: (float) The calculated error metric for the segment.</p></li>
+<li><p><strong>metric_name</strong> (<em>str</em><em>, </em><em>default=&quot;score&quot;</em>) – The name of the metric column in the DataFrame.</p></li>
+<li><p><strong>lower_is_better</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Whether lower values of the metric indicate better performance.
+Affects the color scale in visualizations (green for better, red for worse).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.df">
+<span class="sig-name descname"><span class="pre">df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.df" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.get_heatmap_df">
+<span class="sig-name descname"><span class="pre">get_heatmap_df</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/tab_right/base_architecture/seg_plotting_protocols.html#DoubleSegmPlottingP.get_heatmap_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.get_heatmap_df" title="Link to this definition"></a></dt>
+<dd><p>Get the DataFrame for the heatmap. from the double segmentation df.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A DataFrame containing the groups defined by the decision tree model.
+columns: feature_1 ranges or categories
+index: feature_2 ranges or categories
+content: The calculated error metric for the segment.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.lower_is_better">
+<span class="sig-name descname"><span class="pre">lower_is_better</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.lower_is_better" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.metric_name">
+<span class="sig-name descname"><span class="pre">metric_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'score'</span></em><a class="headerlink" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.metric_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.plot_heatmap">
+<span class="sig-name descname"><span class="pre">plot_heatmap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/base_architecture/seg_plotting_protocols.html#DoubleSegmPlottingP.plot_heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.seg_plotting_protocols.DoubleSegmPlottingP.plot_heatmap" title="Link to this definition"></a></dt>
+<dd><p>Plot the double segmentation of a given DataFrame as a heatmap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A heatmap showing each segment with its corresponding avg score,
+from get_heatmap_df() method. Colors are determined by the lower_is_better parameter:
+- If lower_is_better=True: Lower values are green (better), higher values are red (worse)
+- If lower_is_better=False: Higher values are green (better), lower values are red (worse)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-tab_right.base_architecture.drift_protocols">Protocol definitions for drift detection and analysis in tab-right.</p>
+<p>This module defines protocol classes and type aliases used for implementing
+drift detection functionality across different feature types. These protocols
+establish a consistent interface for all drift detection implementations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tab_right.base_architecture.drift_protocols.DriftCalcP">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.base_architecture.drift_protocols.</span></span><span class="sig-name descname"><span class="pre">DriftCalcP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/base_architecture/drift_protocols.html#DriftCalcP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.drift_protocols.DriftCalcP" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Protocol for drift calculation implementations.</p>
+<p>This protocol defines the interface that all drift calculation classes must implement.
+It specifies methods for detecting distributional shifts between two datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df1</strong> (<em>pd.DataFrame</em>) – The reference DataFrame containing the baseline distribution.</p></li>
+<li><p><strong>df2</strong> (<em>pd.DataFrame</em>) – The current DataFrame to compare against the reference.</p></li>
+<li><p><strong>kind</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Iterable</em><em>[</em><em>bool</em><em>]</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>]</em><em>, </em><em>default &quot;auto&quot;</em>) – Controls how columns are treated:
+- “auto”: Automatically infer from data types (numeric as continuous, others as categorical)
+- “categorical”: Treat all columns as categorical
+- “continuous”: Treat all columns as continuous
+- Iterable[bool]: Specification for each column (True for continuous, False for categorical)
+- Dict[str, str]: Explicit mapping from column name to “continuous” or “categorical”</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Implementations of this protocol are responsible for:
+1. Comparing distribution shifts between reference and current data
+2. Automatically selecting appropriate metrics based on data types
+3. Providing normalized scores for comparison across features</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.drift_protocols.DriftCalcP.df1">
+<span class="sig-name descname"><span class="pre">df1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tab_right.base_architecture.drift_protocols.DriftCalcP.df1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.drift_protocols.DriftCalcP.df2">
+<span class="sig-name descname"><span class="pre">df2</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#tab_right.base_architecture.drift_protocols.DriftCalcP.df2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.base_architecture.drift_protocols.DriftCalcP.get_prob_density">
+<span class="sig-name descname"><span class="pre">get_prob_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/tab_right/base_architecture/drift_protocols.html#DriftCalcP.get_prob_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.drift_protocols.DriftCalcP.get_prob_density" title="Link to this definition"></a></dt>
+<dd><p>Get the probability density functions for the features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>Optional</em><em>[</em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>default None</em>) – Specific columns to analyze. If None, analyzes all common columns.</p></li>
+<li><p><strong>bins</strong> (<em>int</em><em>, </em><em>default 10</em>) – Number of bins for histograms when analyzing continuous features.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing the probability density functions.
+Must contain at least the following columns:
+- “feature”: The name of the feature.
+- “bin”: The bin or category.
+- “ref_density”: The density in the reference dataset.
+- “cur_density”: The density in the current dataset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.drift_protocols.DriftCalcP.kind">
+<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'auto'</span></em><a class="headerlink" href="#tab_right.base_architecture.drift_protocols.DriftCalcP.kind" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<p id="module-tab_right.base_architecture.drift_plot_protocols">Protocols for drift visualization in tab-right.</p>
+<p>This module defines protocols for visualizing drift between datasets. It provides
+interfaces for creating both single-feature and multi-feature drift visualizations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tab_right.base_architecture.drift_plot_protocols.DriftPlotP">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.base_architecture.drift_plot_protocols.</span></span><span class="sig-name descname"><span class="pre">DriftPlotP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/base_architecture/drift_plot_protocols.html#DriftPlotP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Protocol for drift visualization implementations.</p>
+<p>This protocol defines the interface that all drift visualization classes must implement.
+It specifies methods for creating visualizations of distribution shifts between datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>drift_calc</strong> (<a class="reference internal" href="#tab_right.base_architecture.drift_protocols.DriftCalcP" title="tab_right.base_architecture.drift_protocols.DriftCalcP"><em>DriftCalcP</em></a>) – An implementation of DriftCalcP that provides the drift metrics to visualize.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.base_architecture.drift_plot_protocols.DriftPlotP.drift_calc">
+<span class="sig-name descname"><span class="pre">drift_calc</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#tab_right.base_architecture.drift_protocols.DriftCalcP" title="tab_right.base_architecture.drift_protocols.DriftCalcP"><span class="pre">DriftCalcP</span></a></em><a class="headerlink" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP.drift_calc" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.base_architecture.drift_plot_protocols.DriftPlotP.get_distribution_plots">
+<span class="sig-name descname"><span class="pre">get_distribution_plots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Figure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Figure</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/tab_right/base_architecture/drift_plot_protocols.html#DriftPlotP.get_distribution_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP.get_distribution_plots" title="Link to this definition"></a></dt>
+<dd><p>Generate individual distribution comparison plots for multiple features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>Optional</em><em>[</em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>default None</em>) – Specific columns to visualize. If None, visualizes all common columns.</p></li>
+<li><p><strong>bins</strong> (<em>int</em><em>, </em><em>default 10</em>) – Number of bins for histograms when visualizing continuous features.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Additional parameters for the plotting implementation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary mapping feature names to their distribution comparison plots.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Union[go.Figure, plt.Figure]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.base_architecture.drift_plot_protocols.DriftPlotP.plot_multiple">
+<span class="sig-name descname"><span class="pre">plot_multiple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(12,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'score'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ascending</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/base_architecture/drift_plot_protocols.html#DriftPlotP.plot_multiple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP.plot_multiple" title="Link to this definition"></a></dt>
+<dd><p>Create a visualization of drift across multiple features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<em>Optional</em><em>[</em><em>Iterable</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>default None</em>) – Specific columns to visualize. If None, visualizes all common columns.</p></li>
+<li><p><strong>bins</strong> (<em>int</em><em>, </em><em>default 10</em>) – Number of bins for histograms when visualizing continuous features.</p></li>
+<li><p><strong>figsize</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>, </em><em>default</em><em> (</em><em>12</em><em>, </em><em>8</em><em>)</em>) – Figure size as (width, height) in inches.</p></li>
+<li><p><strong>sort_by</strong> (<em>str</em><em>, </em><em>default &quot;score&quot;</em>) – Column to sort the results by, typically “score” or “feature”.</p></li>
+<li><p><strong>ascending</strong> (<em>bool</em><em>, </em><em>default False</em>) – Whether to sort in ascending or descending order.</p></li>
+<li><p><strong>top_n</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em><em>, </em><em>default None</em>) – If provided, only shows the top N features with highest drift.</p></li>
+<li><p><strong>threshold</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>default None</em>) – If provided, highlights features with drift above this threshold.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Additional parameters for the plotting implementation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A figure object containing the drift visualization.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[go.Figure, plt.Figure]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tab_right.base_architecture.drift_plot_protocols.DriftPlotP.plot_single">
+<span class="sig-name descname"><span class="pre">plot_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Figure</span></span></span><a class="reference internal" href="_modules/tab_right/base_architecture/drift_plot_protocols.html#DriftPlotP.plot_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.base_architecture.drift_plot_protocols.DriftPlotP.plot_single" title="Link to this definition"></a></dt>
+<dd><p>Create a detailed visualization of drift for a single feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>column</strong> (<em>str</em>) – The specific column to visualize.</p></li>
+<li><p><strong>bins</strong> (<em>int</em><em>, </em><em>default 10</em>) – Number of bins for histograms when visualizing continuous features.</p></li>
+<li><p><strong>figsize</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>, </em><em>default</em><em> (</em><em>10</em><em>, </em><em>6</em><em>)</em>) – Figure size as (width, height) in inches.</p></li>
+<li><p><strong>show_metrics</strong> (<em>bool</em><em>, </em><em>default True</em>) – Whether to display drift metrics on the plot.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Additional parameters for the plotting implementation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A figure object containing the drift visualization.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[go.Figure, plt.Figure]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-tab_right.task_detection">
+<span id="task-detection"></span><h2>Task Detection<a class="headerlink" href="#module-tab_right.task_detection" title="Link to this heading"></a></h2>
+<p>Task detection utilities for tab-right package.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="tab_right.task_detection.TaskType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tab_right.task_detection.</span></span><span class="sig-name descname"><span class="pre">TaskType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tab_right/task_detection.html#TaskType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.task_detection.TaskType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumeration of possible task types for model evaluation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.task_detection.TaskType.BINARY">
+<span class="sig-name descname"><span class="pre">BINARY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'binary'</span></em><a class="headerlink" href="#tab_right.task_detection.TaskType.BINARY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.task_detection.TaskType.CLASS">
+<span class="sig-name descname"><span class="pre">CLASS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'class'</span></em><a class="headerlink" href="#tab_right.task_detection.TaskType.CLASS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tab_right.task_detection.TaskType.REG">
+<span class="sig-name descname"><span class="pre">REG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'reg'</span></em><a class="headerlink" href="#tab_right.task_detection.TaskType.REG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tab_right.task_detection.detect_task">
+<span class="sig-prename descclassname"><span class="pre">tab_right.task_detection.</span></span><span class="sig-name descname"><span class="pre">detect_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tab_right.task_detection.TaskType" title="tab_right.task_detection.TaskType"><span class="pre">TaskType</span></a></span></span><a class="reference internal" href="_modules/tab_right/task_detection.html#detect_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tab_right.task_detection.detect_task" title="Link to this definition"></a></dt>
+<dd><p>Detect the type of task (binary, class, regression) based on the label series y.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>pd.Series</em>) – The label series to analyze.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The detected task type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tab_right.task_detection.TaskType" title="tab_right.task_detection.TaskType">TaskType</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the label column has only one unique value and the task cannot be inferred.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="segmentation_example.html" class="btn btn-neutral float-left" title="Segmentation Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="seg_double_example.html" class="btn btn-neutral float-left" title="Double Segmentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

@@ -6,21 +6,22 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Drift Example &mdash; tab-right 0.0.0.post1.dev0+cd0d928 documentation</title>
+  <title>Drift Example &mdash; tab-right 0.0.0.post1.dev0+6d2449c documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a838841f"></script>
+      <script src="_static/documentation_options.js?v=acd9db7e"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Segmentation Example" href="segmentation_example.html" />
-    <link rel="prev" title="Examples" href="examples.html" /> 
+    <link rel="next" title="Segmentation Calculation" href="seg_calc_example.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,12 +43,29 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Drift Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="segmentation_example.html">Segmentation Example</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides &amp; Examples</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Drift Example</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#drift-detection-with-tab-right">Drift Detection with tab-right</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#available-drift-metrics">Available Drift Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-using-driftcalculator-and-driftplotter">Example: Using DriftCalculator and DriftPlotter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#feature-level-distribution-comparison">Feature-Level Distribution Comparison</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#categorical-feature-visualization">Categorical Feature Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#direct-functions-api">Direct Functions API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-multiple-drift-metrics">Working with Multiple Drift Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#visualizing-different-types-of-drift">Visualizing Different Types of Drift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-features-of-tab-right-s-drift-detection">Key Features of tab-right’s Drift Detection</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="seg_calc_example.html">Segmentation Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seg_double_example.html">Double Segmentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
 </ul>
 
@@ -77,54 +95,291 @@
              
   <section id="drift-example">
 <span id="id1"></span><h1>Drift Example<a class="headerlink" href="#drift-example" title="Link to this heading"></a></h1>
-<p>This standalone example demonstrates univariate drift detection using random data.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Standalone example for univariate drift detection using random data.&quot;&quot;&quot;</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<p>This example demonstrates how to use tab-right for detecting and visualizing data drift between reference and current datasets. Tab-right provides comprehensive tools for drift detection that help you identify changes in data distributions.</p>
+<section id="drift-detection-with-tab-right">
+<h2>Drift Detection with tab-right<a class="headerlink" href="#drift-detection-with-tab-right" title="Link to this heading"></a></h2>
+<p>Tab-right offers specialized components for drift detection:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DriftCalculator</span></code> - Core class for calculating drift between datasets</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DriftPlotter</span></code> - Visualization class for creating matplotlib-based drift plots</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">univariate</span></code> module - Lower-level functions for specific drift calculations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_drift</span></code> / <code class="docutils literal notranslate"><span class="pre">plot_feature_drift</span></code> modules - Simplified plotting functions</p></li>
+</ol>
+</section>
+<section id="available-drift-metrics">
+<h2>Available Drift Metrics<a class="headerlink" href="#available-drift-metrics" title="Link to this heading"></a></h2>
+<p>Tab-right provides multiple metrics for different types of features:</p>
+<p><strong>Numerical Features:</strong>
+- <strong>Wasserstein Distance</strong> (default): Measures the earth mover’s distance between distributions
+- <strong>Kolmogorov-Smirnov Test</strong>: Statistical test for equality of continuous distributions
+- <strong>Population Stability Index (PSI)</strong>: Measure of population stability over time</p>
+<p><strong>Categorical Features:</strong>
+- <strong>Cramer’s V</strong> (default): Normalized measure of association between categorical variables
+- <strong>Chi-Square Test</strong>: Statistical test for independence of categorical variables
+- <strong>PSI</strong>: Can also be applied to categorical features by comparing proportions</p>
+</section>
+<section id="example-using-driftcalculator-and-driftplotter">
+<h2>Example: Using DriftCalculator and DriftPlotter<a class="headerlink" href="#example-using-driftcalculator-and-driftplotter" title="Link to this heading"></a></h2>
+<p>The most concise way to analyze and visualize drift with tab-right is to use the <code class="docutils literal notranslate"><span class="pre">DriftCalculator</span></code> and <code class="docutils literal notranslate"><span class="pre">DriftPlotter</span></code> classes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">univariate</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.drift.drift_calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">DriftCalculator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting.drift_plotter</span><span class="w"> </span><span class="kn">import</span> <span class="n">DriftPlotter</span>
 
-<span class="c1"># Generate random data for reference and current</span>
+<span class="c1"># Generate simple dataset for demo</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;numeric&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+    <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">100</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+<span class="p">})</span>
+
+<span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;numeric&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mi">120</span><span class="p">),</span>  <span class="c1"># Shift in distribution</span>
+    <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">120</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>  <span class="c1"># Different proportions</span>
+<span class="p">})</span>
+
+<span class="c1"># Create the drift calculator</span>
+<span class="n">drift_calc</span> <span class="o">=</span> <span class="n">DriftCalculator</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">)</span>
+
+<span class="c1"># Create the plotter</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">DriftPlotter</span><span class="p">(</span><span class="n">drift_calc</span><span class="p">)</span>
+
+<span class="c1"># Plot summary of drift across features</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_multiple</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/86e6f78cc057dc3b4f80b8f5708cfca8/drift_example-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/0d619f860bb09dcd20df3ad6639ab73f/drift_example-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/0c4ddcbc3077fad2117a92933bcdabff/drift_example-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/54f276abbead5801edbbf6c69ea3c366/drift_example-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/drift_example-1.png" class="plot-directive" src="_images/drift_example-1.png" />
+</figure>
+</section>
+<section id="feature-level-distribution-comparison">
+<h2>Feature-Level Distribution Comparison<a class="headerlink" href="#feature-level-distribution-comparison" title="Link to this heading"></a></h2>
+<p>You can also examine the distribution shifts for individual features:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.drift.drift_calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">DriftCalculator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting.drift_plotter</span><span class="w"> </span><span class="kn">import</span> <span class="n">DriftPlotter</span>
+
+<span class="c1"># Generate datasets with drift</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;numeric&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+    <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">100</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+<span class="p">})</span>
+
+<span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;numeric&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mi">120</span><span class="p">),</span>
+    <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">120</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="p">})</span>
+
+<span class="c1"># Create calculator and plotter</span>
+<span class="n">drift_calc</span> <span class="o">=</span> <span class="n">DriftCalculator</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">)</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">DriftPlotter</span><span class="p">(</span><span class="n">drift_calc</span><span class="p">)</span>
+
+<span class="c1"># Plot numerical feature distribution comparison</span>
+<span class="n">fig_numeric</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_single</span><span class="p">(</span><span class="s1">&#39;numeric&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/188da62996617a5c805ecd0ec4471afa/drift_example-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/65cae47a2fa24a224c56dca50e5acda2/drift_example-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/9dfa4009cc26271c3a6f4bbc2c899f6f/drift_example-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/b6c034a1d623f5141c22b024598dff18/drift_example-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/drift_example-2.png" class="plot-directive" src="_images/drift_example-2.png" />
+</figure>
+</section>
+<section id="categorical-feature-visualization">
+<h2>Categorical Feature Visualization<a class="headerlink" href="#categorical-feature-visualization" title="Link to this heading"></a></h2>
+<p>Tab-right also makes it easy to visualize categorical feature drift:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.drift.drift_calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">DriftCalculator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting.drift_plotter</span><span class="w"> </span><span class="kn">import</span> <span class="n">DriftPlotter</span>
+
+<span class="c1"># Generate datasets with categorical drift</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;numeric&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+    <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">100</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+<span class="p">})</span>
+
+<span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;numeric&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mi">120</span><span class="p">),</span>
+    <span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">120</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="p">})</span>
+
+<span class="c1"># Create calculator and plotter</span>
+<span class="n">drift_calc</span> <span class="o">=</span> <span class="n">DriftCalculator</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">)</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">DriftPlotter</span><span class="p">(</span><span class="n">drift_calc</span><span class="p">)</span>
+
+<span class="c1"># Plot categorical feature distribution comparison</span>
+<span class="n">fig_cat</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_single</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/2842c7f4ee50a84b33b89f40dfae0646/drift_example-3.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/56dbf61eacdde0bd03988dc27a8b8bc2/drift_example-3.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/77aa6e60f0a4fb4cea4fa4ab67dec5fc/drift_example-3.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/a8edd4a2eede7142ba9e20cfbaf287b5/drift_example-3.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/drift_example-3.png" class="plot-directive" src="_images/drift_example-3.png" />
+</figure>
+</section>
+<section id="direct-functions-api">
+<h2>Direct Functions API<a class="headerlink" href="#direct-functions-api" title="Link to this heading"></a></h2>
+<p>For simpler use cases, tab-right also provides direct functions for drift analysis:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">univariate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_drift_mp</span>
+
+<span class="c1"># Generate datasets</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">df_ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;num_feature&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
-    <span class="s1">&#39;cat_feature&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="s1">&#39;num_feature&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>
+    <span class="s1">&#39;cat_feature&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">500</span><span class="p">)</span>
 <span class="p">})</span>
+
 <span class="n">df_cur</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">&#39;num_feature&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
-    <span class="s1">&#39;cat_feature&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+    <span class="s1">&#39;num_feature&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>
+    <span class="s1">&#39;cat_feature&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">500</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
 <span class="p">})</span>
-</pre></div>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run drift detection for all columns</span>
+
+<span class="c1"># Calculate drift across all features</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">univariate</span><span class="o">.</span><span class="n">detect_univariate_drift_df</span><span class="p">(</span><span class="n">df_ref</span><span class="p">,</span> <span class="n">df_cur</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Univariate drift detection results:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+<span class="c1"># Plot the results using matplotlib</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_drift_mp</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot drift results for all features</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting.plot_drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_drift</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_drift</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<p>(<a class="reference download internal" download="" href="_downloads/7176e086eb8f85923cf8a497686a6303/drift_example-4.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/511182e44db41a27dc9bbe49879bdd94/drift_example-4.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/c40e6e54ad37cd7203dd223707a26bb3/drift_example-4.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/c8c038295ff79a4cb89763f7cccfdd07/drift_example-4.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/drift_example-4.png" class="plot-directive" src="_images/drift_example-4.png" />
+</figure>
+</section>
+<section id="working-with-multiple-drift-metrics">
+<h2>Working with Multiple Drift Metrics<a class="headerlink" href="#working-with-multiple-drift-metrics" title="Link to this heading"></a></h2>
+<p>Tab-right supports various drift metrics that can be customized:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">univariate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.drift.drift_calculator</span><span class="w"> </span><span class="kn">import</span> <span class="n">DriftCalculator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting.drift_plotter</span><span class="w"> </span><span class="kn">import</span> <span class="n">DriftPlotter</span>
+
+<span class="c1"># Generate data</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">df_ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;feat1&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>
+    <span class="s1">&#39;feat2&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">500</span><span class="p">),</span>
+<span class="p">})</span>
+
+<span class="n">df_cur</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;feat1&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>
+    <span class="s1">&#39;feat2&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="mi">500</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]),</span>
+<span class="p">})</span>
+
+<span class="c1"># Using DriftCalculator with default metrics</span>
+<span class="n">calc</span> <span class="o">=</span> <span class="n">DriftCalculator</span><span class="p">(</span><span class="n">df_ref</span><span class="p">,</span> <span class="n">df_cur</span><span class="p">)</span>
+
+<span class="c1"># Create a plotter</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">DriftPlotter</span><span class="p">(</span><span class="n">calc</span><span class="p">)</span>
+
+<span class="c1"># Plot the results</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_multiple</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Drift Analysis with Default Metrics&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: run for a single column</span>
-<span class="n">metric</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">univariate</span><span class="o">.</span><span class="n">detect_univariate_drift</span><span class="p">(</span><span class="n">df_ref</span><span class="p">[</span><span class="s1">&#39;num_feature&#39;</span><span class="p">],</span> <span class="n">df_cur</span><span class="p">[</span><span class="s1">&#39;num_feature&#39;</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;continuous&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Drift metric for &#39;num_feature&#39;: </span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<p>(<a class="reference download internal" download="" href="_downloads/890fed270ea0168f5bcbc5a6bdbc1f9d/drift_example-5.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/02aa862b413c60ccf94132a4d4fb10f3/drift_example-5.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/5352190668dda60f1a02988bda38d956/drift_example-5.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/f2bf532c6a71b6d5c9b8f5e0aabc604d/drift_example-5.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/drift_example-5.png" class="plot-directive" src="_images/drift_example-5.png" />
+</figure>
+</section>
+<section id="visualizing-different-types-of-drift">
+<h2>Visualizing Different Types of Drift<a class="headerlink" href="#visualizing-different-types-of-drift" title="Link to this heading"></a></h2>
+<p>Let’s look at how different degrees of drift appear in tab-right visualizations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="c1"># Create figure with 3 subplots for different drift levels</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="c1"># Generate base reference data</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">ref_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+
+<span class="c1"># Create titles and drift scores (pre-calculated for simplicity)</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Slight Drift&#39;</span><span class="p">,</span> <span class="s1">&#39;Moderate Drift&#39;</span><span class="p">,</span> <span class="s1">&#39;Severe Drift&#39;</span><span class="p">]</span>
+<span class="n">drift_scores</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.241</span><span class="p">,</span> <span class="mf">0.587</span><span class="p">,</span> <span class="mf">1.934</span><span class="p">]</span>  <span class="c1"># Example scores</span>
+
+<span class="c1"># Create datasets with increasing levels of drift</span>
+<span class="n">shifted_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>  <span class="c1"># slight drift</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>  <span class="c1"># moderate drift</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>   <span class="c1"># severe drift</span>
+<span class="p">]</span>
+
+<span class="c1"># Plot for each drift level</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">current_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shifted_data</span><span class="p">):</span>
+    <span class="c1"># Create histograms manually</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">bins</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">hist_range</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">ref_data</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">current_data</span><span class="p">)),</span>
+                 <span class="nb">max</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ref_data</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">current_data</span><span class="p">)))</span>
+
+    <span class="n">ref_hist</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">ref_data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="n">hist_range</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cur_hist</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">current_data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="n">hist_range</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Plot the histograms</span>
+    <span class="n">bin_centers</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bin_centers</span><span class="p">,</span> <span class="n">ref_hist</span><span class="p">,</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Reference&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bin_centers</span><span class="p">,</span> <span class="n">cur_hist</span><span class="p">,</span> <span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Current&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Set title</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">titles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="s2">&quot;Drift Score: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">drift_scores</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot drift for a single feature</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting.plot_feature_drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_feature_drift</span>
-<span class="n">fig_feat</span> <span class="o">=</span> <span class="n">plot_feature_drift</span><span class="p">(</span><span class="n">df_ref</span><span class="p">[</span><span class="s1">&#39;num_feature&#39;</span><span class="p">],</span> <span class="n">df_cur</span><span class="p">[</span><span class="s1">&#39;num_feature&#39;</span><span class="p">],</span> <span class="n">feature_name</span><span class="o">=</span><span class="s1">&#39;num_feature&#39;</span><span class="p">)</span>
-<span class="n">fig_feat</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
+<p>(<a class="reference download internal" download="" href="_downloads/3429c9b6204f731f3e9326a5e90b9793/drift_example-6.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/51b9a90b329d062cdc956c388eb22f49/drift_example-6.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/8368e8f55f73bd4b8662c5f24413918c/drift_example-6.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/3ab0d4d9938b15a6b410be959e56eb2f/drift_example-6.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/drift_example-6.png" class="plot-directive" src="_images/drift_example-6.png" />
+</figure>
+</section>
+<section id="key-features-of-tab-right-s-drift-detection">
+<h2>Key Features of tab-right’s Drift Detection<a class="headerlink" href="#key-features-of-tab-right-s-drift-detection" title="Link to this heading"></a></h2>
+<p>Tab-right offers comprehensive drift detection capabilities:</p>
+<ul class="simple">
+<li><p><strong>Flexible API</strong>: Choose between object-oriented (DriftCalculator/DriftPlotter) or functional approaches</p></li>
+<li><p><strong>Automatic feature type detection</strong>: Appropriate metrics are selected based on the data type</p></li>
+<li><p><strong>Multiple drift metrics</strong>: Including Wasserstein distance, KS test, PSI, and Cramer’s V</p></li>
+<li><p><strong>Matplotlib integration</strong>: Create publication-ready plots with built-in matplotlib figures</p></li>
+<li><p><strong>Multi-feature analysis</strong>: Analyze drift across all features at once</p></li>
+<li><p><strong>Probability density comparison</strong>: Examine detailed distribution changes</p></li>
+</ul>
+<p>These tools make it easy to track and analyze distribution shifts in your data, helping you maintain model performance over time.</p>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="examples.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="segmentation_example.html" class="btn btn-neutral float-right" title="Segmentation Example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="seg_calc_example.html" class="btn btn-neutral float-right" title="Segmentation Calculation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

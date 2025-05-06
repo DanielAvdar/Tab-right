@@ -1,0 +1,418 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Double Segmentation &mdash; tab-right 0.0.0.post1.dev0+6d2449c documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=acd9db7e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="api.html" />
+    <link rel="prev" title="Segmentation Calculation" href="seg_calc_example.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tab-right
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides &amp; Examples</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="drift_example.html">Drift Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seg_calc_example.html">Segmentation Calculation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Double Segmentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-double-segmentation">What is Double Segmentation?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tab-right-s-double-segmentation-tools">Tab-right’s Double Segmentation Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-usage-with-continuous-features">Basic Usage with Continuous Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-categorical-features">Working with Categorical Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mixed-categorical-and-continuous-features">Mixed Categorical and Continuous Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interactive-visualization-with-plotly">Interactive Visualization with Plotly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-different-metrics">Using Different Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-features-of-double-segmentation">Key Features of Double Segmentation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tab-right</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Double Segmentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/seg_double_example.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="double-segmentation">
+<span id="seg-double-example"></span><h1>Double Segmentation<a class="headerlink" href="#double-segmentation" title="Link to this heading"></a></h1>
+<p>This page demonstrates how to use tab-right’s double segmentation functionality to analyze model performance across combinations of two features.</p>
+<section id="what-is-double-segmentation">
+<h2>What is Double Segmentation?<a class="headerlink" href="#what-is-double-segmentation" title="Link to this heading"></a></h2>
+<p>Double segmentation allows you to analyze how your model performs across different combinations of two features. This is useful for:</p>
+<ul class="simple">
+<li><p>Identifying feature interactions affecting model performance</p></li>
+<li><p>Finding specific feature value combinations where your model underperforms</p></li>
+<li><p>Understanding complex patterns single-feature analysis might miss</p></li>
+</ul>
+</section>
+<section id="tab-right-s-double-segmentation-tools">
+<h2>Tab-right’s Double Segmentation Tools<a class="headerlink" href="#tab-right-s-double-segmentation-tools" title="Link to this heading"></a></h2>
+<p>Tab-right provides these tools for double segmentation analysis:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DoubleSegmentationImp</span></code> - Main class for performing double segmentation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlotting</span></code> - Interactive Plotly-based visualization</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlottingMp</span></code> - Matplotlib-based visualization</p></li>
+</ol>
+</section>
+<section id="basic-usage-with-continuous-features">
+<h2>Basic Usage with Continuous Features<a class="headerlink" href="#basic-usage-with-continuous-features" title="Link to this heading"></a></h2>
+<p>Here’s a simple example of double segmentation with tab-right using continuous features:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_squared_error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.segmentations</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoubleSegmentationImp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoubleSegmPlottingMp</span>
+
+<span class="c1"># Create sample data</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">n_samples</span> <span class="o">=</span> <span class="mi">500</span>
+
+<span class="c1"># Generate features and target</span>
+<span class="n">feature1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+<span class="n">feature2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+
+<span class="c1"># Target with interaction effect</span>
+<span class="n">target</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">feature1</span> <span class="o">+</span> <span class="n">feature2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">feature1</span> <span class="o">*</span> <span class="n">feature2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+
+<span class="c1"># Prediction missing the interaction term</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">feature1</span> <span class="o">+</span> <span class="n">feature2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+
+<span class="c1"># Create DataFrame</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;feature1&#39;</span><span class="p">:</span> <span class="n">feature1</span><span class="p">,</span>
+    <span class="s1">&#39;feature2&#39;</span><span class="p">:</span> <span class="n">feature2</span><span class="p">,</span>
+    <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span>
+    <span class="s1">&#39;prediction&#39;</span><span class="p">:</span> <span class="n">prediction</span>
+<span class="p">})</span>
+
+<span class="c1"># Perform double segmentation</span>
+<span class="n">double_seg</span> <span class="o">=</span> <span class="n">DoubleSegmentationImp</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">label_col</span><span class="o">=</span><span class="s1">&#39;target&#39;</span><span class="p">,</span>
+    <span class="n">prediction_col</span><span class="o">=</span><span class="s1">&#39;prediction&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Apply segmentation with 3 bins for each feature</span>
+<span class="n">result_df</span> <span class="o">=</span> <span class="n">double_seg</span><span class="p">(</span>
+    <span class="n">feature1_col</span><span class="o">=</span><span class="s1">&#39;feature1&#39;</span><span class="p">,</span>
+    <span class="n">feature2_col</span><span class="o">=</span><span class="s1">&#39;feature2&#39;</span><span class="p">,</span>
+    <span class="n">score_metric</span><span class="o">=</span><span class="n">mean_squared_error</span><span class="p">,</span>
+    <span class="n">bins_1</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">bins_2</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+
+<span class="c1"># Visualize results with a heatmap</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">DoubleSegmPlottingMp</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">result_df</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot_heatmap</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;MSE by Feature1 and Feature2 Segments&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/7459e5ed3fa9f66948301e194b40d680/seg_double_example-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/1296c0233c9d3a49ceb9414d35d32537/seg_double_example-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/46bd74b226a05535ee67b480bb02b7a0/seg_double_example-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/2b6cef930b1ae1ecc4321fc5681f45b7/seg_double_example-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/seg_double_example-1.png" class="plot-directive" src="_images/seg_double_example-1.png" />
+</figure>
+</section>
+<section id="working-with-categorical-features">
+<h2>Working with Categorical Features<a class="headerlink" href="#working-with-categorical-features" title="Link to this heading"></a></h2>
+<p>Double segmentation works with categorical features without needing to specify bins:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.segmentations</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoubleSegmentationImp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoubleSegmPlottingMp</span>
+
+<span class="c1"># Create sample categorical data</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">800</span>
+
+<span class="c1"># Generate categorical features with non-uniform distributions</span>
+<span class="n">category1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+    <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">],</span>
+    <span class="n">n</span><span class="p">,</span>
+    <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>  <span class="c1"># Different probabilities for each category</span>
+<span class="p">)</span>
+<span class="n">category2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+    <span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">],</span>
+    <span class="n">n</span><span class="p">,</span>
+    <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># Generate target with different patterns for combinations</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="c1"># Add different effects for different combinations</span>
+<span class="n">target</span><span class="p">[(</span><span class="n">category1</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">category2</span> <span class="o">==</span> <span class="s1">&#39;X&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">target</span><span class="p">[(</span><span class="n">category1</span> <span class="o">==</span> <span class="s1">&#39;B&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">category2</span> <span class="o">==</span> <span class="s1">&#39;Y&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">target</span><span class="p">[(</span><span class="n">category1</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">category2</span> <span class="o">==</span> <span class="s1">&#39;Z&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="c1"># Special case with stronger effect</span>
+<span class="n">target</span><span class="p">[(</span><span class="n">category1</span> <span class="o">==</span> <span class="s1">&#39;D&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">category2</span> <span class="o">==</span> <span class="s1">&#39;Z&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">category1</span> <span class="o">==</span> <span class="s1">&#39;D&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">category2</span> <span class="o">==</span> <span class="s1">&#39;Z&#39;</span><span class="p">)))</span>
+
+<span class="c1"># Add some noise</span>
+<span class="n">noise_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+<span class="n">target</span><span class="p">[</span><span class="n">noise_mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">target</span><span class="p">[</span><span class="n">noise_mask</span><span class="p">]</span>
+
+<span class="c1"># Simple prediction without capturing all patterns</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">prediction</span><span class="p">[</span><span class="n">category1</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">prediction</span><span class="p">[</span><span class="n">category2</span> <span class="o">==</span> <span class="s1">&#39;Z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># Create DataFrame</span>
+<span class="n">cat_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;category1&#39;</span><span class="p">:</span> <span class="n">category1</span><span class="p">,</span>
+    <span class="s1">&#39;category2&#39;</span><span class="p">:</span> <span class="n">category2</span><span class="p">,</span>
+    <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="n">target</span><span class="p">,</span>
+    <span class="s1">&#39;prediction&#39;</span><span class="p">:</span> <span class="n">prediction</span>
+<span class="p">})</span>
+
+<span class="c1"># Perform double segmentation</span>
+<span class="n">cat_seg</span> <span class="o">=</span> <span class="n">DoubleSegmentationImp</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">cat_df</span><span class="p">,</span>
+    <span class="n">label_col</span><span class="o">=</span><span class="s1">&#39;target&#39;</span><span class="p">,</span>
+    <span class="n">prediction_col</span><span class="o">=</span><span class="s1">&#39;prediction&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Apply segmentation (no bins needed for categorical features)</span>
+<span class="n">cat_results</span> <span class="o">=</span> <span class="n">cat_seg</span><span class="p">(</span>
+    <span class="n">feature1_col</span><span class="o">=</span><span class="s1">&#39;category1&#39;</span><span class="p">,</span>
+    <span class="n">feature2_col</span><span class="o">=</span><span class="s1">&#39;category2&#39;</span><span class="p">,</span>
+    <span class="n">score_metric</span><span class="o">=</span><span class="n">accuracy_score</span>
+<span class="p">)</span>
+
+<span class="c1"># Plot with higher is better for accuracy</span>
+<span class="n">cat_plot</span> <span class="o">=</span> <span class="n">DoubleSegmPlottingMp</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">cat_results</span><span class="p">,</span>
+    <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">cat_plot</span><span class="o">.</span><span class="n">plot_heatmap</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Accuracy by Category Segments&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/eea9e40a5b3276cc0ea4130f741b62ce/seg_double_example-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/d3b4bba0eacb15dcacc2a56926e835fc/seg_double_example-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/85d4cfb4b5fa432acb965c95e878f70c/seg_double_example-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/053dcdf7030ea3a5ef626de8ab47a183/seg_double_example-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/seg_double_example-2.png" class="plot-directive" src="_images/seg_double_example-2.png" />
+</figure>
+</section>
+<section id="mixed-categorical-and-continuous-features">
+<h2>Mixed Categorical and Continuous Features<a class="headerlink" href="#mixed-categorical-and-continuous-features" title="Link to this heading"></a></h2>
+<p>Double segmentation can analyze combinations of categorical and continuous features:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">f1_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.segmentations</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoubleSegmentationImp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoubleSegmPlottingMp</span>
+
+<span class="c1"># Create sample data with mixed feature types</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">n_samples</span> <span class="o">=</span> <span class="mi">500</span>
+
+<span class="c1"># Generate categorical feature - product type</span>
+<span class="n">product_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Basic&#39;</span><span class="p">,</span> <span class="s1">&#39;Standard&#39;</span><span class="p">,</span> <span class="s1">&#39;Premium&#39;</span><span class="p">,</span> <span class="s1">&#39;Enterprise&#39;</span><span class="p">]</span>
+<span class="n">product</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">product_types</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+
+<span class="c1"># Generate continuous feature - customer spending</span>
+<span class="n">spending</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">gamma</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_samples</span><span class="p">)</span>
+
+<span class="c1"># Add variation by product type</span>
+<span class="n">spending</span><span class="p">[</span><span class="n">product</span> <span class="o">==</span> <span class="s1">&#39;Premium&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">1.5</span>
+<span class="n">spending</span><span class="p">[</span><span class="n">product</span> <span class="o">==</span> <span class="s1">&#39;Enterprise&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="mf">2.0</span>
+
+<span class="c1"># Simple model: customers return if they have premium products OR spend a lot</span>
+<span class="n">premium_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">product</span> <span class="o">==</span> <span class="s1">&#39;Premium&#39;</span><span class="p">,</span> <span class="n">product</span> <span class="o">==</span> <span class="s1">&#39;Enterprise&#39;</span><span class="p">)</span>
+<span class="n">return_prob</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">premium_mask</span> <span class="o">+</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="p">(</span><span class="n">spending</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">spending</span><span class="p">,</span> <span class="mi">70</span><span class="p">))</span>
+<span class="n">return_prob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">return_prob</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)</span>
+
+<span class="c1"># Generate actual returns (target)</span>
+<span class="n">customer_return</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">return_prob</span><span class="p">)</span>
+
+<span class="c1"># Simple prediction (missing some patterns)</span>
+<span class="n">pred_prob</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="p">(</span><span class="n">product</span> <span class="o">==</span> <span class="s1">&#39;Enterprise&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="p">(</span><span class="n">spending</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">spending</span><span class="p">,</span> <span class="mi">80</span><span class="p">))</span>
+<span class="n">pred_prob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">pred_prob</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">pred_prob</span><span class="p">)</span>
+
+<span class="c1"># Create DataFrame</span>
+<span class="n">mixed_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;product&#39;</span><span class="p">:</span> <span class="n">product</span><span class="p">,</span>
+    <span class="s1">&#39;spending&#39;</span><span class="p">:</span> <span class="n">spending</span><span class="p">,</span>
+    <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="n">customer_return</span><span class="p">,</span>
+    <span class="s1">&#39;prediction&#39;</span><span class="p">:</span> <span class="n">prediction</span>
+<span class="p">})</span>
+
+<span class="c1"># Perform double segmentation</span>
+<span class="n">mixed_seg</span> <span class="o">=</span> <span class="n">DoubleSegmentationImp</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">mixed_df</span><span class="p">,</span>
+    <span class="n">label_col</span><span class="o">=</span><span class="s1">&#39;target&#39;</span><span class="p">,</span>
+    <span class="n">prediction_col</span><span class="o">=</span><span class="s1">&#39;prediction&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Apply segmentation</span>
+<span class="n">mixed_results</span> <span class="o">=</span> <span class="n">mixed_seg</span><span class="p">(</span>
+    <span class="n">feature1_col</span><span class="o">=</span><span class="s1">&#39;product&#39;</span><span class="p">,</span>
+    <span class="n">feature2_col</span><span class="o">=</span><span class="s1">&#39;spending&#39;</span><span class="p">,</span>
+    <span class="n">score_metric</span><span class="o">=</span><span class="n">f1_score</span><span class="p">,</span>
+    <span class="n">bins_2</span><span class="o">=</span><span class="mi">4</span>  <span class="c1"># 4 bins for spending</span>
+<span class="p">)</span>
+
+<span class="c1"># Plot with higher is better for F1 score</span>
+<span class="n">mixed_plot</span> <span class="o">=</span> <span class="n">DoubleSegmPlottingMp</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">mixed_results</span><span class="p">,</span>
+    <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">mixed_plot</span><span class="o">.</span><span class="n">plot_heatmap</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;F1 Score by Product Type and Spending&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/5e68e034df3b20b14ebf1922afaff11b/seg_double_example-3.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/eb601a61067613ffbaef74925a034cc1/seg_double_example-3.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/38aad46a8c61a3481b39ec36b5741a05/seg_double_example-3.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/89594dcd0f114454e94902c497ae373b/seg_double_example-3.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/seg_double_example-3.png" class="plot-directive" src="_images/seg_double_example-3.png" />
+</figure>
+</section>
+<section id="interactive-visualization-with-plotly">
+<h2>Interactive Visualization with Plotly<a class="headerlink" href="#interactive-visualization-with-plotly" title="Link to this heading"></a></h2>
+<p>Tab-right also offers interactive Plotly visualization:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">DoubleSegmPlotting</span>
+
+<span class="c1"># Create interactive visualization from the results</span>
+<span class="n">interactive_plot</span> <span class="o">=</span> <span class="n">DoubleSegmPlotting</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">result_df</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">interactive_plot</span><span class="o">.</span><span class="n">plot_heatmap</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Interactive Double Segmentation Heatmap&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="using-different-metrics">
+<h2>Using Different Metrics<a class="headerlink" href="#using-different-metrics" title="Link to this heading"></a></h2>
+<p>You can use any metric compatible with scikit-learn:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">r2_score</span>
+
+<span class="c1"># Using MAE instead of MSE</span>
+<span class="n">mae_results</span> <span class="o">=</span> <span class="n">double_seg</span><span class="p">(</span>
+    <span class="n">feature1_col</span><span class="o">=</span><span class="s1">&#39;feature1&#39;</span><span class="p">,</span>
+    <span class="n">feature2_col</span><span class="o">=</span><span class="s1">&#39;feature2&#39;</span><span class="p">,</span>
+    <span class="n">score_metric</span><span class="o">=</span><span class="n">mean_absolute_error</span><span class="p">,</span>
+    <span class="n">bins_1</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">bins_2</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+
+<span class="c1"># For metrics where higher is better (like R²)</span>
+<span class="n">r2_results</span> <span class="o">=</span> <span class="n">double_seg</span><span class="p">(</span>
+    <span class="n">feature1_col</span><span class="o">=</span><span class="s1">&#39;feature1&#39;</span><span class="p">,</span>
+    <span class="n">feature2_col</span><span class="o">=</span><span class="s1">&#39;feature2&#39;</span><span class="p">,</span>
+    <span class="n">score_metric</span><span class="o">=</span><span class="n">r2_score</span><span class="p">,</span>
+    <span class="n">bins_1</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">bins_2</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+
+<span class="c1"># Visualize with appropriate settings</span>
+<span class="n">r2_plotter</span> <span class="o">=</span> <span class="n">DoubleSegmPlottingMp</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">r2_results</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">r2_plotter</span><span class="o">.</span><span class="n">plot_heatmap</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;R² Score by Feature Segments&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="key-features-of-double-segmentation">
+<h2>Key Features of Double Segmentation<a class="headerlink" href="#key-features-of-double-segmentation" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Discover interactions</strong>: Find how combinations of features affect performance</p></li>
+<li><p><strong>Automatic handling</strong>: Works with both numerical and categorical features</p></li>
+<li><p><strong>Flexible metrics</strong>: Compatible with any scikit-learn metric</p></li>
+<li><p><strong>Visual insights</strong>: Interactive and static visualization options</p></li>
+<li><p><strong>Performance diagnosis</strong>: Quickly identify problem areas in your model</p></li>
+</ul>
+<p>Double segmentation provides deeper insights than single-feature analysis, helping you better understand your model’s behavior across different data segments.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="seg_calc_example.html" class="btn btn-neutral float-left" title="Segmentation Calculation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, DanielAvdar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

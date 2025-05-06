@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Segmentation Calculation &mdash; tab-right 0.0.0.post1.dev0+6d2449c documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=acd9db7e"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Double Segmentation" href="seg_double_example.html" />
+    <link rel="prev" title="Drift Example" href="drift_example.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            tab-right
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides &amp; Examples</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="drift_example.html">Drift Example</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Segmentation Calculation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-segmentation-analysis">What is Segmentation Analysis?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-tab-right-for-segmentation-analysis">Using tab-right for Segmentation Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-actual-data">Working with Actual Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#visualization-with-higher-is-better-metrics">Visualization with Higher-is-Better Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interactive-visualization-with-plotly">Interactive Visualization with Plotly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-steps-for-segmentation-analysis">Key Steps for Segmentation Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-benefits-of-using-tab-right-for-segmentation">Key Benefits of Using tab-right for Segmentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="seg_double_example.html">Double Segmentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">tab-right</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Segmentation Calculation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/seg_calc_example.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="segmentation-calculation">
+<h1>Segmentation Calculation<a class="headerlink" href="#segmentation-calculation" title="Link to this heading"></a></h1>
+<p id="seg-calc-example">This page demonstrates how to use tab-right’s segmentation calculation (SegmentationCalc) and its plotting functionality.</p>
+<section id="what-is-segmentation-analysis">
+<h2>What is Segmentation Analysis?<a class="headerlink" href="#what-is-segmentation-analysis" title="Link to this heading"></a></h2>
+<p>Segmentation analysis is a powerful technique for understanding how your model performs across different subsets of your data. Tab-right provides comprehensive tools to:</p>
+<ol class="arabic simple">
+<li><p>Calculate metrics for each segment of your data</p></li>
+<li><p>Visualize segment performance with built-in plotting functions</p></li>
+<li><p>Compare multiple segments to identify potential model weaknesses</p></li>
+</ol>
+</section>
+<section id="using-tab-right-for-segmentation-analysis">
+<h2>Using tab-right for Segmentation Analysis<a class="headerlink" href="#using-tab-right-for-segmentation-analysis" title="Link to this heading"></a></h2>
+<p>Tab-right provides the following key components for segmentation analysis:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SegmentationCalc</span></code> - Core class for calculating metrics across segments</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_single_segmentation</span></code> / <code class="docutils literal notranslate"><span class="pre">plot_single_segmentation_mp</span></code> - Visualize segment metrics</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DoubleSegmPlotting</span></code> / <code class="docutils literal notranslate"><span class="pre">DoubleSegmPlottingMp</span></code> - Visualize interactions between two segment features</p></li>
+</ol>
+</section>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h2>
+<p>Here’s a simple example showing how to create segment data and visualize it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_single_segmentation_mp</span>
+
+<span class="c1"># Create a simple results DataFrame with segments</span>
+<span class="n">segments</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;segment_id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="s1">&#39;segment_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Age &lt; 30&#39;</span><span class="p">,</span> <span class="s1">&#39;30 ≤ Age &lt; 50&#39;</span><span class="p">,</span> <span class="s1">&#39;Age ≥ 50&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.92</span><span class="p">,</span> <span class="mf">0.77</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="c1"># Plot the segmentation results using matplotlib</span>
+<span class="n">plot_single_segmentation_mp</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/e0a51ce80cd9ccd8a0af8e9f4edea775/seg_calc_example-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/6b14a1736bc22b084440cb80af479bf6/seg_calc_example-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/8a5215eb3688ee171434a37020783e8c/seg_calc_example-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/775af88ad74334dedb131d9b7a9f7d9a/seg_calc_example-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/seg_calc_example-1.png" class="plot-directive" src="_images/seg_calc_example-1.png" />
+</figure>
+</section>
+<section id="working-with-actual-data">
+<h2>Working with Actual Data<a class="headerlink" href="#working-with-actual-data" title="Link to this heading"></a></h2>
+<p>For real-world analysis with your own data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionTreeRegressor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_absolute_error</span>
+
+<span class="c1"># Create DataFrameGroupBy object with segment information</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span>
+    <span class="s1">&#39;segment_id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="s1">&#39;true_value&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">18</span><span class="p">],</span>
+    <span class="s1">&#39;prediction&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">16</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="c1"># Group by segment_id to create the DataFrameGroupBy object</span>
+<span class="n">grouped_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;segment_id&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create mapping from segment_id to readable names</span>
+<span class="n">segment_names</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Age &lt; 30&#39;</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;30 ≤ Age &lt; 50&#39;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;Age ≥ 50&#39;</span>
+<span class="p">}</span>
+
+<span class="c1"># Define metric function (MAE)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_mae</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+
+<span class="c1"># Create segmentation calculator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.segmentations</span><span class="w"> </span><span class="kn">import</span> <span class="n">SegmentationCalc</span>
+<span class="n">seg_calc</span> <span class="o">=</span> <span class="n">SegmentationCalc</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="o">=</span><span class="n">grouped_df</span><span class="p">,</span>
+    <span class="n">label_col</span><span class="o">=</span><span class="s1">&#39;true_value&#39;</span><span class="p">,</span>
+    <span class="n">prediction_col</span><span class="o">=</span><span class="s1">&#39;prediction&#39;</span><span class="p">,</span>
+    <span class="n">segment_names</span><span class="o">=</span><span class="n">segment_names</span>
+<span class="p">)</span>
+
+<span class="c1"># Apply metric to calculate segment scores</span>
+<span class="n">segments</span> <span class="o">=</span> <span class="n">seg_calc</span><span class="p">(</span><span class="n">calc_mae</span><span class="p">)</span>
+
+<span class="c1"># Plot the results</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_single_segmentation_mp</span>
+<span class="n">plot_single_segmentation_mp</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="visualization-with-higher-is-better-metrics">
+<h2>Visualization with Higher-is-Better Metrics<a class="headerlink" href="#visualization-with-higher-is-better-metrics" title="Link to this heading"></a></h2>
+<p>For metrics where higher values are better (like R²), use the <cite>lower_is_better=False</cite> parameter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_single_segmentation_mp</span>
+
+<span class="c1"># Create a DataFrame with example R² values by segment</span>
+<span class="n">r2_segments</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;segment_id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="s1">&#39;segment_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Age &lt; 30&#39;</span><span class="p">,</span> <span class="s1">&#39;30 ≤ Age &lt; 50&#39;</span><span class="p">,</span> <span class="s1">&#39;50 ≤ Age &lt; 65&#39;</span><span class="p">,</span> <span class="s1">&#39;Age ≥ 65&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.82</span><span class="p">,</span> <span class="mf">0.91</span><span class="p">,</span> <span class="mf">0.76</span><span class="p">,</span> <span class="mf">0.68</span><span class="p">]</span>  <span class="c1"># R² values (higher is better)</span>
+<span class="p">})</span>
+
+<span class="c1"># Plot with lower_is_better=False for R²</span>
+<span class="n">plot_single_segmentation_mp</span><span class="p">(</span><span class="n">r2_segments</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;R² by Age Segment&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference download internal" download="" href="_downloads/ce7b2205c2d2e645e7434459cc3ed308/seg_calc_example-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/09242de3864ac3c50c0f02ac46e33875/seg_calc_example-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/8914203b1e64e15df0e7ee4a1dddad58/seg_calc_example-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/56c9797180afc7d265bccc6e803b0faf/seg_calc_example-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="_images/seg_calc_example-2.png" class="plot-directive" src="_images/seg_calc_example-2.png" />
+</figure>
+</section>
+<section id="interactive-visualization-with-plotly">
+<h2>Interactive Visualization with Plotly<a class="headerlink" href="#interactive-visualization-with-plotly" title="Link to this heading"></a></h2>
+<p>Tab-right also supports Plotly for interactive visualizations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tab_right.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_single_segmentation</span>
+
+<span class="c1"># Create interactive visualization</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_single_segmentation</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>  <span class="c1"># Opens in browser or notebook</span>
+</pre></div>
+</div>
+</section>
+<section id="key-steps-for-segmentation-analysis">
+<h2>Key Steps for Segmentation Analysis<a class="headerlink" href="#key-steps-for-segmentation-analysis" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Group your data</strong> by segments using pandas’ groupby function</p></li>
+<li><p><strong>Create segment names</strong> for better interpretation of results</p></li>
+<li><p><strong>Initialize SegmentationCalc</strong> with the grouped data</p></li>
+<li><p><strong>Apply a metric function</strong> to calculate segment scores</p></li>
+<li><p><strong>Visualize the results</strong> using plot_single_segmentation_mp (matplotlib) or plot_single_segmentation (Plotly)</p></li>
+</ol>
+<p>This workflow makes it easy to identify segments where your model performs differently, helping you understand where improvements are needed.</p>
+</section>
+<section id="key-benefits-of-using-tab-right-for-segmentation">
+<h2>Key Benefits of Using tab-right for Segmentation<a class="headerlink" href="#key-benefits-of-using-tab-right-for-segmentation" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Standardized API</strong>: Consistent interface for all segmentation analyses</p></li>
+<li><p><strong>Automatic handling of missing values</strong>: Robust processing of incomplete data</p></li>
+<li><p><strong>Support for multiple metrics</strong>: Easy comparison across various evaluation metrics</p></li>
+<li><p><strong>Flexible visualization options</strong>: Both static and interactive plotting</p></li>
+<li><p><strong>Compatible with scikit-learn</strong>: Works with any scikit-learn compatible metric function</p></li>
+</ul>
+<p>Tab-right’s segmentation functionality helps you understand where your model performs well and where it needs improvement, enabling targeted model enhancements and better decision-making.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="drift_example.html" class="btn btn-neutral float-left" title="Drift Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="seg_double_example.html" class="btn btn-neutral float-right" title="Double Segmentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, DanielAvdar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

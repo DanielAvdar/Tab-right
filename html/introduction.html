@@ -6,21 +6,22 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; tab-right 0.0.0.post1.dev0+cd0d928 documentation</title>
+  <title>Introduction &mdash; tab-right 0.0.0.post1.dev0+6d2449c documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a838841f"></script>
+      <script src="_static/documentation_options.js?v=acd9db7e"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Examples" href="examples.html" />
-    <link rel="prev" title="Introduction" href="index.html" /> 
+    <link rel="next" title="Drift Example" href="drift_example.html" />
+    <link rel="prev" title="Tab-right" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,16 +43,22 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#key-features">Key Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides &amp; Examples</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="drift_example.html">Drift Example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="segmentation_example.html">Segmentation Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seg_calc_example.html">Segmentation Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seg_double_example.html">Double Segmentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
 </ul>
 
@@ -80,7 +87,7 @@
            <div itemprop="articleBody">
              
   <section id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
+<span id="id1"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
 <a class="reference external image-reference" href="https://pypi.org/project/tab-right/"><img alt="PyPI version" src="https://img.shields.io/pypi/v/tab-right.svg" />
 </a>
 <a class="reference external image-reference" href="https://pypi.org/project/tab-right/"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/tab-right.svg" />
@@ -88,10 +95,18 @@
 <a class="reference external image-reference" href="https://opensource.org/licenses/MIT"><img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg" />
 </a>
 <img alt="Ubuntu" src="https://img.shields.io/badge/ubuntu-blue?logo=ubuntu" />
-<img alt="Windows" src="https://img.shields.io/badge/ubuntu-blue?logo=windows" />
-<img alt="MacOS" src="https://img.shields.io/badge/ubuntu-blue?logo=apple" />
-<img alt="Coverage" src="https://codecov.io/gh/DanielAvdar/tab-right/branch/main/graph/badge.svg" />
-<img alt="Last Commit" src="https://img.shields.io/github/last-commit/DanielAvdar/tab-right/main" />
+<img alt="Windows" src="https://img.shields.io/badge/win-blue?logo=windows" />
+<img alt="MacOS" src="https://img.shields.io/badge/mac-blue?logo=apple" />
+<a class="reference external image-reference" href="https://codecov.io/gh/DanielAvdar/tab-right"><img alt="Coverage" src="https://codecov.io/gh/DanielAvdar/tab-right/branch/main/graph/badge.svg" />
+</a>
+<a class="reference external image-reference" href="https://github.com/DanielAvdar/tab-right/commits/main"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/DanielAvdar/tab-right/main" />
+</a>
+<a class="reference external image-reference" href="https://github.com/DanielAvdar/tab-right/actions/workflows/ci.yml"><img alt="Tests" src="https://github.com/DanielAvdar/tab-right/actions/workflows/ci.yml/badge.svg" />
+</a>
+<a class="reference external image-reference" href="https://github.com/DanielAvdar/tab-right/actions/workflows/code-checks.yml"><img alt="Code Checks" src="https://github.com/DanielAvdar/tab-right/actions/workflows/code-checks.yml/badge.svg" />
+</a>
+<a class="reference external image-reference" href="https://github.com/astral-sh/ruff"><img alt="Ruff" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" />
+</a>
 <p>Tab-right is a Python package for easy, model-agnostic analysis of tabular data for inference models (ML and non-ML). It focuses on diagnostics and interpretability using only model predictions and features—no need for model internals.</p>
 <section id="key-features">
 <h2>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h2>
@@ -109,12 +124,6 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>tab-right
 </pre></div>
 </div>
-<p>For development or the latest features, clone the repository and install in editable mode:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/DanielAvdar/tab-right.git
-<span class="nb">cd</span><span class="w"> </span>tab-right
-pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
-</pre></div>
-</div>
 </section>
 </section>
 
@@ -122,8 +131,8 @@ pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </s
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Tab-right" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="drift_example.html" class="btn btn-neutral float-right" title="Drift Example" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
