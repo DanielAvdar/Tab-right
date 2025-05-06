@@ -10,14 +10,16 @@ Segmentation
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 .. autoclass:: tab_right.segmentations.double_seg.DoubleSegmentationImp
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Drift Detection
---------------
+---------------
 
 .. autoclass:: tab_right.drift.drift_calculator.DriftCalculator
    :members:
@@ -25,7 +27,7 @@ Drift Detection
    :show-inheritance:
 
 Drift Metrics
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 .. autofunction:: tab_right.drift.univariate.detect_univariate_drift_df
 

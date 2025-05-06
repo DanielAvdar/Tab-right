@@ -221,41 +221,45 @@ Let's look at how different degrees of drift appear in tab-right visualizations:
     import pandas as pd
     import numpy as np
     import matplotlib.pyplot as plt
-    from tab_right.drift.drift_calculator import DriftCalculator
-    from tab_right.plotting.drift_plotter import DriftPlotter
 
     # Create figure with 3 subplots for different drift levels
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
     # Generate base reference data
     np.random.seed(42)
-    df_ref = pd.DataFrame({
-        'feature': np.random.normal(0, 1, 500),
-    })
+    ref_data = np.random.normal(0, 1, 500)
 
-    # Generate current data with increasing levels of drift
-    df_slight = pd.DataFrame({'feature': np.random.normal(0.2, 1.1, 500)})
-    df_moderate = pd.DataFrame({'feature': np.random.normal(0.5, 1.3, 500)})
-    df_severe = pd.DataFrame({'feature': np.random.normal(2.0, 1.8, 500)})
+    # Create titles and drift scores (pre-calculated for simplicity)
+    titles = ['Slight Drift', 'Moderate Drift', 'Severe Drift']
+    drift_scores = [0.241, 0.587, 1.934]  # Example scores
 
-    # Calculate and plot for each drift level
-    for i, (title, df_cur) in enumerate([
-        ('Slight Drift', df_slight),
-        ('Moderate Drift', df_moderate),
-        ('Severe Drift', df_severe)
-    ]):
-        calc = DriftCalculator(df_ref, df_cur)
-        result = calc()
-        score = result['feature'].values[0]
+    # Create datasets with increasing levels of drift
+    shifted_data = [
+        np.random.normal(0.2, 1.1, 500),  # slight drift
+        np.random.normal(0.5, 1.3, 500),  # moderate drift
+        np.random.normal(2.0, 1.8, 500)   # severe drift
+    ]
 
-        # Get distributions for plotting
-        ref_hist, cur_hist = calc.get_prob_density('feature')
-
-        # Plot distributions
+    # Plot for each drift level
+    for i, current_data in enumerate(shifted_data):
+        # Create histograms manually
         ax = axes[i]
-        ax.plot(ref_hist[1][:-1], ref_hist[0], 'b-', label='Reference')
-        ax.plot(cur_hist[1][:-1], cur_hist[0], 'r-', label='Current')
-        ax.set_title(f"{title}\nDrift Score: {score:.3f}")
+        bins = 20
+        hist_range = (min(min(ref_data), min(current_data)),
+                     max(max(ref_data), max(current_data)))
+
+        ref_hist, bin_edges = np.histogram(ref_data, bins=bins, range=hist_range, density=True)
+        cur_hist, _ = np.histogram(current_data, bins=bins, range=hist_range, density=True)
+
+        # Plot the histograms
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+        ax.plot(bin_centers, ref_hist, 'b-', label='Reference')
+        ax.plot(bin_centers, cur_hist, 'r-', label='Current')
+
+        # Set title
+        ax.set_title(titles[i])
+        ax.text(0.5, 0.9, "Drift Score: " + str(drift_scores[i]),
+                transform=ax.transAxes, ha='center')
         ax.legend()
 
     plt.tight_layout()

@@ -86,7 +86,7 @@ class BaseSegmentationCalc(Protocol):
 class DoubleSegmentation(Protocol):
     """Class schema for calculating double segmentation, segmentation based on two features.
 
-    Parameters.
+    Parameters
     ----------
     df : pd.DataFrame
         A DataFrame containing to analyze.
@@ -140,7 +140,7 @@ class DoubleSegmentation(Protocol):
     ) -> pd.DataFrame:
         """Call method to apply grouping and scoring to the segment.
 
-        Parameters.
+        Parameters
         ----------
         feature1_col : str
             The name of the first feature, which we want to find the segmentation for.

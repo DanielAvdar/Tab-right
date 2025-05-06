@@ -21,10 +21,7 @@ jobs:
         with:
           enable-cache: true
       - run: uv python install 3.11
-
-      - run: make install-docs
-      - run: make doc
-
+      - run: make doctest
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
