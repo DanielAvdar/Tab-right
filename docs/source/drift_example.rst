@@ -25,6 +25,7 @@ The most concise way to analyze and visualize drift with tab-right is to use the
 
     import numpy as np
     import pandas as pd
+    import matplotlib.pyplot as plt
     from tab_right.drift.drift_calculator import DriftCalculator
     from tab_right.plotting.drift_plotter import DriftPlotter
 
@@ -32,12 +33,12 @@ The most concise way to analyze and visualize drift with tab-right is to use the
     np.random.seed(42)
     df1 = pd.DataFrame({
         'numeric': np.random.normal(0, 1, 100),
-        'category': np.random.choice(['A', 'B'], 100)
+        'category': np.random.choice(['A', 'B', 'C'], 100, p=[0.5, 0.3, 0.2])
     })
 
     df2 = pd.DataFrame({
         'numeric': np.random.normal(1, 1.2, 120),  # Shift in distribution
-        'category': np.random.choice(['B', 'C'], 120)  # Different categories
+        'category': np.random.choice(['A', 'B', 'C'], 120, p=[0.2, 0.3, 0.5])  # Different proportions
     })
 
     # Create the drift calculator
@@ -48,6 +49,8 @@ The most concise way to analyze and visualize drift with tab-right is to use the
 
     # Plot summary of drift across features
     fig = plotter.plot_multiple()
+    plt.tight_layout()
+    plt.show()
 
 Feature-Level Distribution Comparison
 -------------------------------------
@@ -59,19 +62,20 @@ You can also examine the distribution shifts for individual features:
 
     import numpy as np
     import pandas as pd
+    import matplotlib.pyplot as plt
     from tab_right.drift.drift_calculator import DriftCalculator
     from tab_right.plotting.drift_plotter import DriftPlotter
 
-    # Reuse previous dataset setup
+    # Generate datasets with drift
     np.random.seed(42)
     df1 = pd.DataFrame({
         'numeric': np.random.normal(0, 1, 100),
-        'category': np.random.choice(['A', 'B'], 100)
+        'category': np.random.choice(['A', 'B', 'C'], 100, p=[0.5, 0.3, 0.2])
     })
 
     df2 = pd.DataFrame({
         'numeric': np.random.normal(1, 1.2, 120),
-        'category': np.random.choice(['B', 'C'], 120)
+        'category': np.random.choice(['A', 'B', 'C'], 120, p=[0.2, 0.3, 0.5])
     })
 
     # Create calculator and plotter
@@ -80,9 +84,11 @@ You can also examine the distribution shifts for individual features:
 
     # Plot numerical feature distribution comparison
     fig_numeric = plotter.plot_single('numeric')
+    plt.tight_layout()
+    plt.show()
 
-Quick Categorical Feature Visualization
-----------------------------------------
+Categorical Feature Visualization
+---------------------------------
 
 Tab-right also makes it easy to visualize categorical feature drift:
 
@@ -91,19 +97,20 @@ Tab-right also makes it easy to visualize categorical feature drift:
 
     import numpy as np
     import pandas as pd
+    import matplotlib.pyplot as plt
     from tab_right.drift.drift_calculator import DriftCalculator
     from tab_right.plotting.drift_plotter import DriftPlotter
 
-    # Reuse previous dataset setup
+    # Generate datasets with categorical drift
     np.random.seed(42)
     df1 = pd.DataFrame({
         'numeric': np.random.normal(0, 1, 100),
-        'category': np.random.choice(['A', 'B'], 100)
+        'category': np.random.choice(['A', 'B', 'C'], 100, p=[0.5, 0.3, 0.2])
     })
 
     df2 = pd.DataFrame({
         'numeric': np.random.normal(1, 1.2, 120),
-        'category': np.random.choice(['B', 'C'], 120)
+        'category': np.random.choice(['A', 'B', 'C'], 120, p=[0.2, 0.3, 0.5])
     })
 
     # Create calculator and plotter
@@ -112,9 +119,11 @@ Tab-right also makes it easy to visualize categorical feature drift:
 
     # Plot categorical feature distribution comparison
     fig_cat = plotter.plot_single('category')
+    plt.tight_layout()
+    plt.show()
 
-Alternative API: Direct Functions
-----------------------------------
+Direct Functions API
+-------------------
 
 For simpler use cases, tab-right also provides direct functions for drift analysis:
 
@@ -123,6 +132,7 @@ For simpler use cases, tab-right also provides direct functions for drift analys
 
     import numpy as np
     import pandas as pd
+    import matplotlib.pyplot as plt
     from tab_right.drift import univariate
     from tab_right.plotting import plot_drift_mp
 
@@ -141,20 +151,25 @@ For simpler use cases, tab-right also provides direct functions for drift analys
     # Calculate drift across all features
     result = univariate.detect_univariate_drift_df(df_ref, df_cur)
 
-    # Plot the results
+    # Plot the results using matplotlib
     fig = plot_drift_mp(result)
+    plt.tight_layout()
+    plt.show()
 
 Working with Multiple Drift Metrics
 -----------------------------------
 
 Tab-right supports various drift metrics that can be explicitly specified:
 
-.. code-block:: python
+.. plot::
+    :include-source:
 
     import pandas as pd
     import numpy as np
+    import matplotlib.pyplot as plt
     from tab_right.drift import univariate
     from tab_right.drift.drift_calculator import DriftCalculator
+    from tab_right.plotting.drift_plotter import DriftPlotter
 
     # Generate data
     np.random.seed(42)
@@ -170,17 +185,66 @@ Tab-right supports various drift metrics that can be explicitly specified:
 
     # Using DriftCalculator with specific metrics
     calc = DriftCalculator(df_ref, df_cur, numeric_metric='wasserstein', categorical_metric='cramer_v')
-    results = calc()
-    print(results)
 
-    # Or using direct functions with specific metrics
-    ks_metric, ks_value = univariate.detect_univariate_drift(
-        df_ref['feat1'], df_cur['feat1'],
-        kind='continuous',
-        metric='ks'  # Use Kolmogorov-Smirnov test
-    )
+    # Create a plotter
+    plotter = DriftPlotter(calc)
 
-    print(f"KS test statistic for feat1: {ks_value:.4f}")
+    # Plot the results
+    fig = plotter.plot_multiple()
+    plt.title('Drift Analysis with Specified Metrics')
+    plt.tight_layout()
+    plt.show()
+
+Visualizing Different Types of Drift
+------------------------------------
+
+Let's look at how different degrees of drift appear in tab-right visualizations:
+
+.. plot::
+    :include-source:
+
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from tab_right.drift.drift_calculator import DriftCalculator
+    from tab_right.plotting.drift_plotter import DriftPlotter
+
+    # Create figure with 3 subplots for different drift levels
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+    # Generate base reference data
+    np.random.seed(42)
+    df_ref = pd.DataFrame({
+        'value': np.random.normal(0, 1, 500),
+    })
+
+    # Generate current data with increasing levels of drift
+    df_slight = pd.DataFrame({'value': np.random.normal(0.2, 1.1, 500)})
+    df_moderate = pd.DataFrame({'value': np.random.normal(0.5, 1.3, 500)})
+    df_severe = pd.DataFrame({'value': np.random.normal(2.0, 1.8, 500)})
+
+    # Calculate and plot for each drift level
+    for i, (title, df_cur) in enumerate([
+        ('Slight Drift', df_slight),
+        ('Moderate Drift', df_moderate),
+        ('Severe Drift', df_severe)
+    ]):
+        calc = DriftCalculator(df_ref, df_cur)
+        result = calc()
+        score = result['value'].values[0]
+
+        # Get distributions for plotting
+        ref_hist, cur_hist = calc.get_prob_density('value')
+
+        # Plot distributions
+        ax = axes[i]
+        ax.plot(ref_hist[1][:-1], ref_hist[0], 'b-', label='Reference')
+        ax.plot(cur_hist[1][:-1], cur_hist[0], 'r-', label='Current')
+        ax.set_title(f"{title}\nDrift Score: {score:.3f}")
+        ax.legend()
+
+    plt.tight_layout()
+    plt.show()
 
 Key Features of tab-right's Drift Detection
 -------------------------------------------
