@@ -15,6 +15,21 @@ Tab-right offers specialized components for drift detection:
 3. ``univariate`` module - Lower-level functions for specific drift calculations
 4. ``plot_drift`` / ``plot_feature_drift`` modules - Simplified plotting functions
 
+Available Drift Metrics
+-----------------------
+
+Tab-right provides multiple metrics for different types of features:
+
+**Numerical Features:**
+- **Wasserstein Distance** (default): Measures the earth mover's distance between distributions
+- **Kolmogorov-Smirnov Test**: Statistical test for equality of continuous distributions
+- **Population Stability Index (PSI)**: Measure of population stability over time
+
+**Categorical Features:**
+- **Cramer's V** (default): Normalized measure of association between categorical variables
+- **Chi-Square Test**: Statistical test for independence of categorical variables
+- **PSI**: Can also be applied to categorical features by comparing proportions
+
 Example: Using DriftCalculator and DriftPlotter
 -----------------------------------------------
 
@@ -123,7 +138,7 @@ Tab-right also makes it easy to visualize categorical feature drift:
     plt.show()
 
 Direct Functions API
--------------------
+--------------------
 
 For simpler use cases, tab-right also provides direct functions for drift analysis:
 
@@ -159,7 +174,7 @@ For simpler use cases, tab-right also provides direct functions for drift analys
 Working with Multiple Drift Metrics
 -----------------------------------
 
-Tab-right supports various drift metrics that can be explicitly specified:
+Tab-right supports various drift metrics that can be customized:
 
 .. plot::
     :include-source:
@@ -183,15 +198,15 @@ Tab-right supports various drift metrics that can be explicitly specified:
         'feat2': np.random.choice(['A', 'B', 'C'], 500, p=[0.5, 0.3, 0.2]),
     })
 
-    # Using DriftCalculator with specific metrics
-    calc = DriftCalculator(df_ref, df_cur, numeric_metric='wasserstein', categorical_metric='cramer_v')
+    # Using DriftCalculator with default metrics
+    calc = DriftCalculator(df_ref, df_cur)
 
     # Create a plotter
     plotter = DriftPlotter(calc)
 
     # Plot the results
     fig = plotter.plot_multiple()
-    plt.title('Drift Analysis with Specified Metrics')
+    plt.title('Drift Analysis with Default Metrics')
     plt.tight_layout()
     plt.show()
 
@@ -215,13 +230,13 @@ Let's look at how different degrees of drift appear in tab-right visualizations:
     # Generate base reference data
     np.random.seed(42)
     df_ref = pd.DataFrame({
-        'value': np.random.normal(0, 1, 500),
+        'feature': np.random.normal(0, 1, 500),
     })
 
     # Generate current data with increasing levels of drift
-    df_slight = pd.DataFrame({'value': np.random.normal(0.2, 1.1, 500)})
-    df_moderate = pd.DataFrame({'value': np.random.normal(0.5, 1.3, 500)})
-    df_severe = pd.DataFrame({'value': np.random.normal(2.0, 1.8, 500)})
+    df_slight = pd.DataFrame({'feature': np.random.normal(0.2, 1.1, 500)})
+    df_moderate = pd.DataFrame({'feature': np.random.normal(0.5, 1.3, 500)})
+    df_severe = pd.DataFrame({'feature': np.random.normal(2.0, 1.8, 500)})
 
     # Calculate and plot for each drift level
     for i, (title, df_cur) in enumerate([
@@ -231,10 +246,10 @@ Let's look at how different degrees of drift appear in tab-right visualizations:
     ]):
         calc = DriftCalculator(df_ref, df_cur)
         result = calc()
-        score = result['value'].values[0]
+        score = result['feature'].values[0]
 
         # Get distributions for plotting
-        ref_hist, cur_hist = calc.get_prob_density('value')
+        ref_hist, cur_hist = calc.get_prob_density('feature')
 
         # Plot distributions
         ax = axes[i]

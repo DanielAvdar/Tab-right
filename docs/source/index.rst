@@ -1,4 +1,6 @@
-Welcome
+
+Tab-right
+=========
 
 .. image:: https://img.shields.io/pypi/v/tab-right.svg
    :target: https://pypi.org/project/tab-right/
@@ -40,8 +42,7 @@ Welcome
    :alt: Ruff
 
 
-Tab-right
-=========
+
 
 Tab-right is a Python package for easy analysis of tabular data for inference models (ML and non-ML), focusing on model-agnostic diagnostics using predictions.
 
@@ -68,16 +69,48 @@ Tab-right is a Python package for easy analysis of tabular data for inference mo
 Quickstart
 ----------
 
+Install tab-right using pip:
+
 .. code-block:: bash
 
    pip install tab-right
 
+Basic Example:
+
+.. code-block:: python
+
+   import pandas as pd
+   import numpy as np
+   from tab_right.drift.drift_calculator import DriftCalculator
+   from tab_right.plotting.drift_plotter import DriftPlotter
+
+   # Create sample datasets
+   df_reference = pd.DataFrame({
+       'numeric_feature': np.random.normal(0, 1, 100),
+       'categorical_feature': np.random.choice(['A', 'B', 'C'], 100)
+   })
+
+   df_current = pd.DataFrame({
+       'numeric_feature': np.random.normal(0.5, 1.2, 100),
+       'categorical_feature': np.random.choice(['A', 'B', 'C'], 100, p=[0.6, 0.3, 0.1])
+   })
+
+   # Calculate and visualize drift
+   drift_calc = DriftCalculator(df_reference, df_current)
+   drift_plotter = DriftPlotter(drift_calc)
+
+   # Get drift metrics and visualize results
+   drift_results = drift_calc()
+   drift_plot = drift_plotter.plot_multiple()
+
 Advanced Usage
 --------------
 
-- For continuous features, set ``is_categorical=False`` and optionally adjust the ``bins`` parameter.
-- For multi-class or probabilistic outputs, pass a list of label columns and use probability mode.
-- Use any metric function compatible with scikit-learn (e.g., ``accuracy_score``, ``r2_score``).
+- **Feature types**: For continuous features, set ``is_categorical=False`` and optionally adjust the ``bins`` parameter.
+- **Multi-class outputs**: For multi-class or probabilistic outputs, pass a list of label columns and use probability mode.
+- **Custom metrics**: Use any metric function compatible with scikit-learn (e.g., ``accuracy_score``, ``r2_score``).
+- **Drift thresholds**: Set custom thresholds for different severity levels with the ``thresholds`` parameter.
+- **Visualization options**: Customize plots with matplotlib parameters and custom color schemes.
 
 Contributing
 ------------
