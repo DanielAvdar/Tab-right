@@ -178,59 +178,37 @@ Double segmentation can analyze combinations of categorical and continuous featu
 
     # Create sample data with mixed feature types
     np.random.seed(42)
-    n_samples = 1000
+    n_samples = 500
 
-    # Generate categorical feature with weighted probabilities
-    education = np.random.choice(
-        ['High School', 'Bachelor', 'Master', 'PhD'],
-        n_samples,
-        p=[0.4, 0.35, 0.15, 0.1]
-    )
+    # Generate categorical feature - product type
+    product_types = ['Basic', 'Standard', 'Premium', 'Enterprise']
+    product = np.random.choice(product_types, n_samples, p=[0.4, 0.3, 0.2, 0.1])
 
-    # Generate continuous feature - income
-    # Different income distributions based on education
-    income = np.zeros(n_samples)
-    income[education == 'High School'] = np.random.normal(40000, 10000, np.sum(education == 'High School'))
-    income[education == 'Bachelor'] = np.random.normal(60000, 15000, np.sum(education == 'Bachelor'))
-    income[education == 'Master'] = np.random.normal(80000, 20000, np.sum(education == 'Master'))
-    income[education == 'PhD'] = np.random.normal(100000, 25000, np.sum(education == 'PhD'))
+    # Generate continuous feature - customer spending
+    spending = np.random.gamma(shape=5, scale=20, size=n_samples)
 
-    # Generate target (approval probability) with interaction effects
-    # Base approval rate
-    base_prob = 0.3 * np.ones(n_samples)
+    # Add variation by product type
+    spending[product == 'Premium'] *= 1.5
+    spending[product == 'Enterprise'] *= 2.0
 
-    # Education effect
-    edu_effect = np.zeros(n_samples)
-    edu_effect[education == 'High School'] = 0.0
-    edu_effect[education == 'Bachelor'] = 0.1
-    edu_effect[education == 'Master'] = 0.2
-    edu_effect[education == 'PhD'] = 0.3
+    # Simple model: customers return if they have premium products OR spend a lot
+    premium_mask = np.logical_or(product == 'Premium', product == 'Enterprise')
+    return_prob = 0.2 + 0.3 * premium_mask + 0.4 * (spending > np.percentile(spending, 70))
+    return_prob = np.clip(return_prob, 0.1, 0.9)
 
-    # Income effect (normalized by income range)
-    income_norm = (income - np.min(income)) / (np.max(income) - np.min(income))
-    income_effect = 0.3 * income_norm
+    # Generate actual returns (target)
+    customer_return = np.random.binomial(1, return_prob)
 
-    # Interaction effect (high education with high income gets extra boost)
-    interaction = np.zeros(n_samples)
-    high_edu = np.isin(education, ['Master', 'PhD'])
-    high_edu_high_inc = high_edu & (income > 80000)
-    interaction[high_edu_high_inc] = 0.1
-
-    # Calculate probability and generate target
-    probability = base_prob + edu_effect + income_effect + interaction
-    probability = np.clip(probability, 0.05, 0.95)  # Ensure probabilities between 0.05 and 0.95
-    target = np.random.binomial(1, probability)
-
-    # Simple model prediction (missing interaction effects)
-    simple_prob = base_prob + edu_effect + income_effect
-    simple_prob = np.clip(simple_prob, 0.05, 0.95)
-    prediction = np.random.binomial(1, simple_prob)
+    # Simple prediction (missing some patterns)
+    pred_prob = 0.2 + 0.4 * (product == 'Enterprise') + 0.3 * (spending > np.percentile(spending, 80))
+    pred_prob = np.clip(pred_prob, 0.1, 0.9)
+    prediction = np.random.binomial(1, pred_prob)
 
     # Create DataFrame
     mixed_df = pd.DataFrame({
-        'education': education,
-        'income': income,
-        'target': target,
+        'product': product,
+        'spending': spending,
+        'target': customer_return,
         'prediction': prediction
     })
 
@@ -241,12 +219,12 @@ Double segmentation can analyze combinations of categorical and continuous featu
         prediction_col='prediction'
     )
 
-    # Apply segmentation (income gets automatic binning)
+    # Apply segmentation
     mixed_results = mixed_seg(
-        feature1_col='education',
-        feature2_col='income',
+        feature1_col='product',
+        feature2_col='spending',
         score_metric=f1_score,
-        bins_2=4  # 4 bins for income (not needed for categorical education)
+        bins_2=4  # 4 bins for spending
     )
 
     # Plot with higher is better for F1 score
@@ -255,7 +233,7 @@ Double segmentation can analyze combinations of categorical and continuous featu
         lower_is_better=False
     )
     fig = mixed_plot.plot_heatmap()
-    plt.title("F1 Score by Education and Income Segments")
+    plt.title("F1 Score by Product Type and Spending")
 
 Interactive Visualization with Plotly
 -------------------------------------
