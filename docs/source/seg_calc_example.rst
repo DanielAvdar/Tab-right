@@ -3,7 +3,7 @@ Segmentation Calculation
 
 .. _seg_calc_example:
 
-This page demonstrates how to use tab-right's segmentation calculation features to analyze model performance across different data segments.
+This page demonstrates how to use tab-right's segmentation calculation (SegmentationCalc) and its plotting functionality.
 
 What is Segmentation Analysis?
 ------------------------------
@@ -23,34 +23,10 @@ Tab-right provides the following key components for segmentation analysis:
 2. ``plot_single_segmentation`` / ``plot_single_segmentation_mp`` - Visualize segment metrics
 3. ``DoubleSegmPlotting`` / ``DoubleSegmPlottingMp`` - Visualize interactions between two segment features
 
-Basic Segmentation with tab-right
----------------------------------
+Basic Usage
+-----------
 
-Here's a simple example showing how to visualize segmentation results with tab-right:
-
-.. plot::
-    :include-source:
-
-    import pandas as pd
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from tab_right.plotting import plot_single_segmentation_mp
-
-    # Create a simple results DataFrame directly
-    results_df = pd.DataFrame({
-        'segment_id': [0, 1, 2],
-        'segment_name': ['A', 'B', 'C'],
-        'score': [0.5, 1.2, 0.8]
-    })
-
-    # Plot using tab-right's visualization function
-    fig = plot_single_segmentation_mp(results_df)
-    plt.title("Segment Analysis with tab-right")
-
-Working with Multiple Metrics
------------------------------
-
-Tab-right makes it easy to apply different metrics to your segmented data:
+Here's a simple example showing how to create segment data and visualize it:
 
 .. plot::
     :include-source:
@@ -60,85 +36,115 @@ Tab-right makes it easy to apply different metrics to your segmented data:
     import matplotlib.pyplot as plt
     from tab_right.plotting import plot_single_segmentation_mp
 
-    # Create a DataFrame simulating MAE results across segments
-    mae_results = pd.DataFrame({
+    # Create a simple results DataFrame with segments
+    segments = pd.DataFrame({
         'segment_id': [0, 1, 2],
-        'segment_name': ['A', 'B', 'C'],
-        'score': [0.5, 1.2, 0.8]
+        'segment_name': ['Age < 30', '30 ≤ Age < 50', 'Age ≥ 50'],
+        'score': [0.85, 0.92, 0.77]
     })
 
-    # Plot using tab-right's visualization
-    plt.figure(figsize=(8, 5))
-    plot_single_segmentation_mp(mae_results)
-    plt.title("MAE by Segment (tab-right)")
+    # Plot the segmentation results using matplotlib
+    plot_single_segmentation_mp(segments)
+    plt.show()
 
-    # Example showing how you could plot multiple metrics
-    # (commented out to focus on one plot for the example)
-    '''
-    # MSE example would be similar
-    mse_results = pd.DataFrame({
-        'segment_id': [0, 1, 2],
-        'segment_name': ['A', 'B', 'C'],
-        'score': [0.25, 1.44, 0.64]  # Squared values of MAE
+Working with Actual Data
+------------------------
+
+For real-world analysis with your own data:
+
+.. code-block:: python
+
+    import pandas as pd
+    import numpy as np
+    from sklearn.tree import DecisionTreeRegressor
+    from sklearn.metrics import mean_absolute_error
+
+    # Create DataFrameGroupBy object with segment information
+    df = pd.DataFrame({
+        'age': [25, 28, 35, 42, 55, 60],
+        'segment_id': [0, 0, 1, 1, 2, 2],
+        'true_value': [10, 12, 15, 14, 20, 18],
+        'prediction': [11, 13, 14, 16, 17, 16]
     })
 
-    plt.figure(figsize=(8, 5))
-    plot_single_segmentation_mp(mse_results)
-    plt.title("MSE by Segment (tab-right)")
+    # Group by segment_id to create the DataFrameGroupBy object
+    grouped_df = df.groupby('segment_id')
 
-    # R² example
-    r2_results = pd.DataFrame({
-        'segment_id': [0, 1, 2],
-        'segment_name': ['A', 'B', 'C'],
-        'score': [0.92, 0.86, 0.90]
-    })
+    # Create mapping from segment_id to readable names
+    segment_names = {
+        0: 'Age < 30',
+        1: '30 ≤ Age < 50',
+        2: 'Age ≥ 50'
+    }
 
-    plt.figure(figsize=(8, 5))
-    plot_single_segmentation_mp(r2_results)
-    plt.title("R² by Segment (tab-right)")
-    '''
+    # Define metric function (MAE)
+    def calc_mae(y_true, y_pred):
+        return mean_absolute_error(y_true, y_pred)
 
-Segmentation with Numerical Features
--------------------------------------
+    # Create segmentation calculator
+    from tab_right.segmentations import SegmentationCalc
+    seg_calc = SegmentationCalc(
+        gdf=grouped_df,
+        label_col='true_value',
+        prediction_col='prediction',
+        segment_names=segment_names
+    )
 
-Tab-right also works with numerical features by automatically binning them:
+    # Apply metric to calculate segment scores
+    segments = seg_calc(calc_mae)
+
+    # Plot the results
+    from tab_right.plotting import plot_single_segmentation_mp
+    plot_single_segmentation_mp(segments)
+    plt.show()
+
+Visualization with Higher-is-Better Metrics
+-------------------------------------------
+
+For metrics where higher values are better (like R²), use the `lower_is_better=False` parameter:
 
 .. plot::
     :include-source:
 
     import pandas as pd
-    import numpy as np
     import matplotlib.pyplot as plt
     from tab_right.plotting import plot_single_segmentation_mp
 
-    # Create a results DataFrame simulating age group segmentation results
-    age_plot_df = pd.DataFrame({
+    # Create a DataFrame with example R² values by segment
+    r2_segments = pd.DataFrame({
         'segment_id': [0, 1, 2, 3],
-        'segment_name': ['(20, 35]', '(35, 50]', '(50, 65]', '(65, 80]'],
-        'score': [6.2, 7.5, 8.9, 10.1]  # MAE values increasing with age
+        'segment_name': ['Age < 30', '30 ≤ Age < 50', '50 ≤ Age < 65', 'Age ≥ 65'],
+        'score': [0.82, 0.91, 0.76, 0.68]  # R² values (higher is better)
     })
 
-    # Use tab-right's built-in visualization
-    plt.figure(figsize=(8, 5))
-    age_fig = plot_single_segmentation_mp(age_plot_df)
-    plt.title('Mean Absolute Error by Age Group')
+    # Plot with lower_is_better=False for R²
+    plot_single_segmentation_mp(r2_segments, lower_is_better=False)
+    plt.title("R² by Age Segment")
+    plt.show()
 
 Interactive Visualization with Plotly
---------------------------------------
+-------------------------------------
 
-Tab-right also provides Plotly-based interactive visualizations:
+Tab-right also supports Plotly for interactive visualizations:
 
 .. code-block:: python
 
     from tab_right.plotting import plot_single_segmentation
 
-    # Using the data prepared in the previous examples
-    interactive_fig = plot_single_segmentation(age_plot_df)
-    interactive_fig.show()
+    # Create interactive visualization
+    fig = plot_single_segmentation(segments)
+    fig.show()  # Opens in browser or notebook
 
-    # For the original segmentation example
-    interactive_seg_fig = plot_single_segmentation(results_df)
-    interactive_seg_fig.show()
+Key Steps for Segmentation Analysis
+-----------------------------------
+
+1. **Group your data** by segments using pandas' groupby function
+2. **Create segment names** for better interpretation of results
+3. **Initialize SegmentationCalc** with the grouped data
+4. **Apply a metric function** to calculate segment scores
+5. **Visualize the results** using plot_single_segmentation_mp (matplotlib) or plot_single_segmentation (Plotly)
+
+This workflow makes it easy to identify segments where your model performs differently, helping you understand where improvements are needed.
 
 Key Benefits of Using tab-right for Segmentation
 ------------------------------------------------
