@@ -13,12 +13,15 @@ sys.path.insert(0, os.path.abspath("../../"))
 # sys.path.insert(0, os.path.abspath("./"))  # in conf.py
 
 
-project = "python-template"  # todo: change this to your project name
-version = version("my-pkg")  # todo: change my-pkg to your package name
+project = "tab-right"
+# tab-right is a Python package for easy analysis of tabular data for inference models (ML and non-ML),
+# focusing on model-agnostic diagnostics using predictions.
+
+version = version("tab-right")
 release = version
 
-copyright = "2025, DanielAvdar"  # noqa  todo: change this to your name
-author = "DanielAvdar"  # todo: change this to your name
+copyright = "2025, DanielAvdar"  # noqa
+author = "DanielAvdar"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -31,6 +34,8 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
+    "sphinx_plotly_directive",
+    "matplotlib.sphinxext.plot_directive",
 ]
 
 templates_path = ["_templates"]
@@ -42,4 +47,5 @@ exclude_patterns = []
 
 html_theme = "sphinx_rtd_theme"
 master_doc = "index"
-html_static_path = ["_static"]
+
+plotly_output_format = "html"
