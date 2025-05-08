@@ -1,6 +1,0 @@
-{
-  "tasks": {
-    "build": "make install",
-    "test": "make test"
-  }
-}
