@@ -5,6 +5,7 @@ from typing import Any, Dict, Iterable, Optional, Tuple, cast
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 
 from tab_right.base_architecture.drift_plot_protocols import DriftPlotP
 from tab_right.base_architecture.drift_protocols import DriftCalcP
@@ -22,10 +23,13 @@ class DriftPlotter(DriftPlotP):
 
         Raises:
             TypeError: If drift_calc is not an instance of DriftCalcP.
+            ValueError: If either dataframe is empty.
 
         """
         if not isinstance(drift_calc, DriftCalcP):
             raise TypeError("drift_calc must be an instance of DriftCalcP")
+        if drift_calc.df1.empty or drift_calc.df2.empty:
+            raise ValueError("Both dataframes must be non-empty.")
         self.drift_calc = drift_calc
         # Add a _feature_types attribute that can be used by mypy
         self._feature_types = getattr(drift_calc, "_feature_types", {})
@@ -86,14 +90,24 @@ class DriftPlotter(DriftPlotP):
         ax.bar_label(bars, fmt="%.3f", padding=3)
 
         if threshold is not None:
-            ax.axvline(threshold, color="grey", linestyle="--", label=f"Threshold = {threshold:.2f}")
+            ax.axvline(
+                threshold,
+                color="grey",
+                linestyle="--",
+                label=f"Threshold = {threshold:.2f}",
+            )
             ax.legend()
 
         plt.tight_layout()
         return fig
 
     def plot_single(
-        self, column: str, bins: int = 10, figsize: Tuple[int, int] = (10, 6), show_metrics: bool = True, **kwargs: Any
+        self,
+        column: str,
+        bins: int = 10,
+        figsize: Tuple[int, int] = (10, 6),
+        show_metrics: bool = True,
+        **kwargs: Any,
     ) -> plt.Figure:
         """Create a detailed visualization of drift for a single feature.
 
@@ -121,7 +135,13 @@ class DriftPlotter(DriftPlotP):
         fig, ax = plt.subplots(figsize=figsize)
 
         if density_df.empty:
-            ax.text(0.5, 0.5, f"No data available for column '{column}'.", ha="center", va="center")
+            ax.text(
+                0.5,
+                0.5,
+                f"No data available for column '{column}'.",
+                ha="center",
+                va="center",
+            )
             return fig
 
         feature_density = density_df[density_df["feature"] == column]
@@ -151,8 +171,22 @@ class DriftPlotter(DriftPlotP):
                 # Cast numpy arrays to avoid type issues with bar function
                 ref_values = cast(np.ndarray, ref_density).tolist()
                 cur_values = cast(np.ndarray, cur_density).tolist()
-                ax.bar(centers, ref_values, width=widths, label="Reference", alpha=0.7, align="center")
-                ax.bar(centers, cur_values, width=widths, label="Current", alpha=0.7, align="center")
+                ax.bar(
+                    centers,
+                    ref_values,
+                    width=widths,
+                    label="Reference",
+                    alpha=0.7,
+                    align="center",
+                )
+                ax.bar(
+                    centers,
+                    cur_values,
+                    width=widths,
+                    label="Current",
+                    alpha=0.7,
+                    align="center",
+                )
             except Exception:  # Catch specific exceptions when possible
                 # Fallback if bin parsing fails (e.g., unexpected format)
                 x = np.arange(len(bins_or_cats))
@@ -180,7 +214,15 @@ class DriftPlotter(DriftPlotP):
             metrics_text = f"{metric_type.replace('_', ' ').title()}: {display_score:.4f}"
             # Add text box with metrics
             props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
-            ax.text(0.05, 0.95, metrics_text, transform=ax.transAxes, fontsize=10, verticalalignment="top", bbox=props)
+            ax.text(
+                0.05,
+                0.95,
+                metrics_text,
+                transform=ax.transAxes,
+                fontsize=10,
+                verticalalignment="top",
+                bbox=props,
+            )
 
         plt.tight_layout()
         return fig
@@ -214,7 +256,13 @@ class DriftPlotter(DriftPlotP):
                 print(f"Could not generate plot for column '{col}': {e}")
                 # Optionally create a placeholder figure indicating error
                 fig, ax = plt.subplots()
-                ax.text(0.5, 0.5, f"Error plotting {col}", ha="center", va="center")
+                ax.text(
+                    0.5,
+                    0.5,
+                    f"Error plotting {col}",
+                    ha="center",
+                    va="center",
+                )
                 plots[col] = fig
 
         # Store the figures but don't close them yet - they're still needed for return
@@ -224,3 +272,85 @@ class DriftPlotter(DriftPlotP):
         plt.close("all")
 
         return result
+
+    def plot_drift(
+        self,
+        drift_df: pd.DataFrame,
+        value_col: str = "value",
+        feature_col: str = "feature",
+    ) -> go.Figure:
+        """Plot drift values for each feature as a bar chart using Plotly.
+
+        Args:
+            drift_df: DataFrame with drift results. Should contain columns for feature names and drift values.
+            value_col: Name of the column containing drift values.
+            feature_col: Name of the column containing feature names.
+
+        Returns:
+            go.Figure: Plotly bar chart of drift values by feature.
+
+        """
+        drift_df_sorted = drift_df.sort_values(value_col, ascending=False)
+        fig = go.Figure(
+            go.Bar(
+                x=drift_df_sorted[feature_col],
+                y=drift_df_sorted[value_col],
+                marker_color="indianred",
+                name="Drift Value",
+            )
+        )
+        fig.update_layout(
+            title="Univariate Drift by Feature",
+            xaxis_title="Feature",
+            yaxis_title="Drift Value",
+            xaxis_tickangle=-45,
+        )
+        return fig
+
+    def plot_drift_mp(
+        self,
+        drift_df: pd.DataFrame,
+        value_col: str = "value",
+        feature_col: str = "feature",
+    ) -> plt.Figure:
+        """Plot drift values for each feature as a bar chart using Matplotlib.
+
+        Args:
+            drift_df: DataFrame with drift results. Should contain columns for feature names and drift values.
+            value_col: Name of the column containing drift values.
+            feature_col: Name of the column containing feature names.
+
+        Returns:
+            plt.Figure: Matplotlib figure with bar chart of drift values by feature.
+
+        """
+        drift_df_sorted = drift_df.sort_values(value_col, ascending=False)
+
+        # Create matplotlib figure
+        fig, ax = plt.subplots(figsize=(10, 6))
+        bars = ax.bar(
+            drift_df_sorted[feature_col],
+            drift_df_sorted[value_col],
+            color="indianred",
+        )
+
+        # Add value labels on top of bars
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height + 0.01,
+                f"{height:.3f}",
+                ha="center",
+                va="bottom",
+                fontsize=9,
+            )
+
+        # Customize plot
+        ax.set_title("Univariate Drift by Feature")
+        ax.set_xlabel("Feature")
+        ax.set_ylabel("Drift Value")
+        plt.xticks(rotation=-45, ha="left")
+        plt.tight_layout()
+
+        return fig
