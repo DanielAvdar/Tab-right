@@ -37,16 +37,12 @@ doctest: install-docs doc
 
 # Update doc target to run doctests as part of documentation build
 doc:
-	uv run sphinx-build -M doctest docs/source docs/build/ -W --keep-going
-	uv run sphinx-build -M html docs/source docs/build/ -W --keep-going
+	uv run --no-project sphinx-build -M doctest docs/source docs/build/ -W --keep-going --fresh-env
+	uv run --no-project sphinx-build -M html docs/source docs/build/ -W --keep-going --fresh-env
 
 # Optional target that builds docs but ignores warnings
 doc-ignore-warnings:
 	uv run sphinx-build -M html docs/source docs/build/
 
 # Run all checks in sequence: tests, code quality, type checking, and documentation
-check-all:
-	$(MAKE) check
-	$(MAKE) test
-	$(MAKE) mypy
-	$(MAKE) doc
+check-all: check test mypy doc
