@@ -24,9 +24,14 @@ class DriftCalculator(DriftCalcP):
                 - Dict mapping column names to types
                 - Iterable of booleans indicating if each column is continuous
 
+        Raises:
+            ValueError: If there are no common columns between the reference and current datasets.
+
         """
         self.df1 = df1
         self.df2 = df2
+        if not set(self.df1.columns).intersection(set(self.df2.columns)):
+            raise ValueError("No common columns between the reference and current datasets.")
         self.kind = kind
         self._feature_types = self._determine_feature_types()
 
