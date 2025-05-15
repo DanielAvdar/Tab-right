@@ -1,7 +1,7 @@
+.. _seg_calc:
+
 Segmentation Calculation
 ========================
-
-.. _seg_calc_example:
 
 This page demonstrates how to use tab-right's segmentation calculation (SegmentationCalc) and its plotting functionality.
 
