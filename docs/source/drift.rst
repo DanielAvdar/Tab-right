@@ -1,9 +1,9 @@
-.. _drift_example:
+.. _drift:
 
-Drift Example
-=============
+Drift Detection
+===============
 
-This example demonstrates how to use tab-right for detecting and visualizing data drift between reference and current datasets. Tab-right provides comprehensive tools for drift detection that help you identify changes in data distributions.
+This page demonstrates how to use tab-right for detecting and visualizing data drift between reference and current datasets. Tab-right provides comprehensive tools for drift detection that help you identify changes in data distributions.
 
 Drift Detection with tab-right
 ------------------------------

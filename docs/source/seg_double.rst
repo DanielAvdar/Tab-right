@@ -1,4 +1,4 @@
-.. _seg_double_example:
+.. _seg_double:
 
 Double Segmentation
 ===================
