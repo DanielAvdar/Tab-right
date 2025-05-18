@@ -1,6 +1,5 @@
 .PHONY: help
 .PHONY: default
-.PHONY: check-all
 default: install
 
 
@@ -16,32 +15,25 @@ update:
 	uvx pre-commit autoupdate
 	$(MAKE) install
 
-test:
+test: install
 	uv run pytest
 
-check:
+check: install
 	uvx  pre-commit run --all-files
 
-coverage:
+coverage: install
 	uv run pytest --cov=tab_right --cov-report=xml
 
-cov:
+cov: install
 	uv run pytest --cov=tab_right --cov-report=term-missing
 
-mypy:
-	uv run mypy tab_right tests/base_architecture --config-file pyproject.toml
+mypy: install
+	uv run mypy tab_right --config-file pyproject.toml
 
-# Add doctests target to specifically run doctest validation
 doctest: install-docs doc
 
-# Update doc target to run doctests as part of documentation build
 doc:
-	uv run --no-project sphinx-build -M doctest docs/source docs/build/ -W --keep-going --fresh-env
-	uv run --no-project sphinx-build -M html docs/source docs/build/ -W --keep-going --fresh-env
+	uv run --no-sync sphinx-build -M doctest docs/source docs/build/ -W --keep-going --fresh-env
+	uv run --no-sync sphinx-build -M html docs/source docs/build/ -W --keep-going --fresh-env
 
-# Optional target that builds docs but ignores warnings
-doc-ignore-warnings:
-	uv run sphinx-build -M html docs/source docs/build/
-
-# Run all checks in sequence: tests, code quality, type checking, and documentation
 check-all: check test mypy doc
