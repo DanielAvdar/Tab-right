@@ -25,7 +25,9 @@ keywords = [
 ]
 dependencies = [
     "pandas",
-    "scikit-learn>=1.6"
+    "scikit-learn>=1.6",
+    "matplotlib>=3.0.0",
+    "plotly>=5.0.0",
 ]
 
 [dependency-groups]

@@ -22,14 +22,13 @@ check: install
 	uvx  pre-commit run --all-files
 
 coverage: install
-	uv run pytest --cov=my_pkg --cov-report=xml # todo: change my_pkg to the actual package name
+	uv run pytest --cov=tab_right --cov-report=xml
 
 cov: install
-	uv run pytest --cov=my_pkg --cov-report=term-missing # todo: change my_pkg to the actual package name
+	uv run pytest --cov=tab_right --cov-report=term-missing
 
 mypy: install
-	uv run mypy my_pkg --config-file pyproject.toml
-# todo: chanege my_pkg to the actual package name
+	uv run mypy tab_right --config-file pyproject.toml
 
 doctest: install-docs doc
 

@@ -1,4 +1,5 @@
-name: CI
+name: Tests
+
 on:
   pull_request:
     paths:
@@ -9,7 +10,7 @@ on:
       - 'uv.lock'
   workflow_dispatch:
 jobs:
-  tests:
+  pytests:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
