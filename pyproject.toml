@@ -6,6 +6,7 @@ description = "A Python package for easy analysis of tabular data for inference 
 authors = [
     { name = "DanielAvdar", email = "66269169+DanielAvdar@users.noreply.github.com" },
 ]
+urls = { Homepage = "https://github.com/DanielAvdar/tab-right", Documentation = "https://tab-right.readthedocs.io" }
 license = { text = "MIT" }
 readme = "README.md"
 classifiers = [
@@ -31,13 +32,9 @@ dependencies = [
 dev = [
     "pytest>=7.1.2",
     "hypothesis>=6.23.3",
-    "pre-commit>=2.20.0",
-    "pre-commit-uv>=4",
     "pytest-cov>=4.0.0",
     "mypy==1.15.0",
     "pytest-parametrization>=2022",
-    "ruff>=0.8.2",
-    "sybil[pytest]",
     "pandas-pyarrow>=0.2.1",
     "pandas-stubs",
 ]
@@ -45,7 +42,6 @@ docs = [
     "sphinx>=8.2.0; python_version >= '3.11'",
     "sphinx>=7.0.0; python_version < '3.11'",
     "sphinx-rtd-theme>=3.0.2",
-    "sphinx-plotly-directive",
     "matplotlib",
 ]
 nbs = [
@@ -71,7 +67,7 @@ build-backend = "hatchling.build"
 source = "uv-dynamic-versioning"
 
 [project.optional-dependencies]
-plotly = ["plotly>=5.0.0","matplotlib>=3.0.0"]
+plotly = ["plotly>=5.0.0", "matplotlib>=3.0.0"]
 
 [tool.ruff]
 line-length = 120
