@@ -204,89 +204,56 @@ class DriftCalculator(DriftCalcP):
 
     @classmethod
     def _categorical_drift_calc(cls, s1: pd.Series, s2: pd.Series) -> float:
-        """Calculate Cramér's V statistic.
+        """Simplified Cramér's V statistic calculation.
 
         Args:
             s1: Reference series.
             s2: Current series.
 
         Returns:
-            Cramér's V statistic as a float between 0 (no association) and 1 (perfect association).
+            float: Cramér's V statistic between 0 (no drift) and 1 (max drift).
 
         """
-        s1_counts = s1.value_counts()
-        s2_counts = s2.value_counts()
-        all_categories = s1_counts.index.union(s2_counts.index)
-
-        # Create contingency table ensuring all categories are present
-        contingency_table = pd.DataFrame({
-            "s1": s1_counts.reindex(all_categories, fill_value=0),
-            "s2": s2_counts.reindex(all_categories, fill_value=0),
-        })
-
-        # Handle edge cases where chi-squared cannot be computed reliably
-        if contingency_table.shape[0] < 2 or contingency_table.shape[1] < 2:
-            # If both series have the same single category (or are empty), drift is 0
-            if s1.nunique() <= 1 and s2.nunique() <= 1:
-                # Check if both are empty or have the same single unique value
-                s1_unique = s1.unique()
-                s2_unique = s2.unique()
-                if (s1.empty and s2.empty) or (
-                    len(s1_unique) == 1 and len(s2_unique) == 1 and s1_unique[0] == s2_unique[0]
-                ):
-                    return 0.0
-            # Otherwise (different single categories, one empty, etc.), max drift
-            return 1.0
-
-        # Calculate chi-squared statistic
-        try:
-            chi2, _, _, _ = chi2_contingency(contingency_table)
-        except ValueError:  # Can happen if a row/column sums to zero after reindexing
-            # Check if distributions are effectively identical (e.g., only differ by categories with zero counts)
-            norm_s1 = s1_counts / s1_counts.sum()
-            norm_s2 = s2_counts / s2_counts.sum()
-            merged_counts = pd.DataFrame({"s1": norm_s1, "s2": norm_s2}).fillna(0)
-            if merged_counts["s1"].equals(merged_counts["s2"]):
-                return 0.0
-            else:
-                return 1.0  # Assume max drift if chi2 fails and distributions differ
-
-        n = contingency_table.sum().sum()
-        if n == 0:
-            return 0.0  # No data
-
-        # Calculate phi^2
-        phi2 = chi2 / n
-        # Number of rows (k) and columns (r)
-        k, r = contingency_table.shape
-
-        # Calculate Cramér's V
-        min_dim = min(k - 1, r - 1)
-        if min_dim == 0:
-            # This case should ideally be caught earlier, but handle defensively
+        # Quick check for identical or empty series
+        if s1.equals(s2) or (s1.empty and s2.empty):
             return 0.0
 
-        v = np.sqrt(phi2 / min_dim)
-        # Clamp value to [0, 1] due to potential floating point inaccuracies
-        return max(0.0, min(1.0, v))
+        # Create raw count distributions
+        s1_counts = s1.value_counts()
+        s2_counts = s2.value_counts()
+        all_cats = sorted(set(s1_counts.index) | set(s2_counts.index))
+        table = pd.DataFrame({
+            "s1": s1_counts.reindex(all_cats, fill_value=0),
+            "s2": s2_counts.reindex(all_cats, fill_value=0),
+        })
+
+        # Handle edge cases where chi-squared calculation would fail
+        if len(all_cats) < 2 or table.shape[1] < 2:
+            return 0.0 if table["s1"].equals(table["s2"]) else 1.0
+
+        try:
+            chi2, _, _, _ = chi2_contingency(table)
+            n = table.values.sum()
+            min_dim = min(table.shape[0] - 1, table.shape[1] - 1)
+            v = np.sqrt(chi2 / (n * min_dim))
+            return max(0.0, min(1.0, v))
+        except ValueError:
+            return 0.0 if table["s1"].equals(table["s2"]) else 1.0
 
     @classmethod
     def _continuous_drift_calc(cls, s1: pd.Series, s2: pd.Series, bins: int = 10) -> float:
-        """Calculate Wasserstein distance (Earth Mover's Distance).
+        """Simplified Wasserstein distance calculation.
 
         Args:
             s1: Reference series.
             s2: Current series.
-            bins: Number of bins. Not directly used in this implementation but kept for
-                 protocol compliance.
+            bins: Number of bins (not used, for protocol compatibility).
 
         Returns:
-            Wasserstein distance between the empirical distributions of s1 and s2.
+            float: Wasserstein distance between the two distributions.
+                Returns 0.0 if both are empty, 1.0 if only one is empty.
 
         """
-        # Note: `wasserstein_distance` expects 1D arrays of values, not distributions.
-        # It calculates the distance between the empirical distributions.
-        # No binning is strictly required by the function itself, but the protocol mentions bins.
-        # We will calculate the direct Wasserstein distance between the samples.
-        # The `bins` parameter is unused here but kept for protocol compliance signature.
+        if s1.empty or s2.empty:
+            return 0.0 if s1.empty and s2.empty else 1.0
         return wasserstein_distance(s1.values, s2.values)
