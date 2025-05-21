@@ -37,3 +37,6 @@ doc:
 	uv run --no-sync sphinx-build -M html docs/source docs/build/ -W --keep-going --fresh-env
 
 check-all: check test mypy doc
+
+vs-code:
+	uvx --from dev-kit-mcp-server dkmcp-vscode
