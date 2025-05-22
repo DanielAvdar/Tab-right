@@ -98,7 +98,7 @@ class DriftCalculator(DriftCalcP):
         """
         cols = list(self._feature_types.keys()) if columns is None else [c for c in columns if c in self._feature_types]
 
-        def drift_row(col):
+        def drift_row(col: str) -> dict:
             s1, s2 = self.df1[col].dropna(), self.df2[col].dropna()
             t = self._feature_types[col]
             if s1.empty or s2.empty:
