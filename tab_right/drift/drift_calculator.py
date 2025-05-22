@@ -84,123 +84,74 @@ class DriftCalculator(DriftCalcP):
         return feature_types
 
     def __call__(self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs: Any) -> pd.DataFrame:
-        """Calculate drift metrics between the reference and current datasets.
+        """Calculate drift metrics between the reference and current datasets (vectorized).
 
-        Args:
-            columns: Specific columns to calculate drift for. If None, all common columns are used.
-            bins: Number of bins to use for continuous features.
-            **kwargs: Additional arguments passed to specific drift calculation methods.
-
-        Returns:
+        Returns
+        -------
+        pd.DataFrame
             DataFrame with drift metrics for each feature, containing:
-                - feature: Name of the feature
-                - type: Type of metric used (cramer_v, wasserstein, or N/A)
-                - score: Normalized drift score (for Wasserstein, this is the raw score)
-                - raw_score: Unnormalized drift metric value
-
-        Raises:
-            ValueError: If an unknown column type is encountered.
+            - feature: Name of the feature
+            - type: Type of metric used (cramer_v, wasserstein, or N/A)
+            - score: Normalized drift score (for Wasserstein, this is the raw score)
+            - raw_score: Unnormalized drift metric value
 
         """
-        if columns is None:
-            columns = list(self._feature_types.keys())
-        else:
-            columns = [col for col in columns if col in self._feature_types]
+        cols = list(self._feature_types.keys()) if columns is None else [c for c in columns if c in self._feature_types]
 
-        results = []
-        for col in columns:
-            s1 = self.df1[col].dropna()
-            s2 = self.df2[col].dropna()
-            col_type = self._feature_types[col]
-
+        def drift_row(col: str) -> dict:
+            s1, s2 = self.df1[col].dropna(), self.df2[col].dropna()
+            t = self._feature_types[col]
             if s1.empty or s2.empty:
-                score = np.nan
-                metric_type = "N/A (Empty Data)"
-                raw_score = np.nan
-            elif col_type == "categorical":
-                score = self._categorical_drift_calc(s1, s2)
-                metric_type = "cramer_v"
-                raw_score = score  # Already normalized
-            elif col_type == "continuous":
-                # Wasserstein distance is not naturally normalized to [0,1]
-                # We return the raw score here. Normalization depends on context/range.
-                raw_score = self._continuous_drift_calc(s1, s2, bins=bins)
-                score = raw_score  # Placeholder: No standard normalization applied here
-                metric_type = "wasserstein"
-            else:
-                raise ValueError(f"Unknown column type '{col_type}' for column '{col}'")
+                return dict(feature=col, type="N/A (Empty Data)", score=np.nan, raw_score=np.nan)
+            if t == "categorical":
+                v = self._categorical_drift_calc(s1, s2)
+                return dict(feature=col, type="cramer_v", score=v, raw_score=v)
+            if t == "continuous":
+                v = self._continuous_drift_calc(s1, s2, bins=bins)
+                return dict(feature=col, type="wasserstein", score=v, raw_score=v)
+            raise ValueError(f"Unknown column type '{t}' for column '{col}'")
 
-            results.append({
-                "feature": col,
-                "type": metric_type,
-                "score": score,  # Note: Wasserstein score is not normalized here
-                "raw_score": raw_score,
-            })
+        return pd.DataFrame([drift_row(col) for col in cols])
 
-        return pd.DataFrame(results)
+    def get_prob_density(self, columns: Optional[Iterable[str]] = None, bins: int = 10) -> pd.DataFrame:
+        """Get probability densities for reference and current datasets (vectorized).
 
-    def get_prob_density(
-        self,
-        columns: Optional[Iterable[str]] = None,
-        bins: int = 10,
-    ) -> pd.DataFrame:
-        """Get probability densities for reference and current datasets for comparison.
-
-        Args:
-            columns: Specific columns to get densities for. If None, all common columns are used.
-            bins: Number of bins to use for continuous features.
-
-        Returns:
+        Returns
+        -------
+        pd.DataFrame
             DataFrame with density information for each feature and bin, containing:
-                - feature: Name of the feature
-                - bin: Bin label (category name or numerical range)
-                - ref_density: Density in the reference dataset
-                - cur_density: Density in the current dataset
+            - feature: Name of the feature
+            - bin: Bin label (category name or numerical range)
+            - ref_density: Density in the reference dataset
+            - cur_density: Density in the current dataset
 
         """
-        if columns is None:
-            columns = list(self._feature_types.keys())
-        else:
-            columns = [col for col in columns if col in self._feature_types]
-
-        all_densities = []
-        for col in columns:
-            s1 = self.df1[col].dropna()
-            s2 = self.df2[col].dropna()
-            col_type = self._feature_types[col]
-
-            if col_type == "categorical":
-                ref_counts = s1.value_counts(normalize=True)
-                cur_counts = s2.value_counts(normalize=True)
-                all_categories = sorted(list(set(ref_counts.index) | set(cur_counts.index)))
-                density_df = pd.DataFrame({
-                    "bin": all_categories,
-                    "ref_density": ref_counts.reindex(all_categories, fill_value=0).values,
-                    "cur_density": cur_counts.reindex(all_categories, fill_value=0).values,
-                })
-            elif col_type == "continuous":
-                min_val = min(s1.min(), s2.min())
-                max_val = max(s1.max(), s2.max())
-                bin_edges = np.linspace(min_val, max_val, bins + 1)
-
-                ref_hist, _ = np.histogram(s1, bins=bin_edges, density=True)
-                cur_hist, _ = np.histogram(s2, bins=bin_edges, density=True)
-
-                # Use bin centers or edges for representation
-                bin_labels = [f"({bin_edges[i]:.2f}-{bin_edges[i + 1]:.2f}]" for i in range(bins)]
-
-                density_df = pd.DataFrame({
-                    "bin": bin_labels,
-                    "ref_density": ref_hist * np.diff(bin_edges),  # Convert density to probability mass
-                    "cur_density": cur_hist * np.diff(bin_edges),
+        cols = list(self._feature_types.keys()) if columns is None else [c for c in columns if c in self._feature_types]
+        dens = []
+        for col in cols:
+            s1, s2 = self.df1[col].dropna(), self.df2[col].dropna()
+            t = self._feature_types[col]
+            if t == "categorical":
+                cats = sorted(set(s1.unique()) | set(s2.unique()))
+                ref = s1.value_counts(normalize=True).reindex(cats, fill_value=0)
+                cur = s2.value_counts(normalize=True).reindex(cats, fill_value=0)
+                d = pd.DataFrame({"bin": cats, "ref_density": ref.values, "cur_density": cur.values})
+            elif t == "continuous":
+                minv, maxv = min(s1.min(), s2.min()), max(s1.max(), s2.max())
+                edges = np.linspace(minv, maxv, bins + 1)
+                ref_hist, _ = np.histogram(s1, bins=edges, density=True)
+                cur_hist, _ = np.histogram(s2, bins=edges, density=True)
+                labels = [f"({edges[i]:.2f}-{edges[i + 1]:.2f}]" for i in range(bins)]
+                d = pd.DataFrame({
+                    "bin": labels,
+                    "ref_density": ref_hist * np.diff(edges),
+                    "cur_density": cur_hist * np.diff(edges),
                 })
             else:
-                continue  # Should not happen if _determine_feature_types is correct
-
-            density_df["feature"] = col
-            all_densities.append(density_df[["feature", "bin", "ref_density", "cur_density"]])
-
-        return pd.concat(all_densities, ignore_index=True)
+                continue
+            d["feature"] = col
+            dens.append(d[["feature", "bin", "ref_density", "cur_density"]])
+        return pd.concat(dens, ignore_index=True)
 
     @classmethod
     def _categorical_drift_calc(cls, s1: pd.Series, s2: pd.Series) -> float:
