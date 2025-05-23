@@ -147,26 +147,26 @@ def test_normalize_wasserstein_methods(method):
 
 
 # Test UnivariateDriftCalculator with different configurations
-@pytest.mark.parametrize("kind", ["auto", "categorical", "continuous"])
+@pytest.mark.parametrize("kind", [None, {"numeric": "continuous", "categorical": "categorical"}])
 @pytest.mark.parametrize("normalize", [True, False])
 @pytest.mark.parametrize("norm_method", ["range", "std", "iqr"])
 def test_univariate_drift_calculator(kind, normalize, norm_method):
     """Test the UnivariateDriftCalculator class with different parameter combinations."""
     # Create test dataframes
-    df1 = pd.DataFrame({"numeric": [1, 2, 3, 4, 5], "categorical": ["a", "b", "c", "d", "e"]})
+    df1 = pd.DataFrame({
+        "numeric": list(range(1, 31)),  # 30 unique values, will be detected as continuous
+        "categorical": ["a", "b", "c", "d", "e"] * 6,
+    })
 
-    df2 = pd.DataFrame({"numeric": [2, 3, 4, 5, 6], "categorical": ["a", "c", "c", "b", "e"]})
+    df2 = pd.DataFrame({
+        "numeric": list(range(2, 32)),  # 30 unique values, will be detected as continuous
+        "categorical": ["a", "c", "c", "b", "e"] * 6,
+    })
 
     # Initialize the calculator
     calculator = UnivariateDriftCalculator(
         df1=df1, df2=df2, kind=kind, normalize=normalize, normalization_method=norm_method
     )
-
-    # Skip the test if it would cause an error
-    # (continuous calculation on categorical data)
-    if kind == "continuous":
-        # Skip this test combination since we can't apply continuous methods to categorical data
-        pytest.skip("Skipping continuous drift calculation on categorical data")
 
     # Calculate drift
     result = calculator()
@@ -184,14 +184,14 @@ def test_univariate_drift_calculator(kind, normalize, norm_method):
     numeric_row = result[result["feature"] == "numeric"]
     categorical_row = result[result["feature"] == "categorical"]
 
-    # Numeric column should use wasserstein distance when auto or continuous
-    if kind == "auto" or kind == "continuous":
+    # Numeric column should use wasserstein distance when kind is None or numeric is continuous
+    if kind is None or (isinstance(kind, dict) and kind["numeric"] == "continuous"):
         assert numeric_row["type"].iloc[0] == "wasserstein"
     else:
         assert numeric_row["type"].iloc[0] == "cramer_v"
 
-    # Categorical column should use Cramer's V when auto or categorical
-    if kind == "auto" or kind == "categorical":
+    # Categorical column should use Cramer's V when kind is None or categorical is categorical
+    if kind is None or (isinstance(kind, dict) and kind["categorical"] == "categorical"):
         assert categorical_row["type"].iloc[0] == "cramer_v"
     else:
         assert categorical_row["type"].iloc[0] == "wasserstein"
@@ -247,7 +247,7 @@ class TestDriftSuite:
         calculator = UnivariateDriftCalculator(
             df1=reference_data,
             df2=current_data_similar,
-            kind="auto",
+            kind=None,
             normalize=normalize,
             normalization_method=normalization_method,
         )
@@ -275,7 +275,7 @@ class TestDriftSuite:
         calculator = UnivariateDriftCalculator(
             df1=reference_data,
             df2=current_data_different,
-            kind="auto",
+            kind=None,
             normalize=normalize,
             normalization_method=normalization_method,
         )

@@ -32,7 +32,7 @@ def sample_data():
 def test_drift_calculator_init(sample_data):
     """Test initialization and automatic type detection."""
     df1, df2 = sample_data
-    calculator = DriftCalculator(df1, df2, kind="auto")
+    calculator = DriftCalculator(df1, df2, kind=None)
     assert isinstance(calculator, DriftCalculator)
     assert "numeric_stable" in calculator._feature_types
     assert calculator._feature_types["numeric_stable"] == "continuous"
@@ -55,7 +55,7 @@ def test_drift_calculator_init(sample_data):
 )
 def test_feature_types(sample_data, col, expected_type):
     df1, df2 = sample_data
-    calc = DriftCalculator(df1, df2, kind="auto")
+    calc = DriftCalculator(df1, df2, kind=None)
     assert calc._feature_types[col] == expected_type
 
 
@@ -155,21 +155,17 @@ def test_drift_calculator_edge_cases():
     # No common columns
     with pytest.raises(ValueError):
         DriftCalculator(pd.DataFrame({"a": [1]}), pd.DataFrame({"b": [2]}))
-    # Kind iterable wrong length
+    # Kind must be None or dict; test invalid types
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         DriftCalculator(df, df, kind=[True])
-    # Kind wrong type
     with pytest.raises(TypeError):
         DriftCalculator(df, df, kind=object())
-    # (moved unknown column type test to its own function)
 
 
-# Test unknown column type in __call__
 def test_drift_calculator_unknown_col_type():
     df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
-    calc = DriftCalculator(df, df, kind="auto")
-    # forcibly set an unknown type after construction
+    calc = DriftCalculator(df, df, kind=None)
     calc._feature_types["a"] = "unknown"
     with pytest.raises(ValueError):
         calc(["a"])  # should raise

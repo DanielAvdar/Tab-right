@@ -1,7 +1,7 @@
 """Implementation of the DriftCalcP protocol."""
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Iterable, Optional, Union
+from typing import Any, Dict, Iterable, Optional
 
 import numpy as np
 import pandas as pd
@@ -14,7 +14,7 @@ class DriftCalculator:
 
     df1: pd.DataFrame
     df2: pd.DataFrame
-    kind: Union[str, Iterable[bool], Dict[str, str]] = "auto"
+    kind: Optional[Dict[str, str]] = None
     _feature_types: Dict[str, str] = field(init=False)
 
     def __post_init__(self) -> None:
@@ -35,44 +35,39 @@ class DriftCalculator:
             Dictionary mapping column names to their types ("categorical" or "continuous").
 
         Raises:
-            ValueError: If an invalid string value is provided for `kind` or if the
-                length of the iterable doesn't match the number of columns.
-            TypeError: If `kind` is not a string, dict, or iterable.
+            TypeError: If `kind` is not None or a dict.
 
         """
         common_cols = list(set(self.df1.columns) & set(self.df2.columns))
         feature_types = {}
 
-        if isinstance(self.kind, str):
-            if self.kind == "auto":
-                for col in common_cols:
+        if self.kind is None:
+            for col in common_cols:
+                # Treat low-cardinality numerics as categorical (<=20 unique values)
+                if pd.api.types.is_numeric_dtype(self.df1[col]) and pd.api.types.is_numeric_dtype(self.df2[col]):
+                    nunique = min(self.df1[col].nunique(), self.df2[col].nunique())
+                    if nunique <= 20:
+                        feature_types[col] = "categorical"
+                    else:
+                        feature_types[col] = "continuous"
+                else:
+                    feature_types[col] = "categorical"
+        elif isinstance(self.kind, dict):
+            for col in common_cols:
+                t = self.kind.get(col, None)
+                if t is not None:
+                    feature_types[col] = t
+                else:
                     if pd.api.types.is_numeric_dtype(self.df1[col]) and pd.api.types.is_numeric_dtype(self.df2[col]):
-                        # Heuristic: Treat numeric with few unique values relative to size as categorical
-                        if self.df1[col].nunique() < 20 or self.df2[col].nunique() < 20:
+                        nunique = min(self.df1[col].nunique(), self.df2[col].nunique())
+                        if nunique <= 20:
                             feature_types[col] = "categorical"
                         else:
                             feature_types[col] = "continuous"
                     else:
                         feature_types[col] = "categorical"
-            elif self.kind in ["categorical", "continuous"]:
-                feature_types = {col: self.kind for col in common_cols}
-            else:
-                raise ValueError("Invalid string value for `kind`.")
-        elif isinstance(self.kind, dict):
-            feature_types = {col: self.kind.get(col, "auto") for col in common_cols}
-            # Resolve any remaining "auto" types
-            auto_cols = [col for col, type_ in feature_types.items() if type_ == "auto"]
-            auto_types = DriftCalculator(self.df1[auto_cols], self.df2[auto_cols], kind="auto")._feature_types
-            feature_types.update(auto_types)
-        elif isinstance(self.kind, Iterable) and not isinstance(self.kind, str):
-            kind_list = list(self.kind)  # Convert to list to get length safely
-            if len(kind_list) != len(common_cols):
-                raise ValueError("Length of `kind` iterable must match number of common columns.")
-            feature_types = {
-                col: ("continuous" if is_cont else "categorical") for col, is_cont in zip(common_cols, kind_list)
-            }
         else:
-            raise TypeError("`kind` must be 'auto', 'categorical', 'continuous', a dict, or an iterable.")
+            raise TypeError("`kind` must be None or a dict mapping column names to 'continuous' or 'categorical'.")
 
         return feature_types
 

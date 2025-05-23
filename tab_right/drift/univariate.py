@@ -1,7 +1,7 @@
 """Univariate drift detection utilities for tab-right drift subpackage."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, Tuple, Union
+from typing import Any, Dict, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -84,12 +84,10 @@ class UnivariateDriftCalculator:
         The reference DataFrame
     df2 : pd.DataFrame
         The current DataFrame to compare against the reference
-    kind : Union[str, Iterable[bool]], default "auto"
+    kind : Union[None, Dict[str, str]], default None
         How to treat columns:
-        - "auto": Infer from data types
-        - "categorical": Treat all columns as categorical
-        - "continuous": Treat all columns as continuous
-        - Iterable[bool]: Specification for each column (True for continuous, False for categorical)
+        - None: Infer from data types
+        - dict: Specify "continuous" or "categorical" for each column
     normalize : bool, default True
         Whether to normalize continuous drift scores
     normalization_method : str, default "range"
@@ -99,7 +97,7 @@ class UnivariateDriftCalculator:
 
     df1: pd.DataFrame
     df2: pd.DataFrame
-    kind: Union[str, Iterable[bool]] = "auto"
+    kind: Union[None, Dict[str, str]] = None
     normalize: bool = True
     normalization_method: str = "range"
 
@@ -118,29 +116,40 @@ class UnivariateDriftCalculator:
         Raises
         ------
         ValueError
-            If the length of kind parameter doesn't match the number of common columns.
+            If the kind parameter is not None or a dict, or if the dict does not match columns.
 
         """
         results = []
         common_cols = set(self.df1.columns) & set(self.df2.columns)
 
-        # Convert kind to per-column specification if it's a string
-        if isinstance(self.kind, str):
+        if self.kind is None:
             kind_per_col = {}
             for col in common_cols:
-                if self.kind == "auto":
-                    # Infer from data type
-                    kind_per_col[col] = "continuous" if pd.api.types.is_numeric_dtype(self.df1[col]) else "categorical"
+                if pd.api.types.is_numeric_dtype(self.df1[col]):
+                    nunique = min(self.df1[col].nunique(), self.df2[col].nunique())
+                    if nunique <= 20:
+                        kind_per_col[col] = "categorical"
+                    else:
+                        kind_per_col[col] = "continuous"
                 else:
-                    kind_per_col[col] = self.kind
+                    kind_per_col[col] = "categorical"
+        elif isinstance(self.kind, dict):
+            kind_per_col = {}
+            for col in common_cols:
+                t = self.kind.get(col, None)
+                if t is not None:
+                    kind_per_col[col] = t
+                else:
+                    if pd.api.types.is_numeric_dtype(self.df1[col]):
+                        nunique = min(self.df1[col].nunique(), self.df2[col].nunique())
+                        if nunique <= 20:
+                            kind_per_col[col] = "categorical"
+                        else:
+                            kind_per_col[col] = "continuous"
+                    else:
+                        kind_per_col[col] = "categorical"
         else:
-            # If kind is an iterable of booleans, map to column names
-            kind_list = list(self.kind)  # Convert to list for len() operation
-            if len(kind_list) != len(common_cols):
-                raise ValueError(
-                    f"Length of kind ({len(kind_list)}) must match number of common columns ({len(common_cols)})"
-                )
-            kind_per_col = dict(zip(common_cols, ["continuous" if k else "categorical" for k in kind_list]))
+            raise ValueError("kind must be None or a dict mapping column names to 'continuous' or 'categorical'.")
 
         # Calculate drift for each column
         for col in common_cols:
@@ -298,7 +307,11 @@ def detect_univariate_drift_df(
     """
     # Use the protocol-compliant class for implementation
     drift_calc = UnivariateDriftCalculator(
-        df1=reference, df2=current, kind=kind, normalize=normalize, normalization_method=normalization_method
+        df1=reference,
+        df2=current,
+        kind=None if kind == "auto" else {col: kind for col in reference.index},
+        normalize=normalize,
+        normalization_method=normalization_method,
     )
     result = drift_calc()
 
