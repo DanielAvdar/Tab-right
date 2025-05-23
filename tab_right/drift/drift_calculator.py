@@ -22,10 +22,14 @@ class DriftCalculator:
 
         Raises:
             ValueError: If there are no common columns between the reference and current datasets.
+            TypeError: If `kind` is not None or a dict.
 
         """
-        if not set(self.df1.columns).intersection(set(self.df2.columns)):
+        common = set(self.df1.columns).intersection(set(self.df2.columns))
+        if not common:
             raise ValueError("No common columns between the reference and current datasets.")
+        if self.kind is not None and not isinstance(self.kind, dict):
+            raise TypeError("`kind` must be None or a dict mapping column names to 'continuous' or 'categorical'.")
         self._feature_types = self._determine_feature_types()
 
     def _determine_feature_types(self) -> Dict[str, str]:
