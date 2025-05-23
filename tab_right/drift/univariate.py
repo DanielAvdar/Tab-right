@@ -101,24 +101,35 @@ class UnivariateDriftCalculator:
     normalize: bool = True
     normalization_method: str = "range"
 
+    def __post_init__(self) -> None:
+        """Post-initialization: enforce kind protocol at instantiation.
+
+        Raises
+        ------
+        ValueError
+            If kind is not None and not a dict mapping column names to 'continuous' or 'categorical'.
+
+        """
+        if self.kind is not None and not isinstance(self.kind, dict):
+            raise ValueError("kind must be None or a dict mapping column names to 'continuous' or 'categorical'.")
+
     def __call__(self) -> pd.DataFrame:
         """Calculate drift between two DataFrames.
 
         Returns
         -------
         pd.DataFrame
-            A DataFrame containing the drift metrics for each column with columns:
-            - "feature": The name of the feature
-            - "type": The type of metric used (wasserstein or cramer_v)
-            - "score": The calculated drift score
-            - "raw_score": The unnormalized drift score (only for continuous features)
+            DataFrame with drift results for each feature.
 
         Raises
         ------
         ValueError
-            If the kind parameter is not None or a dict, or if the dict does not match columns.
+            If kind is not None and not a dict mapping column names to 'continuous' or 'categorical'.
 
         """
+        if self.kind is not None and not isinstance(self.kind, dict):
+            raise ValueError("kind must be None or a dict mapping column names to 'continuous' or 'categorical'.")
+
         results = []
         common_cols = set(self.df1.columns) & set(self.df2.columns)
 
