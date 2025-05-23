@@ -6,7 +6,7 @@ establish a consistent interface for all drift detection implementations.
 """
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, Mapping, Optional, Protocol, Union, runtime_checkable
+from typing import Dict, Iterable, Mapping, Optional, Protocol, runtime_checkable
 
 import pandas as pd
 
@@ -27,10 +27,7 @@ class DriftCalcP(Protocol):
         The current DataFrame to compare against the reference.
     kind : Union[str, Iterable[bool], Dict[str, str]], default "auto"
         Controls how columns are treated:
-        - "auto": Automatically infer from data types (numeric as continuous, others as categorical)
-        - "categorical": Treat all columns as categorical
-        - "continuous": Treat all columns as continuous
-        - Iterable[bool]: Specification for each column (True for continuous, False for categorical)
+        - None: general policy to determine column types
         - Dict[str, str]: Explicit mapping from column name to "continuous" or "categorical"
 
     Notes
@@ -44,7 +41,7 @@ class DriftCalcP(Protocol):
 
     df1: pd.DataFrame
     df2: pd.DataFrame
-    kind: Union[str, Iterable[bool], Dict[str, str]] = "auto"
+    kind: Optional[Dict[str, str]]
 
     def __call__(self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs: Mapping) -> pd.DataFrame:
         """Calculate drift between two DataFrames.
