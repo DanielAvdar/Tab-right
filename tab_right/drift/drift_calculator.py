@@ -1,38 +1,31 @@
 """Implementation of the DriftCalcP protocol."""
 
+from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, Optional, Union
 
 import numpy as np
 import pandas as pd
 from scipy.stats import chi2_contingency, wasserstein_distance
 
-from tab_right.base_architecture.drift_protocols import DriftCalcP
 
-
-class DriftCalculator(DriftCalcP):
+@dataclass
+class DriftCalculator:
     """Implementation of DriftCalcP using Cramér's V and Wasserstein distance."""
 
-    def __init__(self, df1: pd.DataFrame, df2: pd.DataFrame, kind: Union[str, Iterable[bool], Dict[str, str]] = "auto"):
-        """Initialize the DriftCalculator with reference and current datasets.
+    df1: pd.DataFrame
+    df2: pd.DataFrame
+    kind: Union[str, Iterable[bool], Dict[str, str]] = "auto"
+    _feature_types: Dict[str, str] = field(init=False)
 
-        Args:
-            df1: Reference DataFrame.
-            df2: Current DataFrame for comparison.
-            kind: Specification of feature types. Can be:
-                - "auto": Automatically determine types
-                - "categorical" or "continuous": Use this type for all features
-                - Dict mapping column names to types
-                - Iterable of booleans indicating if each column is continuous
+    def __post_init__(self) -> None:
+        """Initialize the DriftCalculator with reference and current datasets.
 
         Raises:
             ValueError: If there are no common columns between the reference and current datasets.
 
         """
-        self.df1 = df1
-        self.df2 = df2
         if not set(self.df1.columns).intersection(set(self.df2.columns)):
             raise ValueError("No common columns between the reference and current datasets.")
-        self.kind = kind
         self._feature_types = self._determine_feature_types()
 
     def _determine_feature_types(self) -> Dict[str, str]:
