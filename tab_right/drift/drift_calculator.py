@@ -6,10 +6,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2_contingency, wasserstein_distance
 
-from tab_right.base_architecture.drift_protocols import DriftCalcP
 
-
-class DriftCalculator(DriftCalcP):
+class DriftCalculator:
     """Implementation of DriftCalcP using Cramér's V and Wasserstein distance."""
 
     def __init__(self, df1: pd.DataFrame, df2: pd.DataFrame, kind: Union[str, Iterable[bool], Dict[str, str]] = "auto"):
