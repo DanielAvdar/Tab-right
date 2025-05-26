@@ -6,7 +6,7 @@ description = "A Python package for easy analysis of tabular data for inference 
 authors = [
     { name = "DanielAvdar", email = "66269169+DanielAvdar@users.noreply.github.com" },
 ]
-urls = { Homepage = "https://github.com/DanielAvdar/tab-right", Documentation = "https://tab-right.readthedocs.io" }
+urls = { Homepage = "https://github.com/DanielAvdar/tab-right", Documentation = "https://tab-right.readthedocs.io/en/latest/" }
 license = { text = "MIT" }
 readme = "README.md"
 classifiers = [

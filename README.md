@@ -63,7 +63,7 @@ print(segments)
 
 ## Documentation
 
-For detailed documentation and examples, visit our [documentation site](https://DanielAvdar.github.io/tab-right/).
+For detailed documentation and examples, visit our [documentation site](https://tab-right.readthedocs.io/).
 
 The documentation includes:
 - Comprehensive API reference
