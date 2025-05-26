@@ -1,12 +1,12 @@
 .. _architecture:
 
 Architecture
-===========
+============
 
 This page contains architecture diagrams that illustrate the structure and relationships between Tab-right's main components.
 
 Core Components
---------------
+---------------
 
 Tab-right consists of several core modules and classes that work together to provide data analysis functionality:
 
@@ -58,7 +58,7 @@ Tab-right consists of several core modules and classes that work together to pro
       DoubleSegmPlottingP ..> DoubleSegmentation : uses results from
 
 Module Structure
----------------
+----------------
 
 The following diagram shows the high-level module organization of Tab-right:
 
@@ -90,7 +90,7 @@ The following diagram shows the high-level module organization of Tab-right:
       E --> E4[plot_feature_drift.py]
 
 Protocol Relationships
---------------------
+----------------------
 
 The following diagram illustrates the relationships between the main protocol interfaces:
 
@@ -113,7 +113,7 @@ The following diagram illustrates the relationships between the main protocol in
       I -.-> K
 
 Data Flow
---------
+---------
 
 This diagram shows the typical data flow when using Tab-right:
 
@@ -134,7 +134,7 @@ This diagram shows the typical data flow when using Tab-right:
       Plotting->>User: Return charts/figures
 
 How to Update These Diagrams
----------------------------
+----------------------------
 
 These architecture diagrams can be updated by modifying the Mermaid syntax directly in this file. To update:
 
