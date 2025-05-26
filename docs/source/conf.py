@@ -17,7 +17,10 @@ project = "tab-right"
 # tab-right is a Python package for easy analysis of tabular data for inference models (ML and non-ML),
 # focusing on model-agnostic diagnostics using predictions.
 
-version = version("tab-right")
+try:
+    version = version("tab-right")
+except:
+    version = "0.1.0"  # Default version if package is not installed
 release = version
 
 copyright = "2025, DanielAvdar"  # noqa
@@ -35,6 +38,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "matplotlib.sphinxext.plot_directive",
+    "sphinxmermaid",  # Support for Mermaid diagrams
 ]
 
 templates_path = ["_templates"]
