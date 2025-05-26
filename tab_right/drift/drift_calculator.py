@@ -25,13 +25,63 @@ class DriftCalculator:
             TypeError: If `kind` is not None or a dict.
 
         """
-        common = set(self.df1.columns).intersection(set(self.df2.columns))
-        if not common:
+        common_cols = self._get_common_columns()
+        if not common_cols:
             raise ValueError("No common columns between the reference and current datasets.")
-        if self.kind is not None and not isinstance(self.kind, dict):
-            raise TypeError("`kind` must be None or a dict mapping column names to 'continuous' or 'categorical'.")
+        self._validate_kind()
         self._feature_types = self._determine_feature_types()
 
+    def _validate_kind(self) -> None:
+        """Validate that 'kind' is either None or a dictionary.
+    
+        Raises:
+            TypeError: If `kind` is not None or a dict.
+        """
+        if self.kind is not None and not isinstance(self.kind, dict):
+            raise TypeError("`kind` must be None or a dict mapping column names to 'continuous' or 'categorical'.")
+    
+    def _get_common_columns(self) -> list:
+        """Get common columns between df1 and df2.
+    
+        Returns:
+            List of column names present in both dataframes.
+        """
+        return list(set(self.df1.columns) & set(self.df2.columns))
+    
+    def _infer_type_from_data(self, col: str) -> str:
+        """Infer feature type from data characteristics.
+    
+        Args:
+            col: Column name to infer type for.
+        
+        Returns:
+            str: "categorical" or "continuous"
+        """
+        if pd.api.types.is_numeric_dtype(self.df1[col]) and pd.api.types.is_numeric_dtype(self.df2[col]):
+            nunique = min(self.df1[col].nunique(), self.df2[col].nunique())
+            if nunique <= 20:
+                return "categorical"
+            else:
+                return "continuous"
+        else:
+            return "categorical"
+    
+    def _get_feature_type(self, col: str) -> str:
+        """Get feature type for a single column.
+    
+        Args:
+            col: Column name to get type for.
+        
+        Returns:
+            str: "categorical" or "continuous"
+        """
+        if isinstance(self.kind, dict):
+            t = self.kind.get(col, None)
+            if t is not None:
+                return t
+        
+        return self._infer_type_from_data(col)
+    
     def _determine_feature_types(self) -> Dict[str, str]:
         """Determine if features are categorical or continuous based on `kind`.
 
@@ -42,37 +92,13 @@ class DriftCalculator:
             TypeError: If `kind` is not None or a dict.
 
         """
-        common_cols = list(set(self.df1.columns) & set(self.df2.columns))
+        self._validate_kind()
+        common_cols = self._get_common_columns()
         feature_types = {}
-
-        if self.kind is None:
-            for col in common_cols:
-                # Treat low-cardinality numerics as categorical (<=20 unique values)
-                if pd.api.types.is_numeric_dtype(self.df1[col]) and pd.api.types.is_numeric_dtype(self.df2[col]):
-                    nunique = min(self.df1[col].nunique(), self.df2[col].nunique())
-                    if nunique <= 20:
-                        feature_types[col] = "categorical"
-                    else:
-                        feature_types[col] = "continuous"
-                else:
-                    feature_types[col] = "categorical"
-        elif isinstance(self.kind, dict):
-            for col in common_cols:
-                t = self.kind.get(col, None)
-                if t is not None:
-                    feature_types[col] = t
-                else:
-                    if pd.api.types.is_numeric_dtype(self.df1[col]) and pd.api.types.is_numeric_dtype(self.df2[col]):
-                        nunique = min(self.df1[col].nunique(), self.df2[col].nunique())
-                        if nunique <= 20:
-                            feature_types[col] = "categorical"
-                        else:
-                            feature_types[col] = "continuous"
-                    else:
-                        feature_types[col] = "categorical"
-        else:
-            raise TypeError("`kind` must be None or a dict mapping column names to 'continuous' or 'categorical'.")
-
+        
+        for col in common_cols:
+            feature_types[col] = self._get_feature_type(col)
+            
         return feature_types
 
     def __call__(self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs: Any) -> pd.DataFrame:
