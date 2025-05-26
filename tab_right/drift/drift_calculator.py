@@ -33,29 +33,32 @@ class DriftCalculator:
 
     def _validate_kind(self) -> None:
         """Validate that 'kind' is either None or a dictionary.
-    
+
         Raises:
             TypeError: If `kind` is not None or a dict.
+
         """
         if self.kind is not None and not isinstance(self.kind, dict):
             raise TypeError("`kind` must be None or a dict mapping column names to 'continuous' or 'categorical'.")
-    
+
     def _get_common_columns(self) -> list:
         """Get common columns between df1 and df2.
-    
+
         Returns:
             List of column names present in both dataframes.
+
         """
         return list(set(self.df1.columns) & set(self.df2.columns))
-    
+
     def _infer_type_from_data(self, col: str) -> str:
         """Infer feature type from data characteristics.
-    
+
         Args:
             col: Column name to infer type for.
-        
+
         Returns:
             str: "categorical" or "continuous"
+
         """
         if pd.api.types.is_numeric_dtype(self.df1[col]) and pd.api.types.is_numeric_dtype(self.df2[col]):
             nunique = min(self.df1[col].nunique(), self.df2[col].nunique())
@@ -65,23 +68,24 @@ class DriftCalculator:
                 return "continuous"
         else:
             return "categorical"
-    
+
     def _get_feature_type(self, col: str) -> str:
         """Get feature type for a single column.
-    
+
         Args:
             col: Column name to get type for.
-        
+
         Returns:
             str: "categorical" or "continuous"
+
         """
         if isinstance(self.kind, dict):
             t = self.kind.get(col, None)
             if t is not None:
                 return t
-        
+
         return self._infer_type_from_data(col)
-    
+
     def _determine_feature_types(self) -> Dict[str, str]:
         """Determine if features are categorical or continuous based on `kind`.
 
@@ -95,10 +99,10 @@ class DriftCalculator:
         self._validate_kind()
         common_cols = self._get_common_columns()
         feature_types = {}
-        
+
         for col in common_cols:
             feature_types[col] = self._get_feature_type(col)
-            
+
         return feature_types
 
     def __call__(self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs: Any) -> pd.DataFrame:
@@ -160,11 +164,13 @@ class DriftCalculator:
                 ref_hist, _ = np.histogram(s1, bins=edges, density=True)
                 cur_hist, _ = np.histogram(s2, bins=edges, density=True)
                 labels = [f"({edges[i]:.2f}-{edges[i + 1]:.2f}]" for i in range(bins)]
-                d = pd.DataFrame({
-                    "bin": labels,
-                    "ref_density": ref_hist * np.diff(edges),
-                    "cur_density": cur_hist * np.diff(edges),
-                })
+                d = pd.DataFrame(
+                    {
+                        "bin": labels,
+                        "ref_density": ref_hist * np.diff(edges),
+                        "cur_density": cur_hist * np.diff(edges),
+                    }
+                )
             else:
                 continue
             d["feature"] = col
@@ -191,10 +197,12 @@ class DriftCalculator:
         s1_counts = s1.value_counts()
         s2_counts = s2.value_counts()
         all_cats = sorted(set(s1_counts.index) | set(s2_counts.index))
-        table = pd.DataFrame({
-            "s1": s1_counts.reindex(all_cats, fill_value=0),
-            "s2": s2_counts.reindex(all_cats, fill_value=0),
-        })
+        table = pd.DataFrame(
+            {
+                "s1": s1_counts.reindex(all_cats, fill_value=0),
+                "s2": s2_counts.reindex(all_cats, fill_value=0),
+            }
+        )
 
         # Handle edge cases where chi-squared calculation would fail
         if len(all_cats) < 2 or table.shape[1] < 2:
