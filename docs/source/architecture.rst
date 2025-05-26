@@ -136,7 +136,7 @@ This diagram shows the typical data flow when using Tab-right:
 How to Update These Diagrams
 ---------------------------
 
-These architecture diagrams can be updated by modifying the Mermaid syntax in this file. To update:
+These architecture diagrams can be updated by modifying the Mermaid syntax directly in this file. To update:
 
 1. Edit this file (`architecture.rst`)
 2. Update the Mermaid diagram code between the `.. mermaid::` directive blocks
