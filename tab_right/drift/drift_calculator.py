@@ -22,7 +22,6 @@ class DriftCalculator:
 
         Raises:
             ValueError: If there are no common columns between the reference and current datasets.
-            TypeError: If `kind` is not None or a dict.
 
         """
         common_cols = self._get_common_columns()
@@ -91,9 +90,6 @@ class DriftCalculator:
 
         Returns:
             Dictionary mapping column names to their types ("categorical" or "continuous").
-
-        Raises:
-            TypeError: If `kind` is not None or a dict.
 
         """
         self._validate_kind()
@@ -164,13 +160,11 @@ class DriftCalculator:
                 ref_hist, _ = np.histogram(s1, bins=edges, density=True)
                 cur_hist, _ = np.histogram(s2, bins=edges, density=True)
                 labels = [f"({edges[i]:.2f}-{edges[i + 1]:.2f}]" for i in range(bins)]
-                d = pd.DataFrame(
-                    {
-                        "bin": labels,
-                        "ref_density": ref_hist * np.diff(edges),
-                        "cur_density": cur_hist * np.diff(edges),
-                    }
-                )
+                d = pd.DataFrame({
+                    "bin": labels,
+                    "ref_density": ref_hist * np.diff(edges),
+                    "cur_density": cur_hist * np.diff(edges),
+                })
             else:
                 continue
             d["feature"] = col
@@ -197,12 +191,10 @@ class DriftCalculator:
         s1_counts = s1.value_counts()
         s2_counts = s2.value_counts()
         all_cats = sorted(set(s1_counts.index) | set(s2_counts.index))
-        table = pd.DataFrame(
-            {
-                "s1": s1_counts.reindex(all_cats, fill_value=0),
-                "s2": s2_counts.reindex(all_cats, fill_value=0),
-            }
-        )
+        table = pd.DataFrame({
+            "s1": s1_counts.reindex(all_cats, fill_value=0),
+            "s2": s2_counts.reindex(all_cats, fill_value=0),
+        })
 
         # Handle edge cases where chi-squared calculation would fail
         if len(all_cats) < 2 or table.shape[1] < 2:
