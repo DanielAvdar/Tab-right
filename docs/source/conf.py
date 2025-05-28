@@ -35,6 +35,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "matplotlib.sphinxext.plot_directive",
+    "sphinxcontrib.mermaid",  # Support for Mermaid diagrams
 ]
 
 templates_path = ["_templates"]
