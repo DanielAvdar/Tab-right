@@ -43,7 +43,7 @@ dev = [
 docs = [
     "sphinx>=8.2.0; python_version >= '3.11'",
     "sphinx>=7.0.0; python_version < '3.11'",
-    "sphinx-rtd-theme>=3.0.2",
+    "pydata-sphinx-theme",
     "matplotlib",
     "sphinxcontrib-mermaid>=1.0.0",
 ]
