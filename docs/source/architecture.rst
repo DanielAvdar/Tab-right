@@ -19,7 +19,7 @@ Tab-right consists of several core modules and classes that work together to pro
           +prediction_col: str
           +__call__(metric: Callable) -> pd.DataFrame
       }
-      
+
       class DoubleSegmentation {
           +df: pd.DataFrame
           +label_col: str
@@ -27,7 +27,7 @@ Tab-right consists of several core modules and classes that work together to pro
           +_group_2_features(feature1, feature2, bins_1, bins_2) -> BaseSegmentationCalc
           +__call__(feature1_col, feature2_col, score_metric, bins_1, bins_2) -> pd.DataFrame
       }
-      
+
       class DriftCalcP {
           +df1: pd.DataFrame
           +df2: pd.DataFrame
@@ -37,14 +37,14 @@ Tab-right consists of several core modules and classes that work together to pro
           +_categorical_drift_calc(s1, s2) -> float
           +_continuous_drift_calc(s1, s2, bins) -> float
       }
-      
+
       class DriftPlotP {
           +drift_calc: DriftCalcP
           +plot_multiple(columns, bins, figsize, sort_by, ascending, top_n, threshold) -> Figure
           +plot_single(column, bins, figsize, show_metrics) -> Figure
           +get_distribution_plots(columns, bins) -> Dict[str, Figure]
       }
-      
+
       class DoubleSegmPlottingP {
           +df: pd.DataFrame
           +metric_name: str
@@ -52,7 +52,7 @@ Tab-right consists of several core modules and classes that work together to pro
           +get_heatmap_df() -> pd.DataFrame
           +plot_heatmap() -> Figure
       }
-      
+
       DoubleSegmentation --|> BaseSegmentationCalc : uses
       DriftPlotP --|> DriftCalcP : uses
       DoubleSegmPlottingP ..> DoubleSegmentation : uses results from
@@ -70,20 +70,20 @@ The following diagram shows the high-level module organization of Tab-right:
       A --> D[drift]
       A --> E[plotting]
       A --> F[task_detection]
-      
+
       B --> B1[seg_protocols.py]
       B --> B2[seg_plotting_protocols.py]
       B --> B3[drift_protocols.py]
       B --> B4[drift_plot_protocols.py]
-      
+
       C --> C1[calc_seg.py]
       C --> C2[double_seg.py]
-      
+
       D --> D1[drift_calculator.py]
       D --> D2[univariate.py]
       D --> D3[psi.py]
       D --> D4[cramer_v.py]
-      
+
       E --> E1[plot_segmentations.py]
       E --> E2[drift_plotter.py]
       E --> E3[plot_drift.py]
@@ -100,14 +100,14 @@ The following diagram illustrates the relationships between the main protocol in
       A[BaseSegmentationCalc] --> B[SegmentationCalc]
       A --> C[DoubleSegmentation]
       C --> D[DoubleSegmentationImp]
-      
+
       E[DoubleSegmPlottingP] --> F[DoubleSegmPlotting]
       E --> G[DoubleSegmPlottingMp]
-      
+
       H[DriftCalcP] --> I[DriftCalculator]
-      
+
       J[DriftPlotP] --> K[DriftPlotter]
-      
+
       B -.-> F
       D -.-> F
       I -.-> K
@@ -124,7 +124,7 @@ This diagram shows the typical data flow when using Tab-right:
       participant Segmentation
       participant Metrics
       participant Plotting
-      
+
       User->>Segmentation: Create segmentation with df, labels, predictions
       Segmentation->>Segmentation: Group data by features
       Segmentation->>Metrics: Calculate metrics per segment
