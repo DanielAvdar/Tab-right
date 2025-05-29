@@ -44,12 +44,12 @@ ColorMap = Union[str, list]
 
 def _prepare_data(df: pd.DataFrame) -> pd.DataFrame:
     """Prepare data for segmentation plotting by sorting.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
         DataFrame to prepare
-        
+
     Returns
     -------
     pd.DataFrame
@@ -63,14 +63,14 @@ def _get_color_scheme(
     lower_is_better: bool = True, backend: Backend = "plotly"
 ) -> Dict[str, Union[str, list]]:
     """Get the appropriate color scheme based on the backend and lower_is_better parameter.
-    
+
     Parameters
     ----------
     lower_is_better : bool, default=True
         Whether lower values of the metric indicate better performance.
     backend : str, default="plotly"
         The plotting backend to use.
-        
+
     Returns
     -------
     dict
@@ -90,7 +90,7 @@ def plot_single_segmentation(
     df: pd.DataFrame, lower_is_better: bool = True, backend: Backend = "plotly"
 ) -> Figure:
     """Plot the single segmentation of a given DataFrame as a bar chart.
-    
+
     This function can use either Plotly or Matplotlib as backend.
 
     Parameters
@@ -115,7 +115,7 @@ def plot_single_segmentation(
 
 def _plot_single_segmentation_plotly(df: pd.DataFrame, lower_is_better: bool = True) -> PlotlyFigure:
     """Implement the single segmentation plot as a Plotly bar chart.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
@@ -130,7 +130,7 @@ def _plot_single_segmentation_plotly(df: pd.DataFrame, lower_is_better: bool = T
     """
     # Prepare data
     df_sorted = _prepare_data(df)
-    
+
     # Get color scheme
     color_scheme = _get_color_scheme(lower_is_better, "plotly")
 
@@ -165,7 +165,7 @@ def _plot_single_segmentation_plotly(df: pd.DataFrame, lower_is_better: bool = T
 
 def _plot_single_segmentation_matplotlib(df: pd.DataFrame, lower_is_better: bool = True) -> MatplotlibFigure:
     """Implement the single segmentation plot as a Matplotlib bar chart.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
@@ -180,13 +180,13 @@ def _plot_single_segmentation_matplotlib(df: pd.DataFrame, lower_is_better: bool
     """
     # Prepare data
     df_sorted = _prepare_data(df)
-    
+
     # Create matplotlib figure
     fig, ax = plt.subplots(figsize=(10, 6))
-    
+
     # Get color scheme
     color_scheme = _get_color_scheme(lower_is_better, "matplotlib")
-    
+
     cmap_name = color_scheme["cmap"]
     assert isinstance(cmap_name, str), "matplotlib cmap should be a string"
 
@@ -228,16 +228,16 @@ def _plot_single_segmentation_matplotlib(df: pd.DataFrame, lower_is_better: bool
 # For backward compatibility
 def plot_single_segmentation_mp(df: pd.DataFrame, lower_is_better: bool = True) -> MatplotlibFigure:
     """Plot the single segmentation using matplotlib (compatibility function).
-    
+
     This is a wrapper around plot_single_segmentation with backend="matplotlib" for backwards compatibility.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
         See module docstring for format details.
     lower_is_better : bool, default=True
         Whether lower values indicate better performance.
-        
+
     Returns
     -------
     MatplotlibFigure
@@ -249,16 +249,16 @@ def plot_single_segmentation_mp(df: pd.DataFrame, lower_is_better: bool = True) 
 # For backward compatibility
 def plot_single_segmentation_impl(df: pd.DataFrame, lower_is_better: bool = True) -> PlotlyFigure:
     """Implement the single segmentation plot as a Plotly bar chart (compatibility function).
-    
+
     This is kept for backwards compatibility and wraps _plot_single_segmentation_plotly.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
-        See module docstring for format details.  
+        See module docstring for format details.
     lower_is_better : bool, default=True
         Whether lower values indicate better performance.
-        
+
     Returns
     -------
     PlotlyFigure
@@ -306,7 +306,7 @@ class DoubleSegmPlotting:
             A Plotly heatmap showing each segment with its corresponding avg score.
         """
         heatmap_df = self.get_heatmap_df()
-        
+
         # Get color scheme
         color_scheme = _get_color_scheme(self.lower_is_better, "plotly")
 
@@ -350,7 +350,7 @@ class DoubleSegmPlotting:
 
         # Create figure and axes
         fig, ax = plt.subplots(figsize=(10, 8))
-        
+
         # Get color scheme
         color_scheme = _get_color_scheme(self.lower_is_better, "matplotlib")
         cmap = color_scheme["cmap"]
@@ -412,10 +412,10 @@ class DoubleSegmPlotting:
 @dataclass
 class DoubleSegmPlottingMp:
     """Class for double segmentation plotting using matplotlib (compatibility class).
-    
-    This class is kept for backwards compatibility and delegates to DoubleSegmPlotting 
+
+    This class is kept for backwards compatibility and delegates to DoubleSegmPlotting
     with backend="matplotlib".
-    
+
     See the module docstring for parameter details.
     """
 
@@ -427,8 +427,8 @@ class DoubleSegmPlottingMp:
         """Get the DataFrame for the heatmap from the double segmentation df."""
         # Create a DoubleSegmPlotting instance and delegate to its method
         plotter = DoubleSegmPlotting(
-            df=self.df, 
-            metric_name=self.metric_name, 
+            df=self.df,
+            metric_name=self.metric_name,
             lower_is_better=self.lower_is_better,
             backend="matplotlib"
         )
@@ -438,8 +438,8 @@ class DoubleSegmPlottingMp:
         """Plot the double segmentation as a heatmap using Matplotlib."""
         # Create a DoubleSegmPlotting instance and delegate to its method
         plotter = DoubleSegmPlotting(
-            df=self.df, 
-            metric_name=self.metric_name, 
+            df=self.df,
+            metric_name=self.metric_name,
             lower_is_better=self.lower_is_better,
             backend="matplotlib"
         )
