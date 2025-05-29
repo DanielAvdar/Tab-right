@@ -3,6 +3,7 @@
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -99,9 +100,6 @@ class DriftPlotter(DriftPlotP):
         Returns:
             A matplotlib Figure object containing the generated plot.
 
-        Raises:
-            ValueError: If the column is not found or its type is not determined.
-
         """
         validate_column_exists(column, self._feature_types)
 
@@ -113,9 +111,9 @@ class DriftPlotter(DriftPlotP):
             return create_empty_figure(figsize=figsize, message=f"No data available for column '{column}'.")
 
         feature_density = density_df[density_df["feature"] == column]
-        bins_or_cats = feature_density["bin"].values
-        ref_density = feature_density["ref_density"].values
-        cur_density = feature_density["cur_density"].values
+        bins_or_cats = np.asarray(feature_density["bin"].values)
+        ref_density = np.asarray(feature_density["ref_density"].values)
+        cur_density = np.asarray(feature_density["cur_density"].values)
 
         if col_type == "categorical":
             return plot_categorical_feature(

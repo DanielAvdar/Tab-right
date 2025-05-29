@@ -1,6 +1,6 @@
 """Matplotlib backend for drift plotting."""
 
-from typing import Optional, Tuple, cast
+from typing import Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -94,13 +94,16 @@ def plot_continuous_feature(
     """
     fig, ax = plt.subplots(figsize=figsize)
 
+    # Ensure densities are np.ndarray
+    ref_density = np.asarray(ref_density)
+    cur_density = np.asarray(cur_density)
+
     # Attempt to extract bin edges for plotting histogram-like bars
     try:
         bin_edges, centers = parse_bin_edges(bins_or_cats)
         widths = np.diff(bin_edges)
-        # Cast numpy arrays to avoid type issues with bar function
-        ref_values = cast(np.ndarray, ref_density).tolist()
-        cur_values = cast(np.ndarray, cur_density).tolist()
+        ref_values = ref_density.tolist()
+        cur_values = cur_density.tolist()
         ax.bar(
             centers,
             ref_values,
@@ -120,9 +123,8 @@ def plot_continuous_feature(
     except ValueError:
         # Fallback if bin parsing fails (e.g., unexpected format)
         x = np.arange(len(bins_or_cats))
-        # Cast numpy arrays to avoid type issues with plot function
-        ref_values = cast(np.ndarray, ref_density).tolist()
-        cur_values = cast(np.ndarray, cur_density).tolist()
+        ref_values = ref_density.tolist()
+        cur_values = cur_density.tolist()
         ax.plot(x, ref_values, label="Reference", marker="o")
         ax.plot(x, cur_values, label="Current", marker="x")
         ax.set_xticks(x)
@@ -169,11 +171,14 @@ def plot_categorical_feature(
     """
     fig, ax = plt.subplots(figsize=figsize)
 
+    # Ensure densities are np.ndarray
+    ref_density = np.asarray(ref_density)
+    cur_density = np.asarray(cur_density)
+
     x = np.arange(len(bins_or_cats))
     width = 0.35
-    # Cast numpy arrays to avoid type issues with bar function
-    ref_values = cast(np.ndarray, ref_density).tolist()
-    cur_values = cast(np.ndarray, cur_density).tolist()
+    ref_values = ref_density.tolist()
+    cur_values = cur_density.tolist()
     ax.bar(x - width / 2, ref_values, width, label="Reference", alpha=0.7)
     ax.bar(x + width / 2, cur_values, width, label="Current", alpha=0.7)
     ax.set_ylabel("Proportion")
