@@ -1,6 +1,6 @@
 """Matplotlib backend for drift plotting."""
 
-from typing import Any, Dict, Optional, Tuple, cast
+from typing import Optional, Tuple, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,6 +29,7 @@ def plot_multiple_features(
 
     Returns:
         A matplotlib Figure object containing the generated plot.
+
     """
     if drift_results.empty:
         return create_empty_figure(figsize, "No drift data to plot.")
@@ -89,6 +90,7 @@ def plot_continuous_feature(
 
     Returns:
         A matplotlib Figure object containing the generated plot.
+
     """
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -163,6 +165,7 @@ def plot_categorical_feature(
 
     Returns:
         A matplotlib Figure object containing the generated plot.
+
     """
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -203,6 +206,7 @@ def plot_drift_values(
 
     Returns:
         plt.Figure: Matplotlib figure with bar chart of drift values by feature.
+
     """
     drift_df_sorted = drift_df.sort_values(value_col, ascending=False)
 

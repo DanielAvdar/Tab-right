@@ -1,7 +1,5 @@
 """Plotly backend for drift plotting."""
 
-from typing import Dict, List
-
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -20,6 +18,7 @@ def plot_drift_values(
 
     Returns:
         go.Figure: Plotly bar chart of drift values by feature.
+
     """
     drift_df_sorted = drift_df.sort_values(value_col, ascending=False)
     fig = go.Figure(

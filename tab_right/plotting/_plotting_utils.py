@@ -1,11 +1,10 @@
 """Utility functions for drift plotting."""
 
-from typing import Any, Dict, Iterable, Optional, Tuple, Union, cast
+from typing import Dict, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 
 
 def validate_column_exists(column: str, feature_types: Dict[str, str]) -> None:
@@ -17,6 +16,7 @@ def validate_column_exists(column: str, feature_types: Dict[str, str]) -> None:
 
     Raises:
         ValueError: If the column is not found or its type is not determined.
+
     """
     if column not in feature_types:
         raise ValueError(f"Column '{column}' not found or type not determined.")
@@ -31,6 +31,7 @@ def create_empty_figure(figsize: Tuple[int, int] = (10, 6), message: str = "No d
 
     Returns:
         A matplotlib Figure object containing the generated figure.
+
     """
     fig, ax = plt.subplots(figsize=figsize)
     ax.text(0.5, 0.5, message, ha="center", va="center")
@@ -39,15 +40,14 @@ def create_empty_figure(figsize: Tuple[int, int] = (10, 6), message: str = "No d
     return fig
 
 
-def add_metrics_textbox(
-    ax: plt.Axes, metric_info: pd.Series, position: Tuple[float, float] = (0.05, 0.95)
-) -> None:
+def add_metrics_textbox(ax: plt.Axes, metric_info: pd.Series, position: Tuple[float, float] = (0.05, 0.95)) -> None:
     """Add a metrics textbox to the plot.
 
     Args:
         ax: The matplotlib Axes object to add the textbox to.
         metric_info: A pandas Series containing the metrics.
         position: The position of the textbox as (x, y) in axes coordinates.
+
     """
     score = metric_info["score"]
     metric_type = metric_info["type"]
@@ -79,6 +79,7 @@ def parse_bin_edges(bins_or_cats: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
     Raises:
         ValueError: If the bin labels cannot be parsed.
+
     """
     try:
         bin_edges_str = [s.strip("()[]") for s in bins_or_cats]
@@ -87,4 +88,4 @@ def parse_bin_edges(bins_or_cats: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         centers = bin_edges[:-1] + widths / 2
         return np.array(bin_edges), np.array(centers)
     except Exception:
-        raise ValueError("Could not parse bin edges from bin labels.")
+        raise ValueError("Could not parse bin edges from bin labels.") from None

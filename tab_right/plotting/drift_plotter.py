@@ -110,9 +110,7 @@ class DriftPlotter(DriftPlotP):
         drift_metrics = self.drift_calc(columns=[column], bins=bins)
 
         if density_df.empty:
-            return create_empty_figure(
-                figsize=figsize, message=f"No data available for column '{column}'."
-            )
+            return create_empty_figure(figsize=figsize, message=f"No data available for column '{column}'.")
 
         feature_density = density_df[density_df["feature"] == column]
         bins_or_cats = feature_density["bin"].values
@@ -170,9 +168,7 @@ class DriftPlotter(DriftPlotP):
             except Exception as e:
                 print(f"Could not generate plot for column '{col}': {e}")
                 # Optionally create a placeholder figure indicating error
-                plots[col] = create_empty_figure(
-                    figsize=(10, 6), message=f"Error plotting {col}"
-                )
+                plots[col] = create_empty_figure(figsize=(10, 6), message=f"Error plotting {col}")
 
         # Store the figures but don't close them yet - they're still needed for return
         result = {k: fig for k, fig in plots.items()}
