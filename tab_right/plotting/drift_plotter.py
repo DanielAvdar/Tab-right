@@ -1,6 +1,6 @@
 """Implementation of the DriftPlotP protocol using Matplotlib."""
 
-from typing import Any, Dict, Iterable, Optional, Tuple, cast
+from typing import Any, Dict, Iterable, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,6 +9,15 @@ import plotly.graph_objects as go
 
 from tab_right.base_architecture.drift_plot_protocols import DriftPlotP
 from tab_right.base_architecture.drift_protocols import DriftCalcP
+
+from ._matplotlib_backend import (
+    plot_categorical_feature,
+    plot_continuous_feature,
+    plot_drift_values as plot_drift_values_mp,
+    plot_multiple_features,
+)
+from ._plotly_backend import plot_drift_values
+from ._plotting_utils import create_empty_figure, validate_column_exists
 
 
 class DriftPlotter(DriftPlotP):
@@ -62,44 +71,14 @@ class DriftPlotter(DriftPlotP):
 
         """
         drift_results = self.drift_calc(columns=columns, bins=bins, **kwargs)
-
-        if drift_results.empty:
-            fig, ax = plt.subplots(figsize=figsize)
-            ax.text(0.5, 0.5, "No drift data to plot.", ha="center", va="center")
-            ax.set_xticks([])
-            ax.set_yticks([])
-            return fig
-
-        # Sort and filter
-        drift_results = drift_results.sort_values(by=sort_by, ascending=ascending)
-        if top_n:
-            drift_results = drift_results.head(top_n)
-
-        fig, ax = plt.subplots(figsize=figsize)
-        features = drift_results["feature"]
-        scores = drift_results["score"]
-        colors = ["red" if threshold is not None and score >= threshold else "blue" for score in scores]
-
-        bars = ax.barh(features, scores, color=colors)
-        ax.set_xlabel("Drift Score (Type Varies by Feature)")
-        ax.set_ylabel("Feature")
-        ax.set_title("Feature Drift Scores")
-        ax.invert_yaxis()  # Highest score on top
-
-        # Add score labels
-        ax.bar_label(bars, fmt="%.3f", padding=3)
-
-        if threshold is not None:
-            ax.axvline(
-                threshold,
-                color="grey",
-                linestyle="--",
-                label=f"Threshold = {threshold:.2f}",
-            )
-            ax.legend()
-
-        plt.tight_layout()
-        return fig
+        return plot_multiple_features(
+            drift_results=drift_results,
+            figsize=figsize,
+            sort_by=sort_by,
+            ascending=ascending,
+            top_n=top_n,
+            threshold=threshold,
+        )
 
     def plot_single(
         self,
@@ -121,111 +100,43 @@ class DriftPlotter(DriftPlotP):
         Returns:
             A matplotlib Figure object containing the generated plot.
 
-        Raises:
-            ValueError: If the column is not found or its type is not determined.
-
         """
-        if column not in self._feature_types:
-            raise ValueError(f"Column '{column}' not found or type not determined.")
+        validate_column_exists(column, self._feature_types)
 
         col_type = self._feature_types[column]
         density_df = self.drift_calc.get_prob_density(columns=[column], bins=bins)
         drift_metrics = self.drift_calc(columns=[column], bins=bins)
 
-        fig, ax = plt.subplots(figsize=figsize)
-
         if density_df.empty:
-            ax.text(
-                0.5,
-                0.5,
-                f"No data available for column '{column}'.",
-                ha="center",
-                va="center",
-            )
-            return fig
+            return create_empty_figure(figsize=figsize, message=f"No data available for column '{column}'.")
 
         feature_density = density_df[density_df["feature"] == column]
-        bins_or_cats = feature_density["bin"].values
-        ref_density = feature_density["ref_density"].values
-        cur_density = feature_density["cur_density"].values
+        bins_or_cats = np.asarray(feature_density["bin"].values)
+        ref_density = np.asarray(feature_density["ref_density"].values)
+        cur_density = np.asarray(feature_density["cur_density"].values)
 
         if col_type == "categorical":
-            x = np.arange(len(bins_or_cats))
-            width = 0.35
-            # Cast numpy arrays to avoid type issues with bar function
-            ref_values = cast(np.ndarray, ref_density).tolist()
-            cur_values = cast(np.ndarray, cur_density).tolist()
-            ax.bar(x - width / 2, ref_values, width, label="Reference", alpha=0.7)
-            ax.bar(x + width / 2, cur_values, width, label="Current", alpha=0.7)
-            ax.set_ylabel("Proportion")
-            ax.set_xticks(x)
-            ax.set_xticklabels(bins_or_cats, rotation=45, ha="right")
-            ax.set_title(f"Categorical Distribution Comparison: {column}")
-        elif col_type == "continuous":
-            # Attempt to extract bin edges for plotting histogram-like bars
-            try:
-                bin_edges_str = [s.strip("()[]") for s in bins_or_cats]
-                bin_edges = sorted(list(set([float(edge) for item in bin_edges_str for edge in item.split("-")])))
-                widths = np.diff(bin_edges)
-                centers = bin_edges[:-1] + widths / 2
-                # Cast numpy arrays to avoid type issues with bar function
-                ref_values = cast(np.ndarray, ref_density).tolist()
-                cur_values = cast(np.ndarray, cur_density).tolist()
-                ax.bar(
-                    centers,
-                    ref_values,
-                    width=widths,
-                    label="Reference",
-                    alpha=0.7,
-                    align="center",
-                )
-                ax.bar(
-                    centers,
-                    cur_values,
-                    width=widths,
-                    label="Current",
-                    alpha=0.7,
-                    align="center",
-                )
-            except Exception:  # Catch specific exceptions when possible
-                # Fallback if bin parsing fails (e.g., unexpected format)
-                x = np.arange(len(bins_or_cats))
-                # Cast numpy arrays to avoid type issues with plot function
-                ref_values = cast(np.ndarray, ref_density).tolist()
-                cur_values = cast(np.ndarray, cur_density).tolist()
-                ax.plot(x, ref_values, label="Reference", marker="o")
-                ax.plot(x, cur_values, label="Current", marker="x")
-                ax.set_xticks(x)
-                ax.set_xticklabels(bins_or_cats, rotation=45, ha="right")  # Use bin labels directly
-
-            ax.set_ylabel("Probability Mass")  # Since we multiplied density by bin width
-            ax.set_xlabel("Bins")
-            ax.set_title(f"Continuous Distribution Comparison: {column}")
-
-        ax.legend()
-
-        if show_metrics and not drift_metrics.empty:
-            metric_info = drift_metrics.iloc[0]
-            score = metric_info["score"]
-            metric_type = metric_info["type"]
-            raw_score = metric_info["raw_score"]
-            # Use raw_score for display if different and available
-            display_score = raw_score if pd.notna(raw_score) and raw_score != score else score
-            metrics_text = f"{metric_type.replace('_', ' ').title()}: {display_score:.4f}"
-            # Add text box with metrics
-            props = dict(boxstyle="round", facecolor="wheat", alpha=0.5)
-            ax.text(
-                0.05,
-                0.95,
-                metrics_text,
-                transform=ax.transAxes,
-                fontsize=10,
-                verticalalignment="top",
-                bbox=props,
+            return plot_categorical_feature(
+                feature_density=feature_density,
+                bins_or_cats=bins_or_cats,
+                ref_density=ref_density,
+                cur_density=cur_density,
+                column=column,
+                figsize=figsize,
+                show_metrics=show_metrics,
+                drift_metrics=drift_metrics,
             )
-
-        plt.tight_layout()
-        return fig
+        else:  # continuous
+            return plot_continuous_feature(
+                feature_density=feature_density,
+                bins_or_cats=bins_or_cats,
+                ref_density=ref_density,
+                cur_density=cur_density,
+                column=column,
+                figsize=figsize,
+                show_metrics=show_metrics,
+                drift_metrics=drift_metrics,
+            )
 
     def get_distribution_plots(
         self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs: Any
@@ -255,15 +166,7 @@ class DriftPlotter(DriftPlotP):
             except Exception as e:
                 print(f"Could not generate plot for column '{col}': {e}")
                 # Optionally create a placeholder figure indicating error
-                fig, ax = plt.subplots()
-                ax.text(
-                    0.5,
-                    0.5,
-                    f"Error plotting {col}",
-                    ha="center",
-                    va="center",
-                )
-                plots[col] = fig
+                plots[col] = create_empty_figure(figsize=(10, 6), message=f"Error plotting {col}")
 
         # Store the figures but don't close them yet - they're still needed for return
         result = {k: fig for k, fig in plots.items()}
@@ -290,22 +193,11 @@ class DriftPlotter(DriftPlotP):
             go.Figure: Plotly bar chart of drift values by feature.
 
         """
-        drift_df_sorted = drift_df.sort_values(value_col, ascending=False)
-        fig = go.Figure(
-            go.Bar(
-                x=drift_df_sorted[feature_col],
-                y=drift_df_sorted[value_col],
-                marker_color="indianred",
-                name="Drift Value",
-            )
+        return plot_drift_values(
+            drift_df=drift_df,
+            value_col=value_col,
+            feature_col=feature_col,
         )
-        fig.update_layout(
-            title="Univariate Drift by Feature",
-            xaxis_title="Feature",
-            yaxis_title="Drift Value",
-            xaxis_tickangle=-45,
-        )
-        return fig
 
     def plot_drift_mp(
         self,
@@ -324,33 +216,8 @@ class DriftPlotter(DriftPlotP):
             plt.Figure: Matplotlib figure with bar chart of drift values by feature.
 
         """
-        drift_df_sorted = drift_df.sort_values(value_col, ascending=False)
-
-        # Create matplotlib figure
-        fig, ax = plt.subplots(figsize=(10, 6))
-        bars = ax.bar(
-            drift_df_sorted[feature_col],
-            drift_df_sorted[value_col],
-            color="indianred",
+        return plot_drift_values_mp(
+            drift_df=drift_df,
+            value_col=value_col,
+            feature_col=feature_col,
         )
-
-        # Add value labels on top of bars
-        for bar in bars:
-            height = bar.get_height()
-            ax.text(
-                bar.get_x() + bar.get_width() / 2.0,
-                height + 0.01,
-                f"{height:.3f}",
-                ha="center",
-                va="bottom",
-                fontsize=9,
-            )
-
-        # Customize plot
-        ax.set_title("Univariate Drift by Feature")
-        ax.set_xlabel("Feature")
-        ax.set_ylabel("Drift Value")
-        plt.xticks(rotation=-45, ha="left")
-        plt.tight_layout()
-
-        return fig
