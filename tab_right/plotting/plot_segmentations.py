@@ -61,7 +61,7 @@ def _prepare_data(df: pd.DataFrame) -> pd.DataFrame:
 
 def _get_color_scheme(
     lower_is_better: bool = True, backend: Backend = "plotly"
-) -> Dict[str, ColorMap]:
+) -> Dict[str, Union[str, list]]:
     """Get the appropriate color scheme based on the backend and lower_is_better parameter.
     
     Parameters
@@ -188,6 +188,7 @@ def _plot_single_segmentation_matplotlib(df: pd.DataFrame, lower_is_better: bool
     color_scheme = _get_color_scheme(lower_is_better, "matplotlib")
     
     cmap_name = color_scheme["cmap"]
+    assert isinstance(cmap_name, str), "matplotlib cmap should be a string"
 
     # Normalize the scores for colormapping
     if len(df_sorted) > 1:
@@ -353,6 +354,7 @@ class DoubleSegmPlotting:
         # Get color scheme
         color_scheme = _get_color_scheme(self.lower_is_better, "matplotlib")
         cmap = color_scheme["cmap"]
+        assert isinstance(cmap, str), "matplotlib cmap should be a string"
 
         # Create heatmap using pcolormesh which creates a QuadMesh collection
         # First create a meshgrid for the x and y coordinates
