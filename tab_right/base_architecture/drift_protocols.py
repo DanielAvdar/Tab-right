@@ -61,7 +61,7 @@ class DriftCalcP(Protocol):
             A DataFrame containing the drift metrics for each column.
             Must contain at least the following columns:
             - "feature": The name of the feature.
-            - "type": The type of metric used (e.g., "wasserstein", "cramer_v", "psi").
+            - "type": The type of metric used (e.g., "wasserstein", "cramer_v").
             - "score": The calculated drift score (normalized to [0,1] when applicable).
 
             May also include:
@@ -146,7 +146,6 @@ class DriftCalcP(Protocol):
         -----
         Can be implemented using various metrics:
         - Wasserstein distance (normalized)
-        - Population Stability Index (PSI)
         - Kolmogorov-Smirnov test statistic
 
         """
