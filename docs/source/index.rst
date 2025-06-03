@@ -56,9 +56,7 @@ Tab-right is a Python package for easy analysis of tabular data for inference mo
    :caption: Guides & Examples
 
    architecture
-   drift
-   seg_calc
-   seg_double
+   analysis_guides/guides
 
 .. toctree::
    :maxdepth: 2
