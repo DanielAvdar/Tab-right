@@ -11,9 +11,9 @@ Drift Detection with tab-right
 Tab-right offers specialized components for drift detection:
 
 1. ``DriftCalculator`` - Core class for calculating drift between datasets
-2. ``DriftPlotter`` - Visualization class for creating matplotlib-based drift plots
+2. ``DriftPlotter`` - Comprehensive visualization class with multiple plotting methods
 3. ``univariate`` module - Lower-level functions for specific drift calculations
-4. ``plot_drift`` / ``plot_feature_drift`` modules - Simplified plotting functions
+4. Plotting functions - Backward-compatible functions for simple drift visualization
 
 Available Drift Metrics
 -----------------------
@@ -134,6 +134,43 @@ Tab-right also makes it easy to visualize categorical feature drift:
 
     # Plot categorical feature distribution comparison
     fig_cat = plotter.plot_single('category')
+    plt.tight_layout()
+    plt.show()
+
+KDE-Based Feature Visualization
+-------------------------------
+
+For smooth distribution curves, DriftPlotter also provides KDE-based plotting methods:
+
+.. plot::
+    :include-source:
+
+    import numpy as np
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    from tab_right.drift.drift_calculator import DriftCalculator
+    from tab_right.plotting.drift_plotter import DriftPlotter
+
+    # Generate datasets with continuous feature drift
+    np.random.seed(42)
+    df1 = pd.DataFrame({
+        'feature': np.random.normal(0, 1, 200),
+    })
+
+    df2 = pd.DataFrame({
+        'feature': np.random.normal(1.5, 1.2, 200),
+    })
+
+    # Create calculator and plotter
+    drift_calc = DriftCalculator(df1, df2)
+    plotter = DriftPlotter(drift_calc)
+
+    # Get the raw feature data
+    ref_data = df1['feature']
+    cur_data = df2['feature']
+
+    # Plot using KDE for smooth curves (shows distribution overlap better)
+    fig_kde = plotter.plot_feature_drift_kde_mp(ref_data, cur_data, 'feature')
     plt.tight_layout()
     plt.show()
 
