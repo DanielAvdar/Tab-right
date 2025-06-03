@@ -28,7 +28,7 @@ cov: install
 	uv run pytest --cov=tab_right --cov-report=term-missing
 
 mypy: install
-	uv run mypy tab_right --config-file pyproject.toml
+	uv run mypy tab_right tests/base_architecture --config-file pyproject.toml
 
 doctest: install-docs doc
 

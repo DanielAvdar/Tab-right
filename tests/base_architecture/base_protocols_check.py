@@ -1,5 +1,4 @@
 import dataclasses
-from abc import abstractmethod
 from typing import Any, Callable
 
 import pandas as pd
@@ -10,9 +9,9 @@ class CheckProtocols:
 
     class_to_check: Any = None
 
-    @abstractmethod
-    def instance_to_check(self) -> Any:
-        """Return the instance to check."""
+    # Note: instance_to_check should be implemented by subclasses
+    # The signature may vary depending on whether it's a simple fixture
+    # or a parameterized fixture that requires pytest.FixtureRequest
 
     def get_metric(self, agg: bool = False) -> Callable:
         def metric_single(y: pd.Series, p: pd.Series) -> pd.Series:
