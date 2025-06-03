@@ -103,3 +103,42 @@ def test_invalid_column(sample_drift_calculator):
 
     with pytest.raises(ValueError):
         plotter.plot_single("non_existent_column")
+
+
+def test_plot_feature_drift_methods(sample_drift_calculator):
+    """Test the new plot_feature_drift methods in DriftPlotter."""
+    plotter = DriftPlotter(sample_drift_calculator)
+
+    # Get sample data
+    ref_data = sample_drift_calculator.df1["numeric"]
+    cur_data = sample_drift_calculator.df2["numeric"]
+
+    # Test Plotly version
+    fig_plotly = plotter.plot_feature_drift(ref_data, cur_data, "test_feature")
+    assert hasattr(fig_plotly, "data")  # Basic check for plotly figure
+
+    # Test matplotlib version
+    fig_mp = plotter.plot_feature_drift_mp(ref_data, cur_data, "test_feature")
+    assert isinstance(fig_mp, plt.Figure)
+    plt.close(fig_mp)
+
+
+def test_drift_plotter_methods_with_dataframe():
+    """Test DriftPlotter methods that take DataFrames."""
+    # Create a simple drift results DataFrame
+    drift_df = pd.DataFrame({"feature": ["A", "B", "C"], "score": [0.8, 0.5, 0.2]})
+
+    # We need a minimal DriftCalculator to create DriftPlotter
+    df1 = pd.DataFrame({"A": [1, 2, 3]})
+    df2 = pd.DataFrame({"A": [2, 3, 4]})
+    calc = DriftCalculator(df1, df2)
+    plotter = DriftPlotter(calc)
+
+    # Test plot_drift (Plotly)
+    fig_plotly = plotter.plot_drift(drift_df, value_col="score")
+    assert hasattr(fig_plotly, "data")
+
+    # Test plot_drift_mp (matplotlib)
+    fig_mp = plotter.plot_drift_mp(drift_df, value_col="score")
+    assert isinstance(fig_mp, plt.Figure)
+    plt.close(fig_mp)

@@ -243,3 +243,107 @@ def plot_drift_values(
     plt.tight_layout()
 
     return fig
+
+
+def plot_feature_drift_matplotlib(
+    reference: pd.Series,
+    current: pd.Series,
+    feature_name: str = None,
+    show_score: bool = True,
+    ref_label: str = "Train Dataset",
+    cur_label: str = "Test Dataset",
+    normalize: bool = True,
+    normalization_method: str = "range",
+    show_raw_score: bool = False,
+) -> plt.Figure:
+    """Plot distribution drift for a single feature using matplotlib.
+
+    Args:
+        reference: Reference (train) data for the feature.
+        current: Current (test) data for the feature.
+        feature_name: Name of the feature (for labeling plots).
+        show_score: Whether to display the drift score annotation.
+        ref_label: Label for the reference data.
+        cur_label: Label for the current data.
+        normalize: Whether to normalize the Wasserstein distance.
+        normalization_method: Method to use for normalization: "range", "std", or "iqr".
+        show_raw_score: Whether to show both normalized and raw scores.
+
+    Returns:
+        plt.Figure: Matplotlib figure with overlaid histograms, means, medians, and drift score annotation.
+
+    """
+    feature_name = feature_name or str(reference.name) if reference.name is not None else "feature"
+    drift_score = None
+    raw_score = None
+
+    if len(reference) > 0 and len(current) > 0:
+        # Import here to avoid circular imports
+        from tab_right.drift.univariate import detect_univariate_drift_with_options
+
+        # Get both raw and normalized scores
+        result = detect_univariate_drift_with_options(
+            reference, current, kind="continuous", normalize=normalize, normalization_method=normalization_method
+        )
+
+        drift_score = result["score"]
+        if "raw_score" in result:
+            raw_score = result["raw_score"]
+
+    # Compute KDEs for smooth lines
+    from scipy.stats import gaussian_kde
+
+    x_min = min(reference.min() if len(reference) else 0, current.min() if len(current) else 0)
+    x_max = max(reference.max() if len(reference) else 1, current.max() if len(current) else 1)
+    x_grid = np.linspace(x_min, x_max, 200)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    if len(reference) > 1:
+        kde_ref = gaussian_kde(reference)
+        ax.plot(x_grid, kde_ref(x_grid), label=ref_label, color="blue")
+
+    if len(current) > 1:
+        kde_cur = gaussian_kde(current)
+        ax.plot(x_grid, kde_cur(x_grid), label=cur_label, color="orange")
+
+    # Add mean lines
+    for arr, color, label in [
+        (reference, "blue", f"{ref_label} Mean"),
+        (current, "orange", f"{cur_label} Mean"),
+    ]:
+        if len(arr) > 0:
+            stat = np.mean(arr)
+            ax.axvline(x=stat, color=color, linestyle="--", alpha=0.7, label=label)
+
+    ax.set_xlabel(feature_name)
+    ax.set_ylabel("Probability Density")
+    ax.set_title(feature_name)
+    ax.legend()
+
+    if show_score:
+        if normalize and show_raw_score and raw_score is not None:
+            score_text = (
+                f"Drift Score ({feature_name}): {drift_score:.3f} (Raw: {raw_score:.3f})"
+                if drift_score is not None
+                else "Drift Score: N/A (empty input)"
+            )
+        else:
+            score_text = (
+                f"Drift Score ({feature_name}): {drift_score:.3f}"
+                if drift_score is not None
+                else "Drift Score: N/A (empty input)"
+            )
+
+        ax.text(
+            0.5,
+            1.05,
+            score_text,
+            transform=ax.transAxes,
+            fontsize=12,
+            ha="center",
+            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5),
+        )
+
+    plt.tight_layout()
+    return fig
