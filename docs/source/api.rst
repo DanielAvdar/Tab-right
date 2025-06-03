@@ -33,8 +33,6 @@ Drift Metrics
 
 .. autofunction:: tab_right.drift.univariate.detect_univariate_drift
 
-.. autofunction:: tab_right.drift.psi.psi
-
 .. autofunction:: tab_right.drift.cramer_v.cramer_v
 
 Plotting Functions

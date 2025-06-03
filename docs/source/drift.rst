@@ -22,12 +22,10 @@ Tab-right provides multiple metrics for different types of features:
 **Numerical Features:**
 - **Wasserstein Distance** (default): Measures the earth mover's distance between distributions
 - **Kolmogorov-Smirnov Test**: Statistical test for equality of continuous distributions
-- **Population Stability Index (PSI)**: Measure of population stability over time
 
 **Categorical Features:**
 - **Cramer's V** (default): Normalized measure of association between categorical variables
 - **Chi-Square Test**: Statistical test for independence of categorical variables
-- **PSI**: Can also be applied to categorical features by comparing proportions
 
 Example: Using DriftCalculator and DriftPlotter
 -----------------------------------------------
@@ -278,7 +276,7 @@ Tab-right offers comprehensive drift detection capabilities:
 
 - **Flexible API**: Choose between object-oriented (DriftCalculator/DriftPlotter) or functional approaches
 - **Automatic feature type detection**: Appropriate metrics are selected based on the data type
-- **Multiple drift metrics**: Including Wasserstein distance, KS test, PSI, and Cramer's V
+- **Multiple drift metrics**: Including Wasserstein distance, KS test, and Cramer's V
 - **Matplotlib integration**: Create publication-ready plots with built-in matplotlib figures
 - **Multi-feature analysis**: Analyze drift across all features at once
 - **Probability density comparison**: Examine detailed distribution changes

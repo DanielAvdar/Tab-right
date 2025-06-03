@@ -81,8 +81,7 @@ The following diagram shows the high-level module organization of Tab-right:
 
       D --> D1[drift_calculator.py]
       D --> D2[univariate.py]
-      D --> D3[psi.py]
-      D --> D4[cramer_v.py]
+      D --> D3[cramer_v.py]
 
       E --> E1[plot_segmentations.py]
       E --> E2[drift_plotter.py]
