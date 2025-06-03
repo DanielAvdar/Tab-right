@@ -30,9 +30,6 @@ cov: install
 mypy: install
 	uv run mypy tab_right tests/base_architecture --config-file pyproject.toml
 
-mypy-test-base_architecture: install
-	uv run mypy tests/base_architecture --config-file pyproject.toml
-
 doctest: install-docs doc
 
 doc:
