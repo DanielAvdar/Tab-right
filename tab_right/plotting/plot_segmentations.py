@@ -413,6 +413,3 @@ class DoubleSegmPlotting:
             return self._plot_heatmap_matplotlib()
         else:  # Default to plotly
             return self._plot_heatmap_plotly()
-
-
-
