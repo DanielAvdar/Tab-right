@@ -14,9 +14,10 @@ from ._matplotlib_backend import (
     plot_categorical_feature,
     plot_continuous_feature,
     plot_drift_values as plot_drift_values_mp,
+    plot_feature_drift_kde_mp,
     plot_multiple_features,
 )
-from ._plotly_backend import plot_drift_values
+from ._plotly_backend import plot_drift_values, plot_feature_drift_kde
 from ._plotting_utils import create_empty_figure, validate_column_exists
 
 
@@ -218,4 +219,86 @@ class DriftPlotter:
             drift_df=drift_df,
             value_col=value_col,
             feature_col=feature_col,
+        )
+
+    def plot_feature_drift_kde(
+        self,
+        reference: pd.Series,
+        current: pd.Series,
+        feature_name: str = None,
+        show_score: bool = True,
+        ref_label: str = "Train Dataset",
+        cur_label: str = "Test Dataset",
+        normalize: bool = True,
+        normalization_method: str = "range",
+        show_raw_score: bool = False,
+    ) -> go.Figure:
+        """Plot distribution drift for a single feature using KDE with Plotly.
+
+        Args:
+            reference: Reference (train) data for the feature.
+            current: Current (test) data for the feature.
+            feature_name: Name of the feature (for labeling plots).
+            show_score: Whether to display the drift score annotation.
+            ref_label: Label for the reference data.
+            cur_label: Label for the current data.
+            normalize: Whether to normalize the Wasserstein distance.
+            normalization_method: Method to use for normalization: "range", "std", or "iqr".
+            show_raw_score: Whether to show both normalized and raw scores.
+
+        Returns:
+            go.Figure: Plotly figure with overlaid histograms, means, medians, and drift score annotation.
+
+        """
+        return plot_feature_drift_kde(
+            reference=reference,
+            current=current,
+            feature_name=feature_name,
+            show_score=show_score,
+            ref_label=ref_label,
+            cur_label=cur_label,
+            normalize=normalize,
+            normalization_method=normalization_method,
+            show_raw_score=show_raw_score,
+        )
+
+    def plot_feature_drift_kde_mp(
+        self,
+        reference: pd.Series,
+        current: pd.Series,
+        feature_name: str = None,
+        show_score: bool = True,
+        ref_label: str = "Train Dataset",
+        cur_label: str = "Test Dataset",
+        normalize: bool = True,
+        normalization_method: str = "range",
+        show_raw_score: bool = False,
+    ) -> plt.Figure:
+        """Plot distribution drift for a single feature using KDE with Matplotlib.
+
+        Args:
+            reference: Reference (train) data for the feature.
+            current: Current (test) data for the feature.
+            feature_name: Name of the feature (for labeling plots).
+            show_score: Whether to display the drift score annotation.
+            ref_label: Label for the reference data.
+            cur_label: Label for the current data.
+            normalize: Whether to normalize the Wasserstein distance.
+            normalization_method: Method to use for normalization: "range", "std", or "iqr".
+            show_raw_score: Whether to show both normalized and raw scores.
+
+        Returns:
+            plt.Figure: Matplotlib figure with overlaid distributions, means, and drift score.
+
+        """
+        return plot_feature_drift_kde_mp(
+            reference=reference,
+            current=current,
+            feature_name=feature_name,
+            show_score=show_score,
+            ref_label=ref_label,
+            cur_label=cur_label,
+            normalize=normalize,
+            normalization_method=normalization_method,
+            show_raw_score=show_raw_score,
         )

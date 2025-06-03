@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytest
+from plotly import graph_objects as go
 
 from tab_right.drift.drift_calculator import DriftCalculator
 from tab_right.plotting.drift_plotter import DriftPlotter
@@ -103,3 +104,32 @@ def test_invalid_column(sample_drift_calculator):
 
     with pytest.raises(ValueError):
         plotter.plot_single("non_existent_column")
+
+
+def test_plot_feature_drift_kde_methods(sample_drift_calculator):
+    """Test the new KDE plotting methods."""
+    plotter = DriftPlotter(sample_drift_calculator)
+
+    # Get some test data
+    ref_data = sample_drift_calculator.df1["numeric"]
+    cur_data = sample_drift_calculator.df2["numeric"]
+
+    # Test plotly KDE method
+    fig_plotly = plotter.plot_feature_drift_kde(ref_data, cur_data, "test_feature")
+    assert isinstance(fig_plotly, go.Figure)
+    assert len(fig_plotly.data) >= 2  # Should have at least KDE traces
+
+    # Test matplotlib KDE method
+    fig_mpl = plotter.plot_feature_drift_kde_mp(ref_data, cur_data, "test_feature")
+    assert isinstance(fig_mpl, plt.Figure)
+    assert len(fig_mpl.axes) > 0
+    plt.close(fig_mpl)
+
+    # Test with empty data
+    empty_series = pd.Series([], dtype=float)
+    fig_empty = plotter.plot_feature_drift_kde(empty_series, empty_series, "empty")
+    assert isinstance(fig_empty, go.Figure)
+
+    fig_empty_mpl = plotter.plot_feature_drift_kde_mp(empty_series, empty_series, "empty")
+    assert isinstance(fig_empty_mpl, plt.Figure)
+    plt.close(fig_empty_mpl)
