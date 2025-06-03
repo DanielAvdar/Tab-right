@@ -1,5 +1,6 @@
 """Implementation of the DriftPlotP protocol using Matplotlib."""
 
+from dataclasses import dataclass
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 import matplotlib.pyplot as plt
@@ -7,7 +8,6 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 
-from tab_right.base_architecture.drift_plot_protocols import DriftPlotP
 from tab_right.base_architecture.drift_protocols import DriftCalcP
 
 from ._matplotlib_backend import (
@@ -20,28 +20,26 @@ from ._plotly_backend import plot_drift_values
 from ._plotting_utils import create_empty_figure, validate_column_exists
 
 
-class DriftPlotter(DriftPlotP):
-    """Implementation of DriftPlotP using Matplotlib."""
+@dataclass
+class DriftPlotter:
+    """Implementation of DriftPlotP protocol using Matplotlib."""
 
-    def __init__(self, drift_calc: DriftCalcP):
-        """Initialize the DriftPlotter with a drift calculator.
+    drift_calc: DriftCalcP
 
-        Args:
-            drift_calc: An instance of DriftCalcP that will provide drift metrics and
-                probability densities for plotting.
+    def __post_init__(self) -> None:
+        """Initialize the DriftPlotter with validation.
 
         Raises:
             TypeError: If drift_calc is not an instance of DriftCalcP.
             ValueError: If either dataframe is empty.
 
         """
-        if not isinstance(drift_calc, DriftCalcP):
+        if not isinstance(self.drift_calc, DriftCalcP):
             raise TypeError("drift_calc must be an instance of DriftCalcP")
-        if drift_calc.df1.empty or drift_calc.df2.empty:
+        if self.drift_calc.df1.empty or self.drift_calc.df2.empty:
             raise ValueError("Both dataframes must be non-empty.")
-        self.drift_calc = drift_calc
         # Add a _feature_types attribute that can be used by mypy
-        self._feature_types = getattr(drift_calc, "_feature_types", {})
+        self._feature_types = getattr(self.drift_calc, "_feature_types", {})
 
     def plot_multiple(
         self,
