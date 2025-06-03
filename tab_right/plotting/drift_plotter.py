@@ -219,3 +219,91 @@ class DriftPlotter:
             value_col=value_col,
             feature_col=feature_col,
         )
+
+    @staticmethod
+    def plot_feature_drift(
+        reference: pd.Series,
+        current: pd.Series,
+        feature_name: str = None,
+        show_score: bool = True,
+        ref_label: str = "Train Dataset",
+        cur_label: str = "Test Dataset",
+        normalize: bool = True,
+        normalization_method: str = "range",
+        show_raw_score: bool = False,
+    ) -> go.Figure:
+        """Plot distribution drift for a single feature using Plotly.
+
+        Args:
+            reference: Reference (train) data for the feature.
+            current: Current (test) data for the feature.
+            feature_name: Name of the feature (for labeling plots).
+            show_score: Whether to display the drift score annotation.
+            ref_label: Label for the reference data.
+            cur_label: Label for the current data.
+            normalize: Whether to normalize the Wasserstein distance.
+            normalization_method: Method to use for normalization: "range", "std", or "iqr".
+            show_raw_score: Whether to show both normalized and raw scores.
+
+        Returns:
+            go.Figure: Plotly figure with overlaid distributions, means, and drift score.
+
+        """
+        # Import here to avoid circular imports and maintain the same behavior as the original function
+        from .plot_feature_drift import plot_feature_drift
+
+        return plot_feature_drift(
+            reference=reference,
+            current=current,
+            feature_name=feature_name,
+            show_score=show_score,
+            ref_label=ref_label,
+            cur_label=cur_label,
+            normalize=normalize,
+            normalization_method=normalization_method,
+            show_raw_score=show_raw_score,
+        )
+
+    @staticmethod
+    def plot_feature_drift_mp(
+        reference: pd.Series,
+        current: pd.Series,
+        feature_name: str = None,
+        show_score: bool = True,
+        ref_label: str = "Train Dataset",
+        cur_label: str = "Test Dataset",
+        normalize: bool = True,
+        normalization_method: str = "range",
+        show_raw_score: bool = False,
+    ) -> plt.Figure:
+        """Plot distribution drift for a single feature using Matplotlib.
+
+        Args:
+            reference: Reference (train) data for the feature.
+            current: Current (test) data for the feature.
+            feature_name: Name of the feature (for labeling plots).
+            show_score: Whether to display the drift score annotation.
+            ref_label: Label for the reference data.
+            cur_label: Label for the current data.
+            normalize: Whether to normalize the Wasserstein distance.
+            normalization_method: Method to use for normalization: "range", "std", or "iqr".
+            show_raw_score: Whether to show both normalized and raw scores.
+
+        Returns:
+            plt.Figure: Matplotlib figure with overlaid distributions, means, and drift score.
+
+        """
+        # Import here to avoid circular imports and maintain the same behavior as the original function
+        from .plot_feature_drift import plot_feature_drift_mp
+
+        return plot_feature_drift_mp(
+            reference=reference,
+            current=current,
+            feature_name=feature_name,
+            show_score=show_score,
+            ref_label=ref_label,
+            cur_label=cur_label,
+            normalize=normalize,
+            normalization_method=normalization_method,
+            show_raw_score=show_raw_score,
+        )
