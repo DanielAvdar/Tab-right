@@ -102,7 +102,6 @@ The following diagram illustrates the relationships between the main protocol in
       C --> D[DoubleSegmentationImp]
 
       E[DoubleSegmPlottingP] --> F[DoubleSegmPlotting]
-      E --> G[DoubleSegmPlottingMp]
 
       H[DriftCalcP] --> I[DriftCalculator]
 
