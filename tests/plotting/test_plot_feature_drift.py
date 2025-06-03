@@ -3,13 +3,13 @@ import pandas as pd
 from matplotlib.figure import Figure as MatplotlibFigure
 from plotly import graph_objects as go
 
-from tab_right.plotting import plot_feature_drift, plot_feature_drift_mp
+from tab_right.plotting import DriftPlotter
 
 
 def test_plot_feature_drift_basic():
     ref = pd.Series([1.0, 2.0, 2.5, 3.0, 4.0])
     cur = pd.Series([1.5, 2.2, 2.8, 3.5, 4.2])
-    fig = plot_feature_drift(ref, cur, feature_name="test_feature")
+    fig = DriftPlotter.plot_feature_drift(ref, cur, feature_name="test_feature")
     assert isinstance(fig, go.Figure)
     # Should have two KDE lines (scatter) and two mean lines (dummy traces for legend)
     assert len(fig.data) == 4
@@ -27,7 +27,7 @@ def test_plot_feature_drift_basic():
 def test_plot_feature_drift_empty():
     ref = pd.Series([], dtype=float)
     cur = pd.Series([], dtype=float)
-    fig = plot_feature_drift(ref, cur, feature_name="empty_feature")
+    fig = DriftPlotter.plot_feature_drift(ref, cur, feature_name="empty_feature")
     assert isinstance(fig, go.Figure)
     # Should have no KDE lines if both are empty
     assert len(fig.data) == 0
@@ -42,7 +42,7 @@ def test_plot_feature_drift_with_raw_scores():
     cur = pd.Series([2, 3, 4, 5, 6])
 
     # Test with show_raw_score=True to hit the uncovered line 125
-    fig = plot_feature_drift(
+    fig = DriftPlotter.plot_feature_drift(
         reference=ref,
         current=cur,
         feature_name="test_feature",
@@ -64,7 +64,7 @@ def test_plot_feature_drift_with_raw_scores():
 def test_plot_feature_drift_mp_basic():
     ref = pd.Series([1.0, 2.0, 2.5, 3.0, 4.0])
     cur = pd.Series([1.5, 2.2, 2.8, 3.5, 4.2])
-    fig = plot_feature_drift_mp(ref, cur, feature_name="test_feature")
+    fig = DriftPlotter.plot_feature_drift_mp(ref, cur, feature_name="test_feature")
 
     # Verify the output is a matplotlib Figure
     assert isinstance(fig, MatplotlibFigure)
@@ -88,7 +88,7 @@ def test_plot_feature_drift_mp_basic():
 def test_plot_feature_drift_mp_empty():
     ref = pd.Series([], dtype=float)
     cur = pd.Series([], dtype=float)
-    fig = plot_feature_drift_mp(ref, cur, feature_name="empty_feature")
+    fig = DriftPlotter.plot_feature_drift_mp(ref, cur, feature_name="empty_feature")
 
     # Verify the output is a matplotlib Figure
     assert isinstance(fig, MatplotlibFigure)
@@ -107,7 +107,7 @@ def test_plot_feature_drift_mp_with_raw_scores():
     cur = pd.Series([2, 3, 4, 5, 6])
 
     # Test with show_raw_score=True
-    fig = plot_feature_drift_mp(
+    fig = DriftPlotter.plot_feature_drift_mp(
         reference=ref,
         current=cur,
         feature_name="test_feature",

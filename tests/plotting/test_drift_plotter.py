@@ -103,3 +103,66 @@ def test_invalid_column(sample_drift_calculator):
 
     with pytest.raises(ValueError):
         plotter.plot_single("non_existent_column")
+
+
+def test_drift_plotter_static_plot_drift():
+    """Test DriftPlotter static method plot_drift works correctly."""
+    # Create a sample DataFrame with drift values
+    drift_df = pd.DataFrame({"feature": ["feature1", "feature2", "feature3"], "value": [0.8, 0.5, 0.2]})
+
+    # Test the static method
+    fig = DriftPlotter.plot_drift(None, drift_df)
+
+    # Verify the output is a plotly Figure
+    import plotly.graph_objects as go
+
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) == 1
+    assert fig.data[0].type == "bar"
+
+
+def test_drift_plotter_static_plot_drift_mp():
+    """Test DriftPlotter static method plot_drift_mp works correctly."""
+    # Create a sample DataFrame with drift values
+    drift_df = pd.DataFrame({"feature": ["feature1", "feature2", "feature3"], "value": [0.8, 0.5, 0.2]})
+
+    # Test the static method
+    fig = DriftPlotter.plot_drift_mp(None, drift_df)
+
+    # Verify the output is a matplotlib Figure
+    assert isinstance(fig, plt.Figure)
+    assert len(fig.axes) > 0
+
+    # Close the figure to prevent memory leaks
+    plt.close(fig)
+
+
+def test_drift_plotter_static_plot_feature_drift():
+    """Test DriftPlotter static method plot_feature_drift works correctly."""
+    ref = pd.Series([1.0, 2.0, 2.5, 3.0, 4.0])
+    cur = pd.Series([1.5, 2.2, 2.8, 3.5, 4.2])
+
+    # Test the static method
+    fig = DriftPlotter.plot_feature_drift(ref, cur, feature_name="test_feature")
+
+    # Verify the output is a plotly Figure
+    import plotly.graph_objects as go
+
+    assert isinstance(fig, go.Figure)
+    assert len(fig.data) == 4  # Two KDE lines and two mean lines
+
+
+def test_drift_plotter_static_plot_feature_drift_mp():
+    """Test DriftPlotter static method plot_feature_drift_mp works correctly."""
+    ref = pd.Series([1.0, 2.0, 2.5, 3.0, 4.0])
+    cur = pd.Series([1.5, 2.2, 2.8, 3.5, 4.2])
+
+    # Test the static method
+    fig = DriftPlotter.plot_feature_drift_mp(ref, cur, feature_name="test_feature")
+
+    # Verify the output is a matplotlib Figure
+    assert isinstance(fig, plt.Figure)
+    assert len(fig.axes) > 0
+
+    # Close the figure to prevent memory leaks
+    plt.close(fig)

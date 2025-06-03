@@ -3,15 +3,15 @@ import pandas as pd
 from matplotlib.figure import Figure as MatplotlibFigure
 from plotly import graph_objects as go
 
-from tab_right.plotting import plot_drift, plot_drift_mp
+from tab_right.plotting import DriftPlotter
 
 
 def test_plot_drift_basic():
     # Create a sample DataFrame with drift values
     drift_df = pd.DataFrame({"feature": ["feature1", "feature2", "feature3"], "value": [0.8, 0.5, 0.2]})
 
-    # Test the function
-    fig = plot_drift(drift_df)
+    # Test the function using DriftPlotter.plot_drift
+    fig = DriftPlotter.plot_drift(None, drift_df)
 
     # Verify the output is a plotly Figure
     assert isinstance(fig, go.Figure)
@@ -34,8 +34,8 @@ def test_plot_drift_custom_columns():
     # Create a sample DataFrame with custom column names
     drift_df = pd.DataFrame({"feat_name": ["A", "B", "C"], "drift_score": [0.9, 0.6, 0.3]})
 
-    # Test with custom column names
-    fig = plot_drift(drift_df, value_col="drift_score", feature_col="feat_name")
+    # Test with custom column names using DriftPlotter.plot_drift
+    fig = DriftPlotter.plot_drift(None, drift_df, value_col="drift_score", feature_col="feat_name")
 
     # Verify output
     assert isinstance(fig, go.Figure)
@@ -50,8 +50,8 @@ def test_plot_drift_mp_basic():
     # Create a sample DataFrame with drift values
     drift_df = pd.DataFrame({"feature": ["feature1", "feature2", "feature3"], "value": [0.8, 0.5, 0.2]})
 
-    # Test the function
-    fig = plot_drift_mp(drift_df)
+    # Test the function using DriftPlotter.plot_drift_mp
+    fig = DriftPlotter.plot_drift_mp(None, drift_df)
 
     # Verify the output is a matplotlib Figure
     assert isinstance(fig, MatplotlibFigure)
@@ -73,8 +73,8 @@ def test_plot_drift_mp_custom_columns():
     # Create a sample DataFrame with custom column names
     drift_df = pd.DataFrame({"feat_name": ["A", "B", "C"], "drift_score": [0.9, 0.6, 0.3]})
 
-    # Test with custom column names
-    fig = plot_drift_mp(drift_df, value_col="drift_score", feature_col="feat_name")
+    # Test with custom column names using DriftPlotter.plot_drift_mp
+    fig = DriftPlotter.plot_drift_mp(None, drift_df, value_col="drift_score", feature_col="feat_name")
 
     # Verify the output is a matplotlib Figure
     assert isinstance(fig, MatplotlibFigure)

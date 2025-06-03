@@ -11,9 +11,8 @@ Drift Detection with tab-right
 Tab-right offers specialized components for drift detection:
 
 1. ``DriftCalculator`` - Core class for calculating drift between datasets
-2. ``DriftPlotter`` - Visualization class for creating matplotlib-based drift plots
+2. ``DriftPlotter`` - Visualization class for creating plots with both matplotlib and plotly backends
 3. ``univariate`` module - Lower-level functions for specific drift calculations
-4. ``plot_drift`` / ``plot_feature_drift`` modules - Simplified plotting functions
 
 Available Drift Metrics
 -----------------------
@@ -149,7 +148,7 @@ For simpler use cases, tab-right also provides direct functions for drift analys
     import pandas as pd
     import matplotlib.pyplot as plt
     from tab_right.drift import univariate
-    from tab_right.plotting import plot_drift_mp
+    from tab_right.plotting import DriftPlotter
 
     # Generate datasets
     np.random.seed(42)
@@ -166,8 +165,8 @@ For simpler use cases, tab-right also provides direct functions for drift analys
     # Calculate drift across all features
     result = univariate.detect_univariate_drift_df(df_ref, df_cur)
 
-    # Plot the results using tab_right's plotting functions
-    fig = plot_drift_mp(result)
+    # Plot the results using DriftPlotter
+    fig = DriftPlotter.plot_drift_mp(None, result)
     plt.tight_layout()
     plt.show()
 

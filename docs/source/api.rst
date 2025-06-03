@@ -62,14 +62,6 @@ Drift Plotting
    :undoc-members:
    :show-inheritance:
 
-.. autofunction:: tab_right.plotting.plot_drift.plot_drift
-
-.. autofunction:: tab_right.plotting.plot_drift.plot_drift_mp
-
-.. autofunction:: tab_right.plotting.plot_feature_drift.plot_feature_drift
-
-.. autofunction:: tab_right.plotting.plot_feature_drift.plot_feature_drift_mp
-
 Base Architecture & Protocols
 -----------------------------
 

@@ -86,8 +86,6 @@ The following diagram shows the high-level module organization of Tab-right:
 
       E --> E1[plot_segmentations.py]
       E --> E2[drift_plotter.py]
-      E --> E3[plot_drift.py]
-      E --> E4[plot_feature_drift.py]
 
 Protocol Relationships
 ----------------------
