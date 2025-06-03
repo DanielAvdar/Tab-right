@@ -21,7 +21,7 @@ Tab-right provides the following key components for segmentation analysis:
 
 1. ``SegmentationCalc`` - Core class for calculating metrics across segments
 2. ``plot_single_segmentation`` / ``plot_single_segmentation_mp`` - Visualize segment metrics
-3. ``DoubleSegmPlotting`` / ``DoubleSegmPlottingMp`` - Visualize interactions between two segment features
+3. ``DoubleSegmPlotting`` - Visualize interactions between two segment features (supports both plotly and matplotlib backends)
 
 Basic Usage
 -----------

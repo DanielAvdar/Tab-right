@@ -415,47 +415,4 @@ class DoubleSegmPlotting:
             return self._plot_heatmap_plotly()
 
 
-# For backward compatibility
-@dataclass
-class DoubleSegmPlottingMp:
-    """Class for double segmentation plotting using matplotlib (compatibility class).
 
-    This class is kept for backwards compatibility and delegates to DoubleSegmPlotting
-    with backend="matplotlib".
-
-    See the module docstring for parameter details.
-    """
-
-    df: pd.DataFrame
-    metric_name: str = "score"
-    lower_is_better: bool = True
-
-    def get_heatmap_df(self) -> pd.DataFrame:
-        """Get the DataFrame for the heatmap from the double segmentation df.
-
-        Returns
-        -------
-        pd.DataFrame
-            DataFrame formatted for heatmap plotting, as produced by DoubleSegmPlotting.get_heatmap_df().
-
-        """
-        # Create a DoubleSegmPlotting instance and delegate to its method
-        plotter = DoubleSegmPlotting(
-            df=self.df, metric_name=self.metric_name, lower_is_better=self.lower_is_better, backend="matplotlib"
-        )
-        return plotter.get_heatmap_df()
-
-    def plot_heatmap(self) -> MatplotlibFigure:
-        """Plot the double segmentation as a heatmap using Matplotlib.
-
-        Returns
-        -------
-        MatplotlibFigure
-            The matplotlib Figure object containing the heatmap plot.
-
-        """
-        # Create a DoubleSegmPlotting instance and delegate to its method
-        plotter = DoubleSegmPlotting(
-            df=self.df, metric_name=self.metric_name, lower_is_better=self.lower_is_better, backend="matplotlib"
-        )
-        return plotter.plot_heatmap()

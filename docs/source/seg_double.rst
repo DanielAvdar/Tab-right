@@ -20,8 +20,7 @@ Tab-right's Double Segmentation Tools
 Tab-right provides these tools for double segmentation analysis:
 
 1. ``DoubleSegmentationImp`` - Main class for performing double segmentation
-2. ``DoubleSegmPlotting`` - Interactive Plotly-based visualization
-3. ``DoubleSegmPlottingMp`` - Matplotlib-based visualization
+2. ``DoubleSegmPlotting`` - Visualization with support for both interactive Plotly and static Matplotlib backends
 
 Basic Usage with Continuous Features
 ------------------------------------
@@ -36,7 +35,7 @@ Here's a simple example of double segmentation with tab-right using continuous f
     import matplotlib.pyplot as plt
     from sklearn.metrics import mean_squared_error
     from tab_right.segmentations import DoubleSegmentationImp
-    from tab_right.plotting import DoubleSegmPlottingMp
+    from tab_right.plotting import DoubleSegmPlotting
 
     # Create sample data
     np.random.seed(42)
@@ -77,7 +76,7 @@ Here's a simple example of double segmentation with tab-right using continuous f
     )
 
     # Visualize results with a heatmap
-    plotter = DoubleSegmPlottingMp(df=result_df)
+    plotter = DoubleSegmPlotting(df=result_df, backend="matplotlib")
     fig = plotter.plot_heatmap()
     plt.title("MSE by Feature1 and Feature2 Segments")
 
@@ -94,7 +93,7 @@ Double segmentation works with categorical features without needing to specify b
     import matplotlib.pyplot as plt
     from sklearn.metrics import accuracy_score
     from tab_right.segmentations import DoubleSegmentationImp
-    from tab_right.plotting import DoubleSegmPlottingMp
+    from tab_right.plotting import DoubleSegmPlotting
 
     # Create sample categorical data
     np.random.seed(42)
@@ -154,9 +153,10 @@ Double segmentation works with categorical features without needing to specify b
     )
 
     # Plot with higher is better for accuracy
-    cat_plot = DoubleSegmPlottingMp(
+    cat_plot = DoubleSegmPlotting(
         df=cat_results,
-        lower_is_better=False
+        lower_is_better=False,
+        backend="matplotlib"
     )
     fig = cat_plot.plot_heatmap()
     plt.title("Accuracy by Category Segments")
@@ -174,7 +174,7 @@ Double segmentation can analyze combinations of categorical and continuous featu
     import matplotlib.pyplot as plt
     from sklearn.metrics import f1_score
     from tab_right.segmentations import DoubleSegmentationImp
-    from tab_right.plotting import DoubleSegmPlottingMp
+    from tab_right.plotting import DoubleSegmPlotting
 
     # Create sample data with mixed feature types
     np.random.seed(42)
@@ -228,9 +228,10 @@ Double segmentation can analyze combinations of categorical and continuous featu
     )
 
     # Plot with higher is better for F1 score
-    mixed_plot = DoubleSegmPlottingMp(
+    mixed_plot = DoubleSegmPlotting(
         df=mixed_results,
-        lower_is_better=False
+        lower_is_better=False,
+        backend="matplotlib"
     )
     fig = mixed_plot.plot_heatmap()
     plt.title("F1 Score by Product Type and Spending")
@@ -278,7 +279,7 @@ You can use any metric compatible with scikit-learn:
     )
 
     # Visualize with appropriate settings
-    r2_plotter = DoubleSegmPlottingMp(df=r2_results, lower_is_better=False)
+    r2_plotter = DoubleSegmPlotting(df=r2_results, lower_is_better=False, backend="matplotlib")
     r2_plotter.plot_heatmap()
     plt.title("R² Score by Feature Segments")
 

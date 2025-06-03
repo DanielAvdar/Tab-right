@@ -8,7 +8,7 @@ from matplotlib.figure import Figure as MatplotlibFigure
 from pytest import approx
 
 from tab_right.plotting.plot_segmentations import (
-    DoubleSegmPlottingMp,
+    DoubleSegmPlotting,
     plot_single_segmentation,
     plot_single_segmentation_mp,
 )
@@ -86,8 +86,8 @@ def test_plot_single_segmentation_mp_lower_is_better_false(single_segmentation_d
 
 
 def test_double_segm_plotting_mp(double_segmentation_df):
-    """Test that DoubleSegmPlottingMp creates a valid Matplotlib figure."""
-    double_plotter = DoubleSegmPlottingMp(df=double_segmentation_df)
+    """Test that DoubleSegmPlotting with matplotlib backend creates a valid Matplotlib figure."""
+    double_plotter = DoubleSegmPlotting(df=double_segmentation_df, backend="matplotlib")
     fig = double_plotter.plot_heatmap()
 
     # Check that we got a matplotlib figure
@@ -121,8 +121,8 @@ def test_double_segm_plotting_mp(double_segmentation_df):
 
 
 def test_double_segm_plotting_mp_lower_is_better_false(double_segmentation_df):
-    """Test DoubleSegmPlottingMp with lower_is_better=False."""
-    double_plotter = DoubleSegmPlottingMp(df=double_segmentation_df, lower_is_better=False)
+    """Test DoubleSegmPlotting with matplotlib backend and lower_is_better=False."""
+    double_plotter = DoubleSegmPlotting(df=double_segmentation_df, lower_is_better=False, backend="matplotlib")
     fig = double_plotter.plot_heatmap()
 
     # Check that we got a matplotlib figure
@@ -133,11 +133,11 @@ def test_double_segm_plotting_mp_lower_is_better_false(double_segmentation_df):
 
 
 def test_double_segm_plotting_mp_custom_metric(double_segmentation_df):
-    """Test DoubleSegmPlottingMp with a custom metric name."""
+    """Test DoubleSegmPlotting with matplotlib backend and a custom metric name."""
     # Create a copy with a renamed score column
     df_custom = double_segmentation_df.rename(columns={"score": "custom_metric"})
 
-    double_plotter = DoubleSegmPlottingMp(df=df_custom, metric_name="custom_metric")
+    double_plotter = DoubleSegmPlotting(df=df_custom, metric_name="custom_metric", backend="matplotlib")
     fig = double_plotter.plot_heatmap()
 
     # Check that we got a matplotlib figure

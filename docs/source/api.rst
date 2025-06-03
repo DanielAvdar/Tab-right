@@ -54,11 +54,6 @@ Segmentation Plotting
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: tab_right.plotting.plot_segmentations.DoubleSegmPlottingMp
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Drift Plotting
 ~~~~~~~~~~~~~~
 
