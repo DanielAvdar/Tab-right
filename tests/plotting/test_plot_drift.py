@@ -1,9 +1,12 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from matplotlib.figure import Figure as MatplotlibFigure
 from plotly import graph_objects as go
 
+from tab_right.drift.drift_calculator import DriftCalculator
 from tab_right.plotting import plot_drift, plot_drift_mp
+from tab_right.plotting.drift_plotter import DriftPlotter
 
 
 def test_plot_drift_basic():
@@ -94,3 +97,36 @@ def test_plot_drift_mp_custom_columns():
 
     # Close the figure to prevent memory leaks
     plt.close(fig)
+
+
+def test_drift_plotter_approach():
+    """Test the recommended DriftPlotter approach for drift plotting."""
+    # Create sample data with drift
+    np.random.seed(42)
+    df1 = pd.DataFrame({
+        "feature1": np.random.normal(0, 1, 100),
+        "feature2": np.random.normal(0, 1, 100),
+    })
+    df2 = pd.DataFrame({
+        "feature1": np.random.normal(1, 1.2, 100),
+        "feature2": np.random.normal(0.5, 1.1, 100),
+    })
+
+    # Create calculator and plotter
+    calc = DriftCalculator(df1, df2)
+    plotter = DriftPlotter(calc)
+
+    # Get drift results
+    drift_results = calc()
+
+    # Test DriftPlotter.plot_drift method (using 'score' column from DriftCalculator)
+    fig_plotly = plotter.plot_drift(drift_results, value_col="score")
+    assert isinstance(fig_plotly, go.Figure)
+    assert len(fig_plotly.data) == 1
+    assert fig_plotly.data[0].type == "bar"
+
+    # Test DriftPlotter.plot_drift_mp method (using 'score' column from DriftCalculator)
+    fig_mpl = plotter.plot_drift_mp(drift_results, value_col="score")
+    assert isinstance(fig_mpl, MatplotlibFigure)
+    assert len(fig_mpl.axes) > 0
+    plt.close(fig_mpl)

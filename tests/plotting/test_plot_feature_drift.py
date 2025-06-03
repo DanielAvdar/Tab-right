@@ -1,9 +1,12 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from matplotlib.figure import Figure as MatplotlibFigure
 from plotly import graph_objects as go
 
+from tab_right.drift.drift_calculator import DriftCalculator
 from tab_right.plotting import plot_feature_drift, plot_feature_drift_mp
+from tab_right.plotting.drift_plotter import DriftPlotter
 
 
 def test_plot_feature_drift_basic():
@@ -132,3 +135,34 @@ def test_plot_feature_drift_mp_with_raw_scores():
 
     # Close the figure to prevent memory leaks
     plt.close(fig)
+
+
+def test_drift_plotter_kde_approach():
+    """Test the recommended DriftPlotter approach for feature drift plotting."""
+    # Create sample data with drift
+    np.random.seed(42)
+    df1 = pd.DataFrame({
+        "feature1": np.random.normal(0, 1, 100),
+    })
+    df2 = pd.DataFrame({
+        "feature1": np.random.normal(1, 1.2, 100),
+    })
+
+    # Create calculator and plotter
+    calc = DriftCalculator(df1, df2)
+    plotter = DriftPlotter(calc)
+
+    # Get individual feature data
+    ref_data = df1["feature1"]
+    cur_data = df2["feature1"]
+
+    # Test DriftPlotter.plot_feature_drift_kde method
+    fig_plotly = plotter.plot_feature_drift_kde(ref_data, cur_data, "test_feature")
+    assert isinstance(fig_plotly, go.Figure)
+    assert len(fig_plotly.data) >= 2  # Should have KDE traces
+
+    # Test DriftPlotter.plot_feature_drift_kde_mp method
+    fig_mpl = plotter.plot_feature_drift_kde_mp(ref_data, cur_data, "test_feature")
+    assert isinstance(fig_mpl, MatplotlibFigure)
+    assert len(fig_mpl.axes) > 0
+    plt.close(fig_mpl)
