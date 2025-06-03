@@ -3,6 +3,9 @@
 import matplotlib
 
 matplotlib.use("Agg")  # Use non-interactive backend for tests
+from dataclasses import dataclass
+from typing import Dict, Iterable, Mapping, Optional
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -163,6 +166,66 @@ def test_drift_plotter_static_plot_feature_drift_mp():
     # Verify the output is a matplotlib Figure
     assert isinstance(fig, plt.Figure)
     assert len(fig.axes) > 0
+
+    # Close the figure to prevent memory leaks
+    plt.close(fig)
+
+
+@dataclass
+class DummyEmptyDensityDriftCalc:
+    """Dummy DriftCalcP implementation that returns empty density DataFrame."""
+
+    df1: pd.DataFrame
+    df2: pd.DataFrame
+    kind: Optional[Dict[str, str]] = None
+
+    def __post_init__(self):
+        # Set up feature types for the test
+        self._feature_types = {"test_feature": "continuous"}
+
+    def __call__(self, columns: Optional[Iterable[str]] = None, bins: int = 10, **kwargs: Mapping) -> pd.DataFrame:
+        """Return basic drift metrics DataFrame."""
+        return pd.DataFrame({"feature": ["test_feature"], "type": ["wasserstein"], "score": [0.5], "raw_score": [0.5]})
+
+    def get_prob_density(self, columns: Optional[Iterable[str]] = None, bins: int = 10) -> pd.DataFrame:
+        """Return empty DataFrame to simulate empty density case."""
+        return pd.DataFrame(columns=["feature", "bin", "ref_density", "cur_density"])
+
+    @classmethod
+    def _categorical_drift_calc(cls, s1: pd.Series, s2: pd.Series) -> float:
+        return 0.0
+
+    @classmethod
+    def _continuous_drift_calc(cls, s1: pd.Series, s2: pd.Series, bins: int = 10) -> float:
+        return 0.0
+
+
+def test_plot_single_with_empty_density():
+    """Test that plot_single yields a valid matplotlib Figure when the density DataFrame is empty."""
+    # Create non-empty DataFrames for the dummy calculator to pass DriftPlotter validation
+    df1 = pd.DataFrame({"test_feature": [1, 2, 3]})
+    df2 = pd.DataFrame({"test_feature": [2, 3, 4]})
+
+    # Create dummy drift calculator that returns empty density
+    dummy_calc = DummyEmptyDensityDriftCalc(df1, df2)
+
+    # Create DriftPlotter with the dummy calculator
+    plotter = DriftPlotter(dummy_calc)
+
+    # Call plot_single - this should return an empty figure since density is empty
+    fig = plotter.plot_single("test_feature")
+
+    # Assert that the result is a valid matplotlib Figure
+    assert isinstance(fig, plt.Figure)
+
+    # Assert that the figure contains at least one axis
+    assert len(fig.axes) >= 1
+
+    # Assert that the axis contains the expected "No data available" message
+    ax = fig.axes[0]
+    texts = [text.get_text() for text in ax.texts]
+    expected_message = "No data available for column 'test_feature'."
+    assert any(expected_message in text for text in texts)
 
     # Close the figure to prevent memory leaks
     plt.close(fig)
