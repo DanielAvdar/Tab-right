@@ -1,5 +1,4 @@
 import pandas as pd
-import pytest
 
 from tab_right.base_architecture.model_comparison_protocols import PredictionCalculationP
 
@@ -60,7 +59,7 @@ class CheckPredictionCalculation(CheckProtocols):
     def test_error_calculations(self, instance_to_check: PredictionCalculationP) -> None:
         """Test that error calculations work correctly."""
         # Create test data where we know the expected errors
-        n_samples = len(instance_to_check.df)
+        len(instance_to_check.df)
         label_values = instance_to_check.df[instance_to_check.label_col]
 
         # Create prediction that should have zero error

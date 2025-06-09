@@ -17,13 +17,13 @@ class CheckModelComparisonPlot(CheckProtocols):
         # The comparison_calc should implement PredictionCalculationP protocol
         assert hasattr(instance_to_check.comparison_calc, "df")
         assert hasattr(instance_to_check.comparison_calc, "label_col")
-        assert hasattr(instance_to_check.comparison_calc, "__call__")
+        assert callable(instance_to_check.comparison_calc)
 
     def test_plot_error_distribution(self, instance_to_check: ModelComparisonPlotP) -> None:
         """Test the plot_error_distribution method."""
         # Create test prediction data
         n_samples = len(instance_to_check.comparison_calc.df)
-        pred_data = [
+        [
             pd.Series(range(n_samples), index=instance_to_check.comparison_calc.df.index, name="pred_0"),
             pd.Series(range(n_samples, 2 * n_samples), index=instance_to_check.comparison_calc.df.index, name="pred_1"),
         ]
