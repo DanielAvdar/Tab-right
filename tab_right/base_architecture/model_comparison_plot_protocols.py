@@ -64,7 +64,6 @@ class ModelComparisonPlotP(Protocol):
             A figure object containing the error distribution comparison.
 
         """
-        ...
 
     def plot_pairwise_comparison(
         self,
@@ -92,7 +91,6 @@ class ModelComparisonPlotP(Protocol):
             A figure object containing the pairwise comparison visualization.
 
         """
-        ...
 
     def plot_model_performance_summary(
         self,
@@ -123,4 +121,3 @@ class ModelComparisonPlotP(Protocol):
             A figure object containing the performance summary visualization.
 
         """
-        ...
