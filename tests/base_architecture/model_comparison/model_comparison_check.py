@@ -63,10 +63,12 @@ class CheckPredictionCalculation(CheckProtocols):
         label_values = instance_to_check.df[instance_to_check.label_col]
 
         # Create prediction that should have zero error
-        pred_exact = pd.Series(label_values.values, index=instance_to_check.df.index, name="pred_exact")
+        pred_exact: pd.Series = pd.Series(label_values.values, index=instance_to_check.df.index, name="pred_exact")
 
         # Create prediction with constant offset
-        pred_offset = pd.Series(label_values.values + 1, index=instance_to_check.df.index, name="pred_offset")
+        pred_offset: pd.Series = pd.Series(
+            label_values.to_numpy() + 1, index=instance_to_check.df.index, name="pred_offset"
+        )
 
         pred_data = [pred_exact, pred_offset]
 
