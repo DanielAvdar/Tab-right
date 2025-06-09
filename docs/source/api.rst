@@ -83,6 +83,16 @@ Base Architecture & Protocols
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: tab_right.base_architecture.model_comparison_protocols
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: tab_right.base_architecture.model_comparison_plot_protocols
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Task Detection
 --------------
 
