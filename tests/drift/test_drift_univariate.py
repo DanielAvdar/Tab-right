@@ -7,6 +7,7 @@ from tab_right.drift.univariate import (
     detect_univariate_drift,
     detect_univariate_drift_df,
     detect_univariate_drift_with_options,
+    normalize_wasserstein,
 )
 
 
@@ -165,3 +166,52 @@ def test_univariate_kind_dict_fallback_to_categorical():
     assert set(result["feature"]) == {"a", "b"}
     # 'b' should be categorical (cramer_v)
     assert result[result["feature"] == "b"]["type"].iloc[0] == "cramer_v"
+
+
+def test_class_methods_work():
+    """Test that the new class methods work correctly."""
+    ref = pd.Series([1, 2, 3, 4, 5])
+    cur = pd.Series([2, 3, 4, 5, 6])
+
+    # Test detect_drift_with_options
+    result = UnivariateDriftCalculator.detect_drift_with_options(ref, cur, kind="continuous")
+    assert result["type"] == "wasserstein"
+    assert "score" in result
+    assert "raw_score" in result
+
+    # Test detect_drift
+    metric, score = UnivariateDriftCalculator.detect_drift(ref, cur, kind="continuous")
+    assert metric == "wasserstein"
+    assert isinstance(score, float)
+
+    # Test normalize_wasserstein
+    norm_score = UnivariateDriftCalculator.normalize_wasserstein(ref, cur, 1.0, method="range")
+    assert isinstance(norm_score, float)
+
+    # Test detect_drift_df
+    df1 = pd.DataFrame({"num": [1, 2, 3], "cat": ["a", "b", "c"]})
+    df2 = pd.DataFrame({"num": [2, 3, 4], "cat": ["a", "b", "d"]})
+    result_df = UnivariateDriftCalculator.detect_drift_df(df1, df2)
+    assert set(result_df["feature"]) == {"num", "cat"}
+    assert all(m in ("wasserstein", "cramer_v") for m in result_df["metric"])
+
+
+def test_backward_compatibility():
+    """Test that standalone functions still work as expected."""
+    ref = pd.Series([1, 2, 3, 4, 5])
+    cur = pd.Series([2, 3, 4, 5, 6])
+
+    # Test all standalone functions
+    result = detect_univariate_drift_with_options(ref, cur, kind="continuous")
+    assert result["type"] == "wasserstein"
+
+    metric, score = detect_univariate_drift(ref, cur, kind="continuous")
+    assert metric == "wasserstein"
+
+    norm_score = normalize_wasserstein(ref, cur, 1.0, method="range")
+    assert isinstance(norm_score, float)
+
+    df1 = pd.DataFrame({"num": [1, 2, 3], "cat": ["a", "b", "c"]})
+    df2 = pd.DataFrame({"num": [2, 3, 4], "cat": ["a", "b", "d"]})
+    result_df = detect_univariate_drift_df(df1, df2)
+    assert set(result_df["feature"]) == {"num", "cat"}
