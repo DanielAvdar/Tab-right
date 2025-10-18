@@ -1,6 +1,7 @@
 """Tests for the plot_segmentations module."""
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import pytest
@@ -9,6 +10,7 @@ from pytest import approx
 
 from tab_right.plotting.plot_segmentations import (
     DoubleSegmPlotting,
+    normalize_scores,
     plot_single_segmentation,
     plot_single_segmentation_mp,
 )
@@ -145,3 +147,91 @@ def test_double_segm_plotting_mp_custom_metric(double_segmentation_df):
 
     # Close the figure to prevent memory leaks
     plt.close(fig)
+
+
+# Tests for the new scaling functionality
+def test_normalize_scores_minmax():
+    """Test normalize_scores with minmax method."""
+    scores = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+    normalized = normalize_scores(scores, method="minmax")
+
+    # Should be normalized to [0, 1] range
+    assert normalized.min() == 0.0
+    assert normalized.max() == 1.0
+    assert len(normalized) == len(scores)
+
+
+def test_normalize_scores_std():
+    """Test normalize_scores with std method."""
+    scores = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+    normalized = normalize_scores(scores, method="std", k=2)
+
+    # Should be normalized to [0, 1] range
+    assert 0.0 <= normalized.min() <= 1.0
+    assert 0.0 <= normalized.max() <= 1.0
+    assert len(normalized) == len(scores)
+
+
+def test_normalize_scores_std_with_outliers():
+    """Test normalize_scores with std method handling outliers."""
+    # Create data with outliers
+    scores = np.array([0.1, 0.2, 0.3, 0.4, 2.0])  # 2.0 is an outlier
+    normalized = normalize_scores(scores, method="std", k=2)
+
+    # Outlier should be clipped close to 1.0 (or exactly 1.0 if it exceeds the upper bound)
+    assert normalized[-1] >= 0.95  # Allow some tolerance
+    assert len(normalized) == len(scores)
+
+
+def test_normalize_scores_zero_variance():
+    """Test normalize_scores with zero variance data."""
+    scores = np.array([0.5, 0.5, 0.5, 0.5])
+    normalized = normalize_scores(scores, method="std")
+
+    # Should return zeros for zero variance
+    assert np.all(normalized == 0.0)
+
+
+def test_normalize_scores_invalid_method():
+    """Test normalize_scores with invalid method."""
+    scores = np.array([0.1, 0.2, 0.3])
+
+    with pytest.raises(ValueError, match="Unknown method"):
+        normalize_scores(scores, method="invalid")
+
+
+def test_plot_single_segmentation_scaling_methods(single_segmentation_df):
+    """Test plot_single_segmentation with different scaling methods."""
+    # Test with minmax scaling
+    fig_minmax = plot_single_segmentation(single_segmentation_df, scaling_method="minmax", backend="plotly")
+    assert isinstance(fig_minmax, go.Figure)
+
+    # Test with std scaling
+    fig_std = plot_single_segmentation(single_segmentation_df, scaling_method="std", backend="plotly")
+    assert isinstance(fig_std, go.Figure)
+
+
+def test_plot_single_segmentation_mp_scaling_methods(single_segmentation_df):
+    """Test plot_single_segmentation_mp with different scaling methods."""
+    # Test with matplotlib backend
+    fig_mp_minmax = plot_single_segmentation_mp(single_segmentation_df, scaling_method="minmax")
+    assert isinstance(fig_mp_minmax, MatplotlibFigure)
+    plt.close(fig_mp_minmax)
+
+    fig_mp_std = plot_single_segmentation_mp(single_segmentation_df, scaling_method="std")
+    assert isinstance(fig_mp_std, MatplotlibFigure)
+    plt.close(fig_mp_std)
+
+
+def test_double_segmentation_scaling(double_segmentation_df):
+    """Test DoubleSegmPlotting with scaling methods."""
+    # Test with std scaling
+    plotter_std = DoubleSegmPlotting(df=double_segmentation_df, scaling_method="std", backend="plotly")
+    fig_std = plotter_std.plot_heatmap()
+    assert isinstance(fig_std, go.Figure)
+
+    # Test with minmax scaling
+    plotter_minmax = DoubleSegmPlotting(df=double_segmentation_df, scaling_method="minmax", backend="matplotlib")
+    fig_minmax = plotter_minmax.plot_heatmap()
+    assert isinstance(fig_minmax, MatplotlibFigure)
+    plt.close(fig_minmax)
