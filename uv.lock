@@ -1261,7 +1261,7 @@ wheels = [
 
 [[package]]
 name = "ipykernel"
-version = "6.30.1"
+version = "6.31.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version < '3.10'",
@@ -1281,9 +1281,9 @@ dependencies = [
     { name = "tornado", marker = "python_full_version < '3.10'" },
     { name = "traitlets", marker = "python_full_version < '3.10'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/bb/76/11082e338e0daadc89c8ff866185de11daf67d181901038f9e139d109761/ipykernel-6.30.1.tar.gz", hash = "sha256:6abb270161896402e76b91394fcdce5d1be5d45f456671e5080572f8505be39b", size = 166260, upload-time = "2025-08-04T15:47:35.018Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a5/1d/d5ba6edbfe6fae4c3105bca3a9c889563cc752c7f2de45e333164c7f4846/ipykernel-6.31.0.tar.gz", hash = "sha256:2372ce8bc1ff4f34e58cafed3a0feb2194b91fc7cad0fc72e79e47b45ee9e8f6", size = 167493, upload-time = "2025-10-20T11:42:39.948Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fc/c7/b445faca8deb954fe536abebff4ece5b097b923de482b26e78448c89d1dd/ipykernel-6.30.1-py3-none-any.whl", hash = "sha256:aa6b9fb93dca949069d8b85b6c79b2518e32ac583ae9c7d37c51d119e18b3fb4", size = 117484, upload-time = "2025-08-04T15:47:32.622Z" },
+    { url = "https://files.pythonhosted.org/packages/f6/d8/502954a4ec0efcf264f99b65b41c3c54e65a647d9f0d6f62cd02227d242c/ipykernel-6.31.0-py3-none-any.whl", hash = "sha256:abe5386f6ced727a70e0eb0cf1da801fa7c5fa6ff82147747d5a0406cd8c94af", size = 117003, upload-time = "2025-10-20T11:42:37.502Z" },
 ]
 
 [[package]]
@@ -1650,7 +1650,7 @@ dependencies = [
     { name = "async-lru" },
     { name = "httpx" },
     { name = "importlib-metadata", marker = "python_full_version < '3.10'" },
-    { name = "ipykernel", version = "6.30.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "ipykernel", version = "6.31.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "ipykernel", version = "7.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "jinja2" },
     { name = "jupyter-core", version = "5.8.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -2250,11 +2250,11 @@ wheels = [
 
 [[package]]
 name = "narwhals"
-version = "2.8.0"
+version = "2.9.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ae/05/79a5b5a795f36c1aaa002d194c1ef71e5d95f7e1900155bbfde734815ab9/narwhals-2.8.0.tar.gz", hash = "sha256:52e0b22d54718264ae703bd9293af53b04abc995a1414908c3b807ba8c913858", size = 574277, upload-time = "2025-10-13T08:44:28.81Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b7/95/aa46616f5e567ff5d262f4c207d5ca79cb2766010c786c351b8e7f930ef4/narwhals-2.9.0.tar.gz", hash = "sha256:d8cde40a6a8a7049d8e66608b7115ab19464acc6f305d136a8dc8ba396c4acfe", size = 584098, upload-time = "2025-10-20T12:19:16.893Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1d/86/ac808ecb94322a3f1ea31627d13ab3e50dd4333564d711e0e481ad0f4586/narwhals-2.8.0-py3-none-any.whl", hash = "sha256:6304856676ba4a79fd34148bda63aed8060dd6edb1227edf3659ce5e091de73c", size = 415852, upload-time = "2025-10-13T08:44:25.421Z" },
+    { url = "https://files.pythonhosted.org/packages/13/34/00c7ae8194074ed82b64e0bb7c24220eac5f77ac90c16e23cf0d2cfd2a03/narwhals-2.9.0-py3-none-any.whl", hash = "sha256:c59f7de4763004ae81691ce16df71b4e55aead0ead7ccde8c8f2ef8c9559c765", size = 422255, upload-time = "2025-10-20T12:19:15.228Z" },
 ]
 
 [[package]]
@@ -4261,7 +4261,7 @@ docs = [
 ]
 nbs = [
     { name = "catboost" },
-    { name = "ipykernel", version = "6.30.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "ipykernel", version = "6.31.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "ipykernel", version = "7.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "jupyterlab" },
     { name = "nbconvert" },
