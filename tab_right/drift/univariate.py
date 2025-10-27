@@ -34,41 +34,13 @@ def normalize_wasserstein(
     float
         Normalized drift score between 0 and 1 in most practical cases.
 
-    Raises
-    ------
-    ValueError
-        If an unknown normalization method is provided.
+    Notes
+    -----
+    This function is provided for backward compatibility.
+    For new code, use UnivariateDriftCalculator.normalize_wasserstein instead.
 
     """
-    if wasserstein_value == 0:
-        return 0.0
-
-    if pd.isna(wasserstein_value):
-        return np.nan
-
-    # Combine data for normalization calculations
-    combined = pd.concat([reference, current])
-
-    if method == "range":
-        # Normalize by the combined range (max - min)
-        normalization_factor = combined.max() - combined.min()
-        if normalization_factor == 0:  # All values are the same
-            return 0.0
-    elif method == "std":
-        # Normalize by the pooled standard deviation
-        normalization_factor = combined.std()
-        if normalization_factor == 0 or pd.isna(normalization_factor):  # No variance or insufficient data
-            return 0.0
-    elif method == "iqr":
-        # Normalize by the interquartile range
-        q75, q25 = np.nanpercentile(combined, [75, 25])
-        normalization_factor = q75 - q25
-        if normalization_factor == 0 or pd.isna(normalization_factor):  # No variance or insufficient data
-            return 0.0
-    else:
-        raise ValueError(f"Unknown normalization method: {method}")
-
-    return wasserstein_value / normalization_factor
+    return UnivariateDriftCalculator.normalize_wasserstein(reference, current, wasserstein_value, method)
 
 
 @dataclass
@@ -100,6 +72,227 @@ class UnivariateDriftCalculator:
     kind: Union[None, Dict[str, str]] = None
     normalize: bool = True
     normalization_method: str = "range"
+
+    @staticmethod
+    def normalize_wasserstein(
+        reference: pd.Series, current: pd.Series, wasserstein_value: float, method: str = "range"
+    ) -> float:
+        """Normalize Wasserstein distance to make it more comparable across features with different scales.
+
+        Parameters
+        ----------
+        reference : pd.Series
+            Reference distribution.
+        current : pd.Series
+            Current distribution.
+        wasserstein_value : float
+            Raw Wasserstein distance value to normalize.
+        method : str, default "range"
+            Normalization method:
+            - "range": Divide by the combined range of both distributions
+            - "std": Divide by the pooled standard deviation
+            - "iqr": Divide by the pooled interquartile range
+
+        Returns
+        -------
+        float
+            Normalized drift score between 0 and 1 in most practical cases.
+
+        Raises
+        ------
+        ValueError
+            If an unknown normalization method is provided.
+
+        """
+        if wasserstein_value == 0:
+            return 0.0
+
+        if pd.isna(wasserstein_value):
+            return np.nan
+
+        # Combine data for normalization calculations
+        combined = pd.concat([reference, current])
+
+        if method == "range":
+            # Normalize by the combined range (max - min)
+            normalization_factor = combined.max() - combined.min()
+            if normalization_factor == 0:  # All values are the same
+                return 0.0
+        elif method == "std":
+            # Normalize by the pooled standard deviation
+            normalization_factor = combined.std()
+            if normalization_factor == 0 or pd.isna(normalization_factor):  # No variance or insufficient data
+                return 0.0
+        elif method == "iqr":
+            # Normalize by the interquartile range
+            q75, q25 = np.nanpercentile(combined, [75, 25])
+            normalization_factor = q75 - q25
+            if normalization_factor == 0 or pd.isna(normalization_factor):  # No variance or insufficient data
+                return 0.0
+        else:
+            raise ValueError(f"Unknown normalization method: {method}")
+
+        return wasserstein_value / normalization_factor
+
+    @staticmethod
+    def detect_drift_with_options(
+        reference: pd.Series,
+        current: pd.Series,
+        kind: str = "auto",
+        normalize: bool = True,
+        normalization_method: str = "range",
+    ) -> Dict[str, Any]:
+        """Detect drift between two 1D distributions with normalization options.
+
+        Parameters
+        ----------
+        reference : pd.Series
+            Reference distribution.
+        current : pd.Series
+            Current distribution.
+        kind : str, default "auto"
+            "auto", "categorical", or "continuous". If "auto", infers from dtype.
+        normalize : bool, default True
+            Whether to normalize continuous drift scores
+        normalization_method : str, default "range"
+            Method to use for normalization, see normalize_wasserstein for options
+
+        Returns
+        -------
+        Dict[str, Any]
+            Dictionary with keys:
+            - "type": Metric name (wasserstein or cramer_v)
+            - "score": Drift score (normalized for continuous if normalize=True)
+            - "raw_score": Unnormalized drift score (only for continuous)
+
+        Raises
+        ------
+        ValueError
+            If kind is not recognized.
+
+        """
+        if kind == "auto":
+            if pd.api.types.is_numeric_dtype(reference):
+                kind = "continuous"
+            else:
+                kind = "categorical"
+
+        if kind == "continuous":
+            # Calculate raw Wasserstein distance
+            raw_score = scipy.stats.wasserstein_distance(reference.to_numpy(), current.to_numpy())
+
+            result = {"type": "wasserstein", "raw_score": raw_score}
+
+            # Apply normalization if requested
+            if normalize:
+                result["score"] = UnivariateDriftCalculator.normalize_wasserstein(
+                    reference, current, raw_score, method=normalization_method
+                )
+            else:
+                # LINE 144: This is where we assign the raw score when normalization is turned off
+                result["score"] = raw_score  # Ensure this line (144) is covered
+
+            return result
+
+        elif kind == "categorical":
+            # Cramer's V is already normalized between 0 and 1
+            cv_score = cramer_v(reference, current)
+            return {"type": "cramer_v", "score": cv_score}
+        else:
+            # LINE 136: This is where we raise ValueError for unknown kind
+            raise ValueError("Unknown kind")  # Ensure this line (136) is covered
+
+    @classmethod
+    def detect_drift(
+        cls,
+        reference: pd.Series,
+        current: pd.Series,
+        kind: str = "auto",
+        normalize: bool = True,
+        normalization_method: str = "range",
+    ) -> Tuple[str, float]:
+        """Detect drift between two 1D distributions.
+
+        Parameters
+        ----------
+        reference : pd.Series
+            Reference distribution.
+        current : pd.Series
+            Current distribution.
+        kind : str, default "auto"
+            "auto", "categorical", or "continuous". If "auto", infers from dtype.
+        normalize : bool, default True
+            Whether to normalize continuous drift scores
+        normalization_method : str, default "range"
+            Method to use for normalization, see normalize_wasserstein for options
+
+        Returns
+        -------
+        tuple
+            (metric name, value)
+
+        Notes
+        -----
+        This method calls detect_drift_with_options internally and may
+        raise ValueError if kind is not recognized or if an invalid normalization
+        method is specified.
+
+        """
+        result = cls.detect_drift_with_options(
+            reference, current, kind=kind, normalize=normalize, normalization_method=normalization_method
+        )
+        return result["type"], result["score"]
+
+    @classmethod
+    def detect_drift_df(
+        cls,
+        reference: pd.DataFrame,
+        current: pd.DataFrame,
+        kind: str = "auto",
+        normalize: bool = True,
+        normalization_method: str = "range",
+    ) -> pd.DataFrame:
+        """Detect drift for each column in two DataFrames.
+
+        Parameters
+        ----------
+        reference : pd.DataFrame
+            Reference DataFrame.
+        current : pd.DataFrame.
+            Current DataFrame.
+        kind : str, default "auto"
+            "auto", "categorical", or "continuous". If "auto", infers from dtype.
+        normalize : bool, default True
+            Whether to normalize continuous drift scores
+        normalization_method : str, default "range"
+            Method to use for normalization, see normalize_wasserstein for options
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame with columns: feature, metric, value, raw_value (for continuous features).
+
+        Notes
+        -----
+        This method is provided for backward compatibility.
+        For new code, use the UnivariateDriftCalculator class instead.
+
+        """
+        # Use the protocol-compliant class for implementation
+        drift_calc = cls(
+            df1=reference,
+            df2=current,
+            kind=None if kind == "auto" else {col: kind for col in reference.columns},
+            normalize=normalize,
+            normalization_method=normalization_method,
+        )
+        result = drift_calc()
+
+        # Rename columns to match old API for backward compatibility
+        result = result.rename(columns={"type": "metric", "score": "value"})
+        if "raw_score" in result.columns:
+            result = result.rename(columns={"raw_score": "raw_value"})
+        return result
 
     def __post_init__(self) -> None:
         """Post-initialization: enforce kind protocol at instantiation.
@@ -164,7 +357,7 @@ class UnivariateDriftCalculator:
 
         # Calculate drift for each column
         for col in common_cols:
-            result_dict = detect_univariate_drift_with_options(
+            result_dict = self.detect_drift_with_options(
                 self.df1[col],
                 self.df2[col],
                 kind=kind_per_col[col],
@@ -207,40 +400,15 @@ def detect_univariate_drift_with_options(
         - "score": Drift score (normalized for continuous if normalize=True)
         - "raw_score": Unnormalized drift score (only for continuous)
 
-    Raises
-    ------
-    ValueError
-        If kind is not recognized.
+    Notes
+    -----
+    This function is provided for backward compatibility.
+    For new code, use UnivariateDriftCalculator.detect_drift_with_options instead.
 
     """
-    if kind == "auto":
-        if pd.api.types.is_numeric_dtype(reference):
-            kind = "continuous"
-        else:
-            kind = "categorical"
-
-    if kind == "continuous":
-        # Calculate raw Wasserstein distance
-        raw_score = scipy.stats.wasserstein_distance(reference.to_numpy(), current.to_numpy())
-
-        result = {"type": "wasserstein", "raw_score": raw_score}
-
-        # Apply normalization if requested
-        if normalize:
-            result["score"] = normalize_wasserstein(reference, current, raw_score, method=normalization_method)
-        else:
-            # LINE 144: This is where we assign the raw score when normalization is turned off
-            result["score"] = raw_score  # Ensure this line (144) is covered
-
-        return result
-
-    elif kind == "categorical":
-        # Cramer's V is already normalized between 0 and 1
-        cv_score = cramer_v(reference, current)
-        return {"type": "cramer_v", "score": cv_score}
-    else:
-        # LINE 136: This is where we raise ValueError for unknown kind
-        raise ValueError("Unknown kind")  # Ensure this line (136) is covered
+    return UnivariateDriftCalculator.detect_drift_with_options(
+        reference, current, kind=kind, normalize=normalize, normalization_method=normalization_method
+    )
 
 
 def detect_univariate_drift(
@@ -272,15 +440,16 @@ def detect_univariate_drift(
 
     Notes
     -----
+    This function is provided for backward compatibility.
+    For new code, use UnivariateDriftCalculator.detect_drift instead.
     This function calls detect_univariate_drift_with_options internally and may
     raise ValueError if kind is not recognized or if an invalid normalization
     method is specified.
 
     """
-    result = detect_univariate_drift_with_options(
+    return UnivariateDriftCalculator.detect_drift(
         reference, current, kind=kind, normalize=normalize, normalization_method=normalization_method
     )
-    return result["type"], result["score"]
 
 
 def detect_univariate_drift_df(
@@ -316,18 +485,6 @@ def detect_univariate_drift_df(
     For new code, use the UnivariateDriftCalculator class instead.
 
     """
-    # Use the protocol-compliant class for implementation
-    drift_calc = UnivariateDriftCalculator(
-        df1=reference,
-        df2=current,
-        kind=None if kind == "auto" else {col: kind for col in reference.index},
-        normalize=normalize,
-        normalization_method=normalization_method,
+    return UnivariateDriftCalculator.detect_drift_df(
+        reference, current, kind=kind, normalize=normalize, normalization_method=normalization_method
     )
-    result = drift_calc()
-
-    # Rename columns to match old API for backward compatibility
-    result = result.rename(columns={"type": "metric", "score": "value"})
-    if "raw_score" in result.columns:
-        result = result.rename(columns={"raw_score": "raw_value"})
-    return result
