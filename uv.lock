@@ -1198,7 +1198,7 @@ wheels = [
 
 [[package]]
 name = "hypothesis"
-version = "6.144.0"
+version = "6.144.1"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -1211,9 +1211,9 @@ dependencies = [
     { name = "exceptiongroup", marker = "python_full_version == '3.10.*'" },
     { name = "sortedcontainers", marker = "python_full_version >= '3.10'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d2/d5/622284cecf35fc1a702d415a0d6c988202a205a1ff2d9452855081d80411/hypothesis-6.144.0.tar.gz", hash = "sha256:38e81c34e5091ad6435efec85e82b956bb8c5bdfdaebd4930853dfc7a2783ae6", size = 466863, upload-time = "2025-11-02T22:10:16.318Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b1/ff/1549cca070e5b58d9024a24169cd677e9adfa8f429fe2992cb5706db1e64/hypothesis-6.144.1.tar.gz", hash = "sha256:c8d625ec37b43518c042adb93b59ec56ee8c14016699a165de5e5d5926c5a691", size = 466925, upload-time = "2025-11-03T07:23:30.219Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b5/07/3fe99e5cd586dcb546f4eaac84a0a256c15a55cce392b42650c0261aa7e8/hypothesis-6.144.0-py3-none-any.whl", hash = "sha256:eea7ac8d8c906605781bd813715285088d5ab74eed1c4e7128b78043e6222213", size = 534244, upload-time = "2025-11-02T22:10:12.54Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/cc/95f41ff082642f7face7856fcb2abcfe7ba09d6108d2db79751faba87ea8/hypothesis-6.144.1-py3-none-any.whl", hash = "sha256:18aef956f5105483cde4288e2385047cae987be67ea20efff7b77815ed95c858", size = 534249, upload-time = "2025-11-03T07:23:26.162Z" },
 ]
 
 [[package]]
@@ -4477,7 +4477,7 @@ plotly = [
 [package.dev-dependencies]
 dev = [
     { name = "hypothesis", version = "6.141.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "hypothesis", version = "6.144.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "hypothesis", version = "6.144.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "mypy" },
     { name = "pandas-pyarrow" },
     { name = "pandas-stubs", version = "2.2.2.240807", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
