@@ -21,8 +21,18 @@ metric_name : str, default="score"
 lower_is_better : bool, default=True
     Whether lower values of the metric indicate better performance.
     Affects the color scale in visualizations (green for better, red for worse).
+    Color scaling is automatically determined using global mean and standard deviation
+    with bounds at [mean - 2*std, mean + 2*std] for robust outlier handling.
 backend : str, default="plotly"
     The plotting backend to use. Either "plotly" or "matplotlib".
+
+Color Scaling
+-------------
+All plotting functions use automatic, data-driven color scaling based on the
+global mean and standard deviation of metric values. This provides:
+- Consistent color interpretation across all plots
+- Robust handling of outliers through automatic clipping
+- Statistical grounding without manual configuration
 """
 
 from dataclasses import dataclass
@@ -40,6 +50,40 @@ from tab_right.base_architecture.seg_plotting_protocols import Figure
 # Type definitions
 Backend = Literal["plotly", "matplotlib"]
 ColorMap = Union[str, list]
+
+
+def normalize_scores(scores: np.ndarray, k: float = 2.0) -> np.ndarray:
+    """Normalize scores using global mean and standard deviation for automatic color scaling.
+
+    This function implements robust color mapping by normalizing scores to [0, 1] range
+    based on [mean - k*std, mean + k*std] bounds, with values outside this range clamped.
+
+    Parameters
+    ----------
+    scores : np.ndarray
+        Array of score values to normalize.
+    k : float, default=2.0
+        Number of standard deviations to use for the color scale bounds.
+
+    Returns
+    -------
+    np.ndarray
+        Normalized scores in the range [0, 1].
+
+    Notes
+    -----
+    This approach provides:
+    - Fully automatic and robust color mapping
+    - Consistent color interpretation across all plots
+    - Resilience to outliers and varying metric ranges
+
+    """
+    mean = np.mean(scores)
+    std = np.std(scores)
+    vmin = mean - k * std
+    vmax = mean + k * std
+    clipped = np.clip(scores, vmin, vmax)
+    return (clipped - vmin) / (vmax - vmin + 1e-8)
 
 
 def _prepare_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -134,6 +178,10 @@ def _plot_single_segmentation_plotly(df: pd.DataFrame, lower_is_better: bool = T
     # Get color scheme
     color_scheme = _get_color_scheme(lower_is_better, "plotly")
 
+    # Normalize scores using automatic global mean/std scaling
+    scores = df_sorted["score"].values.astype(np.float64)
+    normalized_scores = normalize_scores(scores)
+
     # Create a bar chart
     fig = go.Figure(
         data=[
@@ -141,7 +189,7 @@ def _plot_single_segmentation_plotly(df: pd.DataFrame, lower_is_better: bool = T
                 x=df_sorted["segment_name"].astype(str),
                 y=df_sorted["score"],
                 marker=dict(
-                    color=df_sorted["score"],
+                    color=normalized_scores,
                     colorscale=color_scheme["colorscale"],
                     colorbar=dict(title="Score"),
                 ),
@@ -191,14 +239,12 @@ def _plot_single_segmentation_matplotlib(df: pd.DataFrame, lower_is_better: bool
     cmap_name = color_scheme["cmap"]
     assert isinstance(cmap_name, str), "matplotlib cmap should be a string"
 
-    # Normalize the scores for colormapping
-    if len(df_sorted) > 1:
-        norm = plt.Normalize(float(df_sorted["score"].min()), float(df_sorted["score"].max()))
-    else:
-        norm = plt.Normalize(0, 1)
+    # Normalize the scores using automatic global mean/std scaling
+    scores = df_sorted["score"].values.astype(np.float64)
+    normalized_scores = normalize_scores(scores)
 
     cmap = plt.get_cmap(cmap_name)
-    colors = cmap(norm(df_sorted["score"].values.astype(np.float64)))
+    colors = cmap(normalized_scores)
 
     # Create bar chart
     bars = ax.bar(df_sorted["segment_name"].astype(str), df_sorted["score"], color=colors)
@@ -210,7 +256,12 @@ def _plot_single_segmentation_matplotlib(df: pd.DataFrame, lower_is_better: bool
             bar.get_x() + bar.get_width() / 2.0, height + 0.01, f"{height:.3f}", ha="center", va="bottom", fontsize=9
         )
 
-    # Create colorbar
+    # Create colorbar with automatic normalization bounds
+    mean = np.mean(scores)
+    std = np.std(scores)
+    vmin = mean - 2.0 * std
+    vmax = mean + 2.0 * std
+    norm = plt.Normalize(vmin, vmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax)
@@ -315,6 +366,20 @@ class DoubleSegmPlotting:
         # Get color scheme
         color_scheme = _get_color_scheme(self.lower_is_better, "plotly")
 
+        # Apply automatic normalization to the heatmap values
+        scores = heatmap_df.values.flatten()
+        # Remove NaN values for normalization calculation
+        valid_scores = scores[~pd.isna(scores)]
+
+        if len(valid_scores) > 0:
+            # Calculate normalization bounds using global mean/std
+            mean = np.mean(valid_scores)
+            std = np.std(valid_scores)
+            vmin = mean - 2.0 * std
+            vmax = mean + 2.0 * std
+        else:
+            vmin, vmax = 0, 1
+
         # Create heatmap
         fig = go.Figure(
             data=go.Heatmap(
@@ -325,6 +390,8 @@ class DoubleSegmPlotting:
                 text=heatmap_df.round(3).values,
                 texttemplate="%{text}",
                 colorbar=dict(title=self.metric_name),
+                zmin=vmin,
+                zmax=vmax,
             )
         )
 
@@ -362,13 +429,27 @@ class DoubleSegmPlotting:
         cmap = color_scheme["cmap"]
         assert isinstance(cmap, str), "matplotlib cmap should be a string"
 
+        # Apply automatic normalization for color mapping
+        scores = heatmap_df.values.flatten()
+        # Remove NaN values for normalization calculation
+        valid_scores = scores[~pd.isna(scores)]
+
+        if len(valid_scores) > 0:
+            # Calculate normalization bounds using global mean/std
+            mean = np.mean(valid_scores)
+            std = np.std(valid_scores)
+            vmin = mean - 2.0 * std
+            vmax = mean + 2.0 * std
+        else:
+            vmin, vmax = 0, 1
+
         # Create heatmap using pcolormesh which creates a QuadMesh collection
         # First create a meshgrid for the x and y coordinates
         x = np.arange(len(heatmap_df.columns) + 1)
         y = np.arange(len(heatmap_df.index) + 1)
 
-        # Create the heatmap using pcolormesh
-        mesh = ax.pcolormesh(x, y, heatmap_df.values, cmap=cmap)
+        # Create the heatmap using pcolormesh with automatic normalization
+        mesh = ax.pcolormesh(x, y, heatmap_df.values, cmap=cmap, vmin=vmin, vmax=vmax)
 
         # Set x and y labels
         ax.set_xticks(np.arange(len(heatmap_df.columns)) + 0.5)
@@ -386,7 +467,9 @@ class DoubleSegmPlotting:
             for j in range(len(heatmap_df.columns)):
                 value = heatmap_df.values[i, j]
                 if not pd.isna(value):
-                    text_color = "black" if 0.3 < value < 0.7 else "white"
+                    # Normalize the value to determine text color
+                    normalized_value = (value - vmin) / (vmax - vmin + 1e-8)
+                    text_color = "black" if 0.3 < normalized_value < 0.7 else "white"
                     ax.text(j + 0.5, i + 0.5, f"{value:.3f}", ha="center", va="center", color=text_color)
 
         # Set titles
