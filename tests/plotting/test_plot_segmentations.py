@@ -1,6 +1,7 @@
 """Tests for the plot_segmentations module."""
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import pytest
@@ -9,6 +10,7 @@ from pytest import approx
 
 from tab_right.plotting.plot_segmentations import (
     DoubleSegmPlotting,
+    normalize_scores,
     plot_single_segmentation,
     plot_single_segmentation_mp,
 )
@@ -130,6 +132,117 @@ def test_double_segm_plotting_mp_lower_is_better_false(double_segmentation_df):
 
     # Close the figure to prevent memory leaks
     plt.close(fig)
+
+
+def test_normalize_scores():
+    """Test the normalize_scores function for automatic color scaling."""
+    # Test with a simple array where we know the expected behavior
+    scores = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+
+    # Mean = 3.0, std = sqrt(2.5) ≈ 1.58
+    # vmin = 3.0 - 2*1.58 = -0.16, vmax = 3.0 + 2*1.58 = 6.16
+    # All values are within bounds, so no clipping
+    normalized = normalize_scores(scores, k=2.0)
+
+    # Check that result is in [0, 1] range
+    assert np.all(normalized >= 0)
+    assert np.all(normalized <= 1)
+
+    # Check that mean value gets mapped to middle of range
+    mean_idx = 2  # Middle element (value 3.0)
+    assert normalized[mean_idx] == approx(0.5, abs=0.1)
+
+    # Check that lowest value gets mapped to close to 0
+    assert normalized[0] < 0.5
+
+    # Check that highest value gets mapped to close to 1
+    assert normalized[-1] > 0.5
+
+
+def test_normalize_scores_with_outliers():
+    """Test normalize_scores with outliers that should be clipped."""
+    # Create data with outliers
+    scores = np.array([10.0, 11.0, 12.0, 13.0, 14.0, 100.0])  # 100.0 is an outlier
+
+    normalized = normalize_scores(scores, k=2.0)
+
+    # Check that result is in [0, 1] range
+    assert np.all(normalized >= 0)
+    assert np.all(normalized <= 1)
+
+    # The outlier should be clipped and mapped to very close to 1.0
+    assert normalized[-1] == approx(1.0, abs=1e-6)
+
+
+def test_normalize_scores_constant_values():
+    """Test normalize_scores when all values are the same."""
+    scores = np.array([5.0, 5.0, 5.0, 5.0])
+
+    normalized = normalize_scores(scores, k=2.0)
+
+    # When std=0, all values should map to 0 (due to the 1e-8 denominator protection)
+    assert np.all(normalized == 0.0)
+
+
+def test_normalize_scores_custom_k():
+    """Test normalize_scores with custom k parameter."""
+    scores = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+
+    # Test with k=1 (smaller range)
+    normalized_k1 = normalize_scores(scores, k=1.0)
+
+    # Test with k=3 (larger range)
+    normalized_k3 = normalize_scores(scores, k=3.0)
+
+    # Both should be in [0, 1] range
+    assert np.all(normalized_k1 >= 0) and np.all(normalized_k1 <= 1)
+    assert np.all(normalized_k3 >= 0) and np.all(normalized_k3 <= 1)
+
+    # With k=1, the range is tighter, so extreme values should be more clipped
+    # With k=3, the range is wider, so less clipping
+    # The variance in normalized_k1 should be larger (more spread after normalization)
+    assert np.var(normalized_k1) >= np.var(normalized_k3)
+
+
+def test_automatic_color_scaling_integration():
+    """Test that automatic color scaling is applied in plotting functions."""
+    # Create test data with known outliers
+    test_df = pd.DataFrame({
+        "segment_id": [1, 2, 3, 4],
+        "segment_name": ["A", "B", "C", "D"],
+        "score": [0.1, 0.2, 0.25, 1.5],  # 1.5 is an outlier
+    })
+
+    # Test matplotlib plotting
+    fig_mp = plot_single_segmentation_mp(test_df)
+    assert isinstance(fig_mp, MatplotlibFigure)
+
+    # The plot should work without errors (automatic normalization handles outliers)
+    # Close the figure to prevent memory leaks
+    plt.close(fig_mp)
+
+    # Test plotly plotting
+    fig_plotly = plot_single_segmentation(test_df, backend="plotly")
+    assert isinstance(fig_plotly, go.Figure)
+
+    # Test double segmentation with outliers
+    double_df = pd.DataFrame({
+        "segment_id": [1, 2, 3, 4],
+        "feature_1": ["A", "A", "B", "B"],
+        "feature_2": ["X", "Y", "X", "Y"],
+        "score": [0.1, 0.2, 0.25, 1.5],  # 1.5 is an outlier
+    })
+
+    # Test double segmentation plotting
+    double_plotter = DoubleSegmPlotting(df=double_df, backend="matplotlib")
+    fig_heatmap = double_plotter.plot_heatmap()
+    assert isinstance(fig_heatmap, MatplotlibFigure)
+    plt.close(fig_heatmap)
+
+    # Test plotly heatmap
+    double_plotter_plotly = DoubleSegmPlotting(df=double_df, backend="plotly")
+    fig_heatmap_plotly = double_plotter_plotly.plot_heatmap()
+    assert isinstance(fig_heatmap_plotly, go.Figure)
 
 
 def test_double_segm_plotting_mp_custom_metric(double_segmentation_df):
