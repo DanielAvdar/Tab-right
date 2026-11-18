@@ -3,7 +3,6 @@ import pandas as pd
 import pytest
 
 from tab_right.drift.univariate import (
-    UnivariateDriftCalculator,
     detect_univariate_drift,
     detect_univariate_drift_df,
     detect_univariate_drift_with_options,
@@ -85,39 +84,6 @@ def test_normalize_wasserstein_zero_value():
     assert normalize_wasserstein(s, s, 0.0, method="range") == 0.0
 
 
-def test_univariate_all_nan_column():
-    import pandas as pd
-
-    from tab_right.drift.univariate import UnivariateDriftCalculator
-
-    df1 = pd.DataFrame({"a": [np.nan, np.nan, np.nan]})
-    df2 = pd.DataFrame({"a": [np.nan, np.nan, np.nan]})
-    calc = UnivariateDriftCalculator(df1, df2, kind=None)
-    with pytest.raises(ValueError):
-        calc()
-
-
-def test_univariate_invalid_kind_type():
-    from tab_right.drift.univariate import UnivariateDriftCalculator
-
-    df1 = pd.DataFrame({"a": [1, 2, 3]})
-    df2 = pd.DataFrame({"a": [1, 2, 3]})
-    with pytest.raises(ValueError):
-        UnivariateDriftCalculator(df1, df2, kind=123)
-
-
-def test_univariate_kind_dict_missing_column():
-    from tab_right.drift.univariate import UnivariateDriftCalculator
-
-    df1 = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"]})
-    df2 = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"]})
-    kind = {"a": "continuous"}  # missing 'b'
-    calc = UnivariateDriftCalculator(df1, df2, kind=kind)
-    result = calc()
-    assert set(result["feature"]) == {"a", "b"}
-    assert "cramer_v" in set(result["type"])  # fallback to auto for 'b'
-
-
 def test_univariate_drift_df_and_types():
     df1 = pd.DataFrame({"num": list(range(25)), "cat": ["a", "b", "a", "b", "c"] * 5})
     df2 = pd.DataFrame({"num": list(range(1, 26)), "cat": ["a", "b", "b", "b", "c"] * 5})
@@ -130,38 +96,3 @@ def test_univariate_drift_df_and_types():
             assert 0 <= row["value"] <= 1
 
 
-def test_univariate_drift_calculator_kind_dict():
-    df1 = pd.DataFrame({"num": list(range(25)), "cat": ["a", "b", "a", "b", "c"] * 5})
-    df2 = pd.DataFrame({"num": list(range(1, 26)), "cat": ["a", "b", "b", "b", "c"] * 5})
-    kind = {"num": "continuous", "cat": "categorical"}
-    calc = UnivariateDriftCalculator(df1, df2, kind=kind)
-    result = calc()
-    assert set(result["feature"]) == {"num", "cat"}
-    assert set(result["type"]) == {"wasserstein", "cramer_v"}
-
-
-def test_univariate_kind_dict_fallback_branches():
-    # Covers fallback to categorical for non-numeric, and continuous for numeric with nunique > 20
-    df1 = pd.DataFrame({
-        "a": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-        "b": ["x", "y", "z", "x", "y", "z", "x", "y", "z", "x", "y", "z", "x", "y", "z", "x", "y", "z", "x", "y", "z"],
-    })
-    df2 = df1.copy()
-    kind = {"b": "categorical"}  # missing 'a', which is numeric with nunique > 20
-    calc = UnivariateDriftCalculator(df1, df2, kind=kind)
-    result = calc()
-    assert set(result["feature"]) == {"a", "b"}
-    assert "wasserstein" in set(result["type"])  # fallback to continuous for 'a'
-    assert "cramer_v" in set(result["type"])  # 'b' is categorical
-
-
-def test_univariate_kind_dict_fallback_to_categorical():
-    # 'b' is a string column, not in kind dict, should fallback to categorical
-    df1 = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"]})
-    df2 = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"]})
-    kind = {"a": "continuous"}  # missing 'b'
-    calc = UnivariateDriftCalculator(df1, df2, kind=kind)
-    result = calc()
-    assert set(result["feature"]) == {"a", "b"}
-    # 'b' should be categorical (cramer_v)
-    assert result[result["feature"] == "b"]["type"].iloc[0] == "cramer_v"

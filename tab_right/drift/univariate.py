@@ -1,7 +1,6 @@
 """Univariate drift detection utilities for tab-right drift subpackage."""
 
-from dataclasses import dataclass
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Tuple
 
 import numpy as np
 import pandas as pd
@@ -69,112 +68,6 @@ def normalize_wasserstein(
         raise ValueError(f"Unknown normalization method: {method}")
 
     return wasserstein_value / normalization_factor
-
-
-@dataclass
-class UnivariateDriftCalculator:
-    """Calculate univariate drift between two DataFrames.
-
-    This class implements the DriftCalc protocol and provides methods for
-    detecting drift between two DataFrames using column-by-column analysis.
-
-    Parameters
-    ----------
-    df1 : pd.DataFrame
-        The reference DataFrame
-    df2 : pd.DataFrame
-        The current DataFrame to compare against the reference
-    kind : Union[None, Dict[str, str]], default None
-        How to treat columns:
-        - None: Infer from data types
-        - dict: Specify "continuous" or "categorical" for each column
-    normalize : bool, default True
-        Whether to normalize continuous drift scores
-    normalization_method : str, default "range"
-        Method to use for normalization, see normalize_wasserstein for options
-
-    """
-
-    df1: pd.DataFrame
-    df2: pd.DataFrame
-    kind: Union[None, Dict[str, str]] = None
-    normalize: bool = True
-    normalization_method: str = "range"
-
-    def __post_init__(self) -> None:
-        """Post-initialization: enforce kind protocol at instantiation.
-
-        Raises
-        ------
-        ValueError
-            If kind is not None and not a dict mapping column names to 'continuous' or 'categorical'.
-
-        """
-        if self.kind is not None and not isinstance(self.kind, dict):
-            raise ValueError("kind must be None or a dict mapping column names to 'continuous' or 'categorical'.")
-
-    def __call__(self) -> pd.DataFrame:
-        """Calculate drift between two DataFrames.
-
-        Returns
-        -------
-        pd.DataFrame
-            DataFrame with drift results for each feature.
-
-        Raises
-        ------
-        ValueError
-            If kind is not None and not a dict mapping column names to 'continuous' or 'categorical'.
-
-        """
-        if self.kind is not None and not isinstance(self.kind, dict):
-            raise ValueError("kind must be None or a dict mapping column names to 'continuous' or 'categorical'.")
-
-        results = []
-        common_cols = set(self.df1.columns) & set(self.df2.columns)
-
-        if self.kind is None:
-            kind_per_col = {}
-            for col in common_cols:
-                if pd.api.types.is_numeric_dtype(self.df1[col]):
-                    nunique = min(self.df1[col].nunique(), self.df2[col].nunique())
-                    if nunique <= 20:
-                        kind_per_col[col] = "categorical"
-                    else:
-                        kind_per_col[col] = "continuous"
-                else:
-                    kind_per_col[col] = "categorical"
-        elif isinstance(self.kind, dict):
-            kind_per_col = {}
-            for col in common_cols:
-                t = self.kind.get(col, None)
-                if t is not None:
-                    kind_per_col[col] = t
-                else:
-                    if pd.api.types.is_numeric_dtype(self.df1[col]):
-                        nunique = min(self.df1[col].nunique(), self.df2[col].nunique())
-                        if nunique <= 20:
-                            kind_per_col[col] = "categorical"
-                        else:
-                            kind_per_col[col] = "continuous"
-                    else:
-                        kind_per_col[col] = "categorical"
-        else:
-            raise ValueError("kind must be None or a dict mapping column names to 'continuous' or 'categorical'.")
-
-        # Calculate drift for each column
-        for col in common_cols:
-            result_dict = detect_univariate_drift_with_options(
-                self.df1[col],
-                self.df2[col],
-                kind=kind_per_col[col],
-                normalize=self.normalize,
-                normalization_method=self.normalization_method,
-            )
-            result_dict["feature"] = col
-            results.append(result_dict)
-
-        return pd.DataFrame(results)
 
 
 def detect_univariate_drift_with_options(
@@ -310,21 +203,39 @@ def detect_univariate_drift_df(
     pd.DataFrame
         DataFrame with columns: feature, metric, value, raw_value (for continuous features).
 
-    Notes
-    -----
-    This function is provided for backward compatibility.
-    For new code, use the UnivariateDriftCalculator class instead.
-
     """
-    # Use the protocol-compliant class for implementation
-    drift_calc = UnivariateDriftCalculator(
-        df1=reference,
-        df2=current,
-        kind=None if kind == "auto" else {col: kind for col in reference.index},
-        normalize=normalize,
-        normalization_method=normalization_method,
-    )
-    result = drift_calc()
+    results = []
+    common_cols = set(reference.columns) & set(current.columns)
+
+    # Determine kind for each column
+    if kind == "auto":
+        kind_per_col = {}
+        for col in common_cols:
+            if pd.api.types.is_numeric_dtype(reference[col]):
+                nunique = min(reference[col].nunique(), current[col].nunique())
+                if nunique <= 20:
+                    kind_per_col[col] = "categorical"
+                else:
+                    kind_per_col[col] = "continuous"
+            else:
+                kind_per_col[col] = "categorical"
+    else:
+        # When kind is not "auto", apply it to all columns
+        kind_per_col = {col: kind for col in common_cols}
+
+    # Calculate drift for each column
+    for col in common_cols:
+        result_dict = detect_univariate_drift_with_options(
+            reference[col],
+            current[col],
+            kind=kind_per_col[col],
+            normalize=normalize,
+            normalization_method=normalization_method,
+        )
+        result_dict["feature"] = col
+        results.append(result_dict)
+
+    result = pd.DataFrame(results)
 
     # Rename columns to match old API for backward compatibility
     result = result.rename(columns={"type": "metric", "score": "value"})
