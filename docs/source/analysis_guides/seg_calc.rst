@@ -146,6 +146,31 @@ Key Steps for Segmentation Analysis
 
 This workflow makes it easy to identify segments where your model performs differently, helping you understand where improvements are needed.
 
+Automatic Color Scaling
+------------------------
+
+Tab-right's plotting functions use automatic, data-driven color scaling that provides consistent and robust visualization across all plots. The color mapping is automatically determined using the global mean and standard deviation of your metric values:
+
+- **Color scale bounds**: [mean - 2×std, mean + 2×std]
+- **Outlier handling**: Values outside this range are automatically clipped
+- **Consistent interpretation**: All plots use the same statistical approach for color mapping
+- **No manual configuration**: No need to select normalization methods or adjust color scales
+
+This approach ensures that:
+
+- Color interpretation is consistent across different plots and datasets
+- Outliers don't distort the color scale for the majority of your data
+- Visualization is fully automatic and requires no manual tuning
+- Color always reflects the statistical distribution of your metrics
+
+Benefits of Automatic Color Scaling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Robust against outliers**: Extreme values don't overwhelm the color scale
+- **Statistically grounded**: Based on mean and standard deviation for reliable interpretation
+- **Consistent across plots**: Same color mapping approach for single and double segmentations
+- **Zero configuration**: Works automatically without user intervention
+
 Key Benefits of Using tab-right for Segmentation
 ------------------------------------------------
 
